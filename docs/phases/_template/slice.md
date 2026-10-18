@@ -49,6 +49,7 @@ Trạng thái: ❓ Mở (có đề xuất, chờ chốt) · ✅ Đã chốt.
 ### Các bước
 
 1. [ ]
+2. [ ] Verify pass → đổi trạng thái sang 🎉 ở `plan.md` và file này (cùng commit với code), mở PR
 
 ### Verify
 
