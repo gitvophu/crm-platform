@@ -9,6 +9,7 @@ Phase N / Slice N.x: <tên> (link tới `docs/phases/phase-N/plan.md`)
 ## Cách verify
 
 ```bash
+
 ```
 
 ## Checklist

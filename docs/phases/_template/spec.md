@@ -20,8 +20,8 @@ Phase này giải quyết vấn đề gì? (1–3 câu)
 ## Số liệu cần đo
 
 | Chỉ số | Cách đo | Mục tiêu |
-|---|---|---|
-| | | |
+| ------ | ------- | -------- |
+|        |         |          |
 
 ## Rủi ro / câu hỏi mở
 
