@@ -4,7 +4,7 @@ Mỗi slice có tài liệu Spec · Q&A · Plan riêng trong `slices/`, phải �
 
 | Slice | Nội dung                                                | Tài liệu                      | Branch                       | Điểm cần review                              | Trạng thái |
 | ----- | ------------------------------------------------------- | ----------------------------- | ---------------------------- | -------------------------------------------- | ---------- |
-| 0.1   | Monorepo skeleton + lint/format/typecheck + test runner | [0.1](slices/0.1-monorepo.md) | `phase-0/slice-0-1-monorepo` | Cấu trúc thư mục, config dùng chung          | 🚧         |
+| 0.1   | Monorepo skeleton + lint/format/typecheck + test runner | [0.1](slices/0.1-monorepo.md) | `phase-0/slice-0-1-monorepo` | Cấu trúc thư mục, config dùng chung          | 🎉         |
 | 0.2   | API NestJS + PostgreSQL + migration + `/health`         |                               | `phase-0/slice-0-2-api-db`   | ADR-0002 chọn ORM                            | ⬜         |
 | 0.3   | Web React gọi `/health`                                 |                               | `phase-0/slice-0-3-web`      | Cách gọi API, dùng type từ `packages/shared` | ⬜         |
 | 0.4   | Docker Compose cho cả 3 service                         |                               | `phase-0/slice-0-4-compose`  | Hot reload, env, healthcheck                 | ⬜         |
