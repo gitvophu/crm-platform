@@ -6,13 +6,15 @@ CRM platform cho công ty giả định *Nova Agency* (agency digital marketing)
 
 - `docs/00-vision.md`: scope và những gì KHÔNG làm
 - `docs/02-workflow.md`: vòng lặp spec → plan → slice → review
-- `docs/phases/<phase hiện tại>/plan.md`: slice đang làm
+- `docs/phases/<phase hiện tại>/plan.md`: danh sách slice và trạng thái
+- `docs/phases/<phase hiện tại>/slices/<slice>.md`: spec, Q&A, plan của slice đang làm
 - `docs/adr/`: các quyết định đã chốt, không làm ngược lại nếu chưa có ADR mới
 
 ## Quy tắc làm việc
 
 - Chỉ implement đúng slice được yêu cầu. Ý tưởng ngoài scope ghi vào `docs/phases/backlog.md`.
 - Mỗi slice: 1 branch `phase-N/slice-x-y-ten`, 1 PR, có test.
+- Trước khi code một slice: viết slice doc theo `docs/phases/_template/slice.md`, hỏi Q&A để làm rõ, ghi câu trả lời vào file, chờ duyệt (✅). Chưa duyệt thì không code.
 - Trình bày plan và chờ xác nhận trước khi tạo/sửa nhiều file.
 - Quyết định kiến trúc mới → đề xuất ADR trong `docs/adr/`.
 - Trước khi báo xong: chạy `pnpm lint && pnpm typecheck && pnpm test` và đối chiếu `docs/review-checklist.md`.
