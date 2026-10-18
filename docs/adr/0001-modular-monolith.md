@@ -10,11 +10,11 @@ Contact, Company, Deal, Activity, User gắn chặt với nhau: hầu hết màn
 
 ## Các phương án
 
-| Phương án | Ưu | Nhược |
-|---|---|---|
-| Microservices ngay từ đầu | Luyện được nhiều stack sớm | Chi phí vận hành cao, dữ liệu phân tán, khó debug, chậm ra sản phẩm |
-| Monolith thông thường | Nhanh nhất | Dễ thành "big ball of mud", khó tách sau này |
-| **Modular monolith** | Nhanh, ranh giới rõ, tách được khi cần | Phải giữ kỷ luật ranh giới module |
+| Phương án                 | Ưu                                     | Nhược                                                               |
+| ------------------------- | -------------------------------------- | ------------------------------------------------------------------- |
+| Microservices ngay từ đầu | Luyện được nhiều stack sớm             | Chi phí vận hành cao, dữ liệu phân tán, khó debug, chậm ra sản phẩm |
+| Monolith thông thường     | Nhanh nhất                             | Dễ thành "big ball of mud", khó tách sau này                        |
+| **Modular monolith**      | Nhanh, ranh giới rõ, tách được khi cần | Phải giữ kỷ luật ranh giới module                                   |
 
 ## Quyết định
 

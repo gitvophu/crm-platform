@@ -10,10 +10,10 @@ Vấn đề gì, ràng buộc gì, đo được gì (nếu có số liệu).
 
 ## Các phương án
 
-| Phương án | Ưu | Nhược |
-|---|---|---|
-| A | | |
-| B | | |
+| Phương án | Ưu  | Nhược |
+| --------- | --- | ----- |
+| A         |     |       |
+| B         |     |       |
 
 ## Quyết định
 

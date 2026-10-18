@@ -43,8 +43,8 @@ Trạng thái: ❓ Mở (có đề xuất, chờ chốt) · ✅ Đã chốt.
 ### File thay đổi
 
 | File | Nội dung |
-|---|---|
-| | |
+| ---- | -------- |
+|      |          |
 
 ### Các bước
 
@@ -53,8 +53,8 @@ Trạng thái: ❓ Mở (có đề xuất, chờ chốt) · ✅ Đã chốt.
 ### Verify
 
 | Kiểm tra | Lệnh | Kỳ vọng |
-|---|---|---|
-| | | |
+| -------- | ---- | ------- |
+|          |      |         |
 
 ### Demo
 

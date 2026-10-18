@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-CRM platform cho công ty giả định *Nova Agency* (agency digital marketing). Dự án thực hành nhiều stack. Xem `docs/00-vision.md`.
+CRM platform cho công ty giả định _Nova Agency_ (agency digital marketing). Dự án thực hành nhiều stack. Xem `docs/00-vision.md`.
 
 ## Đọc trước khi làm
 

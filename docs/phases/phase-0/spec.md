@@ -33,10 +33,10 @@ Có bộ khung repo để mọi phase sau gắn vào: clone về, một lệnh l
 
 ## Số liệu cần đo
 
-| Chỉ số | Cách đo | Mục tiêu |
-|---|---|---|
-| Thời gian CI | GitHub Actions | < 5 phút |
-| Thời gian `docker compose up` lần đầu | Đo tay | Ghi lại làm mốc |
+| Chỉ số                                | Cách đo        | Mục tiêu        |
+| ------------------------------------- | -------------- | --------------- |
+| Thời gian CI                          | GitHub Actions | < 5 phút        |
+| Thời gian `docker compose up` lần đầu | Đo tay         | Ghi lại làm mốc |
 
 ## Rủi ro / câu hỏi mở
 
