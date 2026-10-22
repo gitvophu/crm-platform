@@ -17,7 +17,8 @@ CRM platform cho công ty giả định _Nova Agency_ (agency digital marketing)
 - Trước khi code một slice: viết slice doc theo `docs/phases/_template/slice.md`, hỏi Q&A để làm rõ, ghi câu trả lời vào file, chờ duyệt (✅). Chưa duyệt thì không code.
 - Trình bày plan và chờ xác nhận trước khi tạo/sửa nhiều file.
 - Quyết định kiến trúc mới → đề xuất ADR trong `docs/adr/`.
-- Trước khi báo xong: chạy `pnpm lint && pnpm typecheck && pnpm test` và đối chiếu `docs/review-checklist.md`.
+- Trước khi báo xong: chạy `make lint typecheck test` và đối chiếu `docs/review-checklist.md`.
+- Host không cài Node (ADR-0002): mọi lệnh node/pnpm chạy qua `make`, không gọi `pnpm`/`node`/`npx` trực tiếp trên host.
 
 ## Kiến trúc (ADR-0001)
 
@@ -27,7 +28,7 @@ CRM platform cho công ty giả định _Nova Agency_ (agency digital marketing)
 
 ## Convention
 
-> TODO (slice 0.6): điền sau khi Phase 0 chốt tooling.
+> TODO (slice 0.7): điền sau khi Phase 0 chốt tooling.
 
 - Cấu trúc module:
 - Đặt tên file/class:
@@ -37,11 +38,11 @@ CRM platform cho công ty giả định _Nova Agency_ (agency digital marketing)
 
 ## Lệnh thường dùng
 
-> TODO (Phase 0)
+Chạy trong container `dev` của `compose.yaml`, xem `make help`.
 
 ```bash
-docker compose up
-pnpm lint
-pnpm typecheck
-pnpm test
+make install                       # pnpm install
+make lint typecheck test build
+make pnpm ARGS="add -D x --filter @crm/api"
+make sh                            # shell trong container
 ```
