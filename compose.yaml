@@ -1,0 +1,21 @@
+name: crm-platform
+
+services:
+  # Toolchain dev (ADR-0002). Gọi qua `make`, ví dụ `make lint`, `make sh`.
+  dev:
+    build:
+      context: .
+      dockerfile: docker/dev.Dockerfile
+      args:
+        # Nguồn chính là .nvmrc, Makefile export NODE_VERSION. Giá trị mặc định cho trường hợp
+        # gọi compose trực tiếp (ví dụ WebStorm), phải khớp .nvmrc.
+        NODE_VERSION: ${NODE_VERSION:-26}
+    image: crm-platform-dev:node${NODE_VERSION:-26}
+    user: '${UID:-1000}:${GID:-1000}'
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+      - dev-home:/home/dev
+
+volumes:
+  dev-home:

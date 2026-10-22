@@ -1,0 +1,3 @@
+# Image dev chỉ cần package.json (để Corepack tải đúng bản pnpm). Source được bind mount lúc chạy.
+*
+!package.json

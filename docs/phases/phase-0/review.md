@@ -8,7 +8,7 @@
 | Tiêu chí (từ spec.md)                                     | Đạt? | Ghi chú |
 | --------------------------------------------------------- | ---- | ------- |
 | `docker compose up` từ repo sạch → web hiển thị `/health` |      |         |
-| `pnpm lint && typecheck && test && build` pass            |      |         |
+| Không cài Node: `make lint typecheck test build` pass     |      |         |
 | CI xanh trên PR                                           |      |         |
 | Lint bắt được import chéo module                          |      |         |
 | ADR chọn ORM                                              |      |         |
@@ -16,14 +16,16 @@
 
 ## Số liệu đo được
 
-| Chỉ số                                | Kết quả |
-| ------------------------------------- | ------- |
-| Thời gian CI                          |         |
-| Thời gian `docker compose up` lần đầu |         |
+| Chỉ số                                             | Kết quả |
+| -------------------------------------------------- | ------- |
+| Thời gian CI                                       |         |
+| Thời gian `docker compose up` lần đầu              |         |
+| Thời gian `make install` lần đầu / khi store đã có |         |
 
 ## ADR đã viết
 
 - ADR-0001: Modular monolith
+- ADR-0002: Môi trường dev chạy trong Docker Compose
 -
 
 ## Retro

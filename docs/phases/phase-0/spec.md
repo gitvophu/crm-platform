@@ -7,6 +7,7 @@ Có bộ khung repo để mọi phase sau gắn vào: clone về, một lệnh l
 ## Trong phạm vi
 
 - Monorepo pnpm + Turborepo: `apps/api` (NestJS), `apps/web` (React + Vite), `packages/shared` (type/DTO dùng chung)
+- Môi trường dev chạy trong Docker Compose, host chỉ cần Docker + `make` (ADR-0002)
 - Docker Compose: PostgreSQL + api + web
 - Kết nối API ↔ PostgreSQL, có công cụ migration (chọn ORM, ghi ADR)
 - Lint + format + typecheck dùng chung toàn repo
@@ -25,7 +26,7 @@ Có bộ khung repo để mọi phase sau gắn vào: clone về, một lệnh l
 ## Tiêu chí hoàn thành (Definition of Done)
 
 - [ ] Từ repo sạch: `docker compose up` → web hiển thị trạng thái lấy từ `GET /health`
-- [ ] `pnpm lint && pnpm typecheck && pnpm test && pnpm build` pass ở root
+- [ ] Trên máy không cài Node: `make lint typecheck test build` pass ở root
 - [ ] CI chạy và xanh trên PR
 - [ ] Tạo thử một import chéo module sai quy tắc → lint báo lỗi
 - [ ] ADR chọn ORM/migration tool đã viết
@@ -33,12 +34,13 @@ Có bộ khung repo để mọi phase sau gắn vào: clone về, một lệnh l
 
 ## Số liệu cần đo
 
-| Chỉ số                                | Cách đo        | Mục tiêu        |
-| ------------------------------------- | -------------- | --------------- |
-| Thời gian CI                          | GitHub Actions | < 5 phút        |
-| Thời gian `docker compose up` lần đầu | Đo tay         | Ghi lại làm mốc |
+| Chỉ số                                             | Cách đo        | Mục tiêu        |
+| -------------------------------------------------- | -------------- | --------------- |
+| Thời gian CI                                       | GitHub Actions | < 5 phút        |
+| Thời gian `docker compose up` lần đầu              | Đo tay         | Ghi lại làm mốc |
+| Thời gian `make install` lần đầu / khi store đã có | Đo tay         | Ghi lại làm mốc |
 
 ## Rủi ro / câu hỏi mở
 
-- ORM: Prisma, TypeORM, Drizzle hay MikroORM? → quyết định trong slice 0.2, ghi ADR-0002
+- ORM: Prisma, TypeORM, Drizzle hay MikroORM? → quyết định trong slice 0.3, ghi ADR-0003
 - Chạy code trong WSL: kiểm tra file watching/hot reload trong Docker
