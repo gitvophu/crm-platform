@@ -1,8 +1,19 @@
 name: crm-platform
 
+# Cấu hình chung cho các service chạy bằng image dev: chạy bằng UID/GID của host, mount repo.
+x-node: &node
+  image: crm-platform-dev:node${NODE_VERSION:-26}
+  user: '${UID:-1000}:${GID:-1000}'
+  working_dir: /workspace
+  env_file: .env
+  volumes:
+    - .:/workspace
+    - dev-home:/home/dev
+
 services:
   # Toolchain dev (ADR-0002). Gọi qua `make`, ví dụ `make lint`, `make sh`.
   dev:
+    <<: *node
     build:
       context: .
       dockerfile: docker/dev.Dockerfile
@@ -10,12 +21,37 @@ services:
         # Nguồn chính là .nvmrc, Makefile export NODE_VERSION. Giá trị mặc định cho trường hợp
         # gọi compose trực tiếp (ví dụ WebStorm), phải khớp .nvmrc.
         NODE_VERSION: ${NODE_VERSION:-26}
-    image: crm-platform-dev:node${NODE_VERSION:-26}
-    user: '${UID:-1000}:${GID:-1000}'
-    working_dir: /workspace
+
+  postgres:
+    image: postgres:18-trixie
+    env_file: .env
+    # Chỉ mở cho máy local (tool DB của IDE), không mở ra mạng LAN.
+    ports:
+      - '127.0.0.1:5432:5432'
     volumes:
-      - .:/workspace
-      - dev-home:/home/dev
+      # Từ Postgres 18, image lưu dữ liệu trong thư mục con theo version, nên mount thư mục cha.
+      - pg-data:/var/lib/postgresql
+      # Chỉ chạy khi volume còn trống (lần khởi tạo đầu tiên).
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"']
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+  # Bản tối thiểu (slice 0.3, Q10): build rồi chạy. Hot reload và healthcheck ở slice 0.5.
+  api:
+    <<: *node
+    # `exec` + `init: true`: node nhận SIGTERM trực tiếp, nên `docker compose stop` tắt êm
+    # (chạy shutdown hooks) thay vì chờ 10s rồi bị SIGKILL.
+    init: true
+    command: sh -c 'pnpm turbo run build --filter=@crm/api && cd apps/api && exec node dist/main.js'
+    ports:
+      - '127.0.0.1:3000:3000'
+    depends_on:
+      postgres:
+        condition: service_healthy
 
 volumes:
   dev-home:
+  pg-data:

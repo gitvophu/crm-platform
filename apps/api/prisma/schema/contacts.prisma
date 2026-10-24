@@ -1,0 +1,2 @@
+// Contacts module (Phase 1, slice 1.2). Models here must use @@schema("contacts")
+// and must not declare @relation to models of other schemas (ADR-0003).

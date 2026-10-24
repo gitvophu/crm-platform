@@ -2,15 +2,15 @@
 
 Mỗi slice có tài liệu Spec · Q&A · Plan riêng trong `slices/`, phải được duyệt trước khi code (xem `docs/02-workflow.md`).
 
-| Slice | Nội dung                                                | Tài liệu                        | Branch                         | Điểm cần review                              | Trạng thái |
-| ----- | ------------------------------------------------------- | ------------------------------- | ------------------------------ | -------------------------------------------- | ---------- |
-| 0.1   | Monorepo skeleton + lint/format/typecheck + test runner | [0.1](slices/0.1-monorepo.md)   | `phase-0/slice-0-1-monorepo`   | Cấu trúc thư mục, config dùng chung          | 🎉         |
-| 0.2   | Dev toolchain qua Docker Compose + Makefile             | [0.2](slices/0.2-dev-docker.md) | `phase-0/slice-0-2-dev-docker` | ADR-0002, quyền file, tốc độ cài             | 🎉         |
-| 0.3   | API NestJS + PostgreSQL + migration + `/health`         |                                 | `phase-0/slice-0-3-api-db`     | ADR-0003 chọn ORM                            | ⬜         |
-| 0.4   | Web React gọi `/health`                                 |                                 | `phase-0/slice-0-4-web`        | Cách gọi API, dùng type từ `packages/shared` | ⬜         |
-| 0.5   | Thêm postgres, api, web vào Docker Compose              |                                 | `phase-0/slice-0-5-compose`    | Hot reload, env, healthcheck                 | ⬜         |
-| 0.6   | CI + kiểm tra ranh giới module                          |                                 | `phase-0/slice-0-6-ci`         | Thời gian CI, cache                          | ⬜         |
-| 0.7   | Logging + request-id + hoàn thiện CLAUDE.md             |                                 | `phase-0/slice-0-7-logging`    | Format log                                   | ⬜         |
+| Slice | Nội dung                                                | Tài liệu                        | Branch                         | Điểm cần review                                | Trạng thái |
+| ----- | ------------------------------------------------------- | ------------------------------- | ------------------------------ | ---------------------------------------------- | ---------- |
+| 0.1   | Monorepo skeleton + lint/format/typecheck + test runner | [0.1](slices/0.1-monorepo.md)   | `phase-0/slice-0-1-monorepo`   | Cấu trúc thư mục, config dùng chung            | 🎉         |
+| 0.2   | Dev toolchain qua Docker Compose + Makefile             | [0.2](slices/0.2-dev-docker.md) | `phase-0/slice-0-2-dev-docker` | ADR-0002, quyền file, tốc độ cài               | 🎉         |
+| 0.3   | API NestJS + PostgreSQL + migration + `/health`         | [0.3](slices/0.3-api-db.md)     | `phase-0/slice-0-3-api-db`     | ADR-0003 chọn ORM, ranh giới module với Prisma | 🎉         |
+| 0.4   | Web React gọi `/health`                                 |                                 | `phase-0/slice-0-4-web`        | Cách gọi API, dùng type từ `packages/shared`   | ⬜         |
+| 0.5   | Thêm web vào Docker Compose, hot reload + healthcheck   |                                 | `phase-0/slice-0-5-compose`    | Hot reload, env, healthcheck                   | ⬜         |
+| 0.6   | CI + kiểm tra ranh giới module                          |                                 | `phase-0/slice-0-6-ci`         | Thời gian CI, cache                            | ⬜         |
+| 0.7   | Logging + request-id + hoàn thiện CLAUDE.md             |                                 | `phase-0/slice-0-7-logging`    | Format log                                     | ⬜         |
 
 Trạng thái: ⬜ Chưa bắt đầu · 📝 Đang viết tài liệu · 👀 Chờ review · ✅ Đã duyệt · 🚧 Đang làm · 🎉 Xong
 
@@ -43,12 +43,12 @@ Trạng thái: ⬜ Chưa bắt đầu · 📝 Đang viết tài liệu · 👀 C
 
 - **Kết quả:** `GET /health` trả `{ status, db }`
 - **Việc cần làm:**
-  - [ ] So sánh ORM, viết ADR-0003
-  - [ ] Config qua env, có validate
+  - [ ] So sánh ORM, viết ADR-0003 (chọn Prisma 7)
+  - [ ] Config qua env, validate bằng zod, `.env.example`
   - [ ] Migration đầu tiên (tạo schema rỗng cho module mẫu)
-- **Test:** integration test `/health` với DB thật (Testcontainers hoặc DB trong compose)
+  - [ ] Service postgres và service api tối thiểu trong compose
+- **Test:** integration test `/health` với DB `crm_test` trong compose
 - **Demo:** `curl localhost:3000/health`
-- **Lưu ý:** test chạy trong container `dev`. Testcontainers cần mount Docker socket vào container, còn DB trong compose thì có thể thêm service postgres ngay ở slice này. Chốt trong Q&A của slice.
 
 ### 0.4 Web
 
@@ -63,9 +63,9 @@ Trạng thái: ⬜ Chưa bắt đầu · 📝 Đang viết tài liệu · 👀 C
 
 - **Kết quả:** `docker compose up` chạy postgres, api, web
 - **Việc cần làm:**
-  - [ ] Service api, web dùng lại image dev từ slice 0.2
-  - [ ] Healthcheck postgres, api chờ DB sẵn sàng
-  - [ ] `.env.example`
+  - [ ] Service web dùng lại image dev từ slice 0.2
+  - [ ] Hot reload và healthcheck cho api (postgres, api tối thiểu và `.env.example` đã có từ slice 0.3)
+  - [ ] `docker compose up` từ clone sạch tự cài dependency và migrate (hiện cần `make install` + `make migrate` trước)
 - **Test:** chạy từ repo clone sạch
 - **Demo:** sửa code → hot reload hoạt động
 
@@ -75,6 +75,7 @@ Trạng thái: ⬜ Chưa bắt đầu · 📝 Đang viết tài liệu · 👀 C
 - **Việc cần làm:**
   - [ ] GitHub Actions + cache pnpm/turbo (test runner đã có từ 0.1)
   - [ ] dependency-cruiser hoặc eslint-plugin-boundaries
+  - [ ] Quyết định path alias cho `apps/api` (`#src/*` hoặc tsconfig `paths`, xem backlog 2026-10-24). Lint ranh giới phải nhận diện đúng import qua alias
 - **Test:** cố tình import chéo module → CI đỏ
 - **Demo:** link run CI xanh
 

@@ -16,7 +16,7 @@ Dùng cho mọi PR và khi review cuối phase.
 
 ## Dữ liệu
 
-- [ ] Migration chạy được cả up và down
+- [ ] Migration chạy được trên DB sạch và trên DB đang có dữ liệu. Chỉ roll forward: sửa sai bằng migration mới (ADR-0003)
 - [ ] Index cho các cột filter/sort chính
 - [ ] Phân quyền: đã test case user A KHÔNG thấy data của user B
 

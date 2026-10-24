@@ -42,5 +42,5 @@ Có bộ khung repo để mọi phase sau gắn vào: clone về, một lệnh l
 
 ## Rủi ro / câu hỏi mở
 
-- ORM: Prisma, TypeORM, Drizzle hay MikroORM? → quyết định trong slice 0.3, ghi ADR-0003
+- ORM: chọn Prisma 7 ở slice 0.3, xem ADR-0003
 - Chạy code trong WSL: kiểm tra file watching/hot reload trong Docker
