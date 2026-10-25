@@ -52,6 +52,17 @@ services:
       postgres:
         condition: service_healthy
 
+  web:
+    <<: *node
+    # Như api: `exec` + `init: true` để Vite nhận SIGTERM. Web import bản build của @crm/shared
+    # nên build shared trước; sửa shared thì restart web.
+    init: true
+    command: sh -c 'pnpm turbo run build --filter=@crm/shared && cd apps/web && exec node_modules/.bin/vite'
+    ports:
+      - '127.0.0.1:5173:5173'
+    depends_on:
+      - api
+
 volumes:
   dev-home:
   pg-data:

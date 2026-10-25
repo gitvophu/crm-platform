@@ -1,9 +1,5 @@
 {
-  "extends": "../../tsconfig.base.json",
-  "compilerOptions": {
-    "rootDir": "src",
-    "outDir": "dist",
-    "lib": ["es2023", "dom", "dom.iterable"]
-  },
-  "include": ["src"]
+  // Two programs: browser code in src/ must not see Node globals, vite.config.ts runs in Node.
+  "files": [],
+  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }]
 }

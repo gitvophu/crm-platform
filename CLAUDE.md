@@ -33,6 +33,7 @@ CRM platform cho công ty giả định _Nova Agency_ (agency digital marketing)
 - Cấu trúc module:
 - Đặt tên file/class:
 - ORM / migration: Prisma 7 (ADR-0003). Schema ở `apps/api/prisma/schema/<module>.prisma`, model có `@@schema("<module>")`, không `@relation` chéo schema. Chỉ `*.repository.ts` của module inject `PrismaService`. Chỉ roll forward, không down migration.
+- Import: `apps/api` (Node, nodenext) ghi đuôi `.js`; `apps/web` (Vite, bundler) không ghi đuôi. Web gọi API qua `/api/*` (Vite proxy), type response lấy từ `@crm/shared`.
 - Test:
 - Format lỗi API:
 
@@ -42,7 +43,7 @@ Chạy trong container `dev` của `compose.yaml`, xem `make help`.
 
 ```bash
 make install                       # pnpm install
-make up / make down                # postgres + api
+make up / make down                # postgres + api + web (localhost:5173)
 make migrate                       # prisma migrate deploy
 make migration NAME=add_contact    # tạo migration, chưa áp
 make lint typecheck test build
