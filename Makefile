@@ -46,8 +46,10 @@ pnpm: .env ## Lệnh pnpm bất kỳ: make pnpm ARGS="add -D x --filter @crm/api
 sh: .env ## Mở shell trong container
 	$(RUN) bash
 
-up: .env ## Chạy postgres + api (api ở localhost:3000)
-	docker compose up -d --wait postgres api
+up: .env ## Chạy postgres + api + web (web ở localhost:5173, api ở localhost:3000)
+	# Build shared trước: api và web cùng build nó khi khởi động, cache miss thì hai container ghi đè dist/ của nhau.
+	$(RUN) pnpm turbo run build --filter=@crm/shared
+	docker compose up -d --wait postgres api web
 
 down: .env ## Dừng các service
 	docker compose down

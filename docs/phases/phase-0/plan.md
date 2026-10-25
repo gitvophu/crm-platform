@@ -7,8 +7,8 @@ Mỗi slice có tài liệu Spec · Q&A · Plan riêng trong `slices/`, phải �
 | 0.1   | Monorepo skeleton + lint/format/typecheck + test runner | [0.1](slices/0.1-monorepo.md)   | `phase-0/slice-0-1-monorepo`   | Cấu trúc thư mục, config dùng chung            | 🎉         |
 | 0.2   | Dev toolchain qua Docker Compose + Makefile             | [0.2](slices/0.2-dev-docker.md) | `phase-0/slice-0-2-dev-docker` | ADR-0002, quyền file, tốc độ cài               | 🎉         |
 | 0.3   | API NestJS + PostgreSQL + migration + `/health`         | [0.3](slices/0.3-api-db.md)     | `phase-0/slice-0-3-api-db`     | ADR-0003 chọn ORM, ranh giới module với Prisma | 🎉         |
-| 0.4   | Web React gọi `/health`                                 |                                 | `phase-0/slice-0-4-web`        | Cách gọi API, dùng type từ `packages/shared`   | ⬜         |
-| 0.5   | Thêm web vào Docker Compose, hot reload + healthcheck   |                                 | `phase-0/slice-0-5-compose`    | Hot reload, env, healthcheck                   | ⬜         |
+| 0.4   | Web React gọi `/health`                                 | [0.4](slices/0.4-web.md)        | `phase-0/slice-0-4-web`        | Cách gọi API, dùng type từ `packages/shared`   | 🎉         |
+| 0.5   | Compose hoàn chỉnh: hot reload + healthcheck            |                                 | `phase-0/slice-0-5-compose`    | Hot reload, env, healthcheck                   | ⬜         |
 | 0.6   | CI + kiểm tra ranh giới module                          |                                 | `phase-0/slice-0-6-ci`         | Thời gian CI, cache                            | ⬜         |
 | 0.7   | Logging + request-id + hoàn thiện CLAUDE.md             |                                 | `phase-0/slice-0-7-logging`    | Format log                                     | ⬜         |
 
@@ -63,8 +63,8 @@ Trạng thái: ⬜ Chưa bắt đầu · 📝 Đang viết tài liệu · 👀 C
 
 - **Kết quả:** `docker compose up` chạy postgres, api, web
 - **Việc cần làm:**
-  - [ ] Service web dùng lại image dev từ slice 0.2
-  - [ ] Hot reload và healthcheck cho api (postgres, api tối thiểu và `.env.example` đã có từ slice 0.3)
+  - [ ] Hot reload cho api, healthcheck cho api và web (postgres, api, web tối thiểu và `.env.example` đã có từ slice 0.3, 0.4)
+  - [ ] Watch `packages/shared` khi web/api đang chạy (hiện phải restart)
   - [ ] `docker compose up` từ clone sạch tự cài dependency và migrate (hiện cần `make install` + `make migrate` trước)
 - **Test:** chạy từ repo clone sạch
 - **Demo:** sửa code → hot reload hoạt động

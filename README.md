@@ -20,8 +20,9 @@ Mọi lệnh dev chạy trong container (xem [ADR-0002](docs/adr/0002-dev-env-do
 ```bash
 cp .env.example .env   # cấu hình local (DB, cổng), không phải secret
 make install           # lần đầu tự build image dev (Node theo .nvmrc, pnpm theo packageManager)
-make up                # postgres + api
+make up                # postgres + api + web
 make migrate           # áp migration lên DB dev
+# mở http://localhost:5173 → "API: ok, DB: ok"
 curl localhost:3000/health
 make lint typecheck test build
 make help              # xem tất cả lệnh
@@ -33,12 +34,14 @@ make help              # xem tất cả lệnh
 | `make sh`               | Mở shell trong container                                               |
 | `make image`            | Build lại image dev (sau khi đổi version)                              |
 | `make format`           | Prettier format toàn repo                                              |
-| `make down`             | Dừng postgres + api                                                    |
+| `make down`             | Dừng postgres + api + web                                              |
 | `make migration NAME=x` | Tạo migration mới từ thay đổi trong `apps/api/prisma/schema/`, chưa áp |
 
 - Repo được mount vào `/workspace`. `node_modules` nằm trong repo nên IDE trên host đọc được.
 - Container chạy bằng UID/GID của bạn, file sinh ra không thuộc root.
 - pnpm store và cache nằm ở volume `crm-platform_dev-home`. Xoá volume này là cài lại từ đầu.
+- Web (Vite dev server, có HMR) gọi API qua proxy cùng origin: `localhost:5173/api/*` → `api:3000/*`. Web dùng bản build của `packages/shared`, sửa shared thì `docker compose restart web`. Chạy web ngoài compose thì đặt `API_PROXY_TARGET` (mặc định `http://api:3000`).
+- Sau khi pull mà dependency thay đổi, chạy lại `make install` trước `make up`.
 - Postgres mở cổng 5432 ra host (user/pass trong `.env`) để dùng tool DB của IDE. `make test` tự bật postgres và chạy trên DB riêng `crm_test`.
 
 ### IDE
