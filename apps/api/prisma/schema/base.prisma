@@ -1,0 +1,14 @@
+// Generator and datasource shared by every module. Each module keeps its models in
+// <module>.prisma with @@schema("<module>") (slice 0.3, Q4 and Q12).
+
+generator client {
+  provider            = "prisma-client"
+  output              = "../../src/generated/prisma"
+  moduleFormat        = "esm"
+  importFileExtension = "js"
+}
+
+datasource db {
+  provider = "postgresql"
+  schemas  = ["contacts"]
+}

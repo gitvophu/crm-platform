@@ -1,6 +1,14 @@
-// Placeholder until slice 0.2 scaffolds NestJS.
-import { isHealthy, type HealthResponse } from '@crm/shared';
+import 'reflect-metadata';
 
-const health: HealthResponse = { status: 'ok', db: 'ok' };
+import { ConfigService } from '@nestjs/config';
+import { NestFactory } from '@nestjs/core';
 
-console.log(`api placeholder: healthy=${isHealthy(health)}`);
+import { AppModule } from './app.module.js';
+import type { Env } from './config/env.js';
+
+const app = await NestFactory.create(AppModule);
+// Closes the Prisma connection pool on SIGTERM (`docker compose down`).
+app.enableShutdownHooks();
+
+const config = app.get<ConfigService<Env, true>>(ConfigService);
+await app.listen(config.get('PORT', { infer: true }));
