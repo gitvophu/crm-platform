@@ -42,9 +42,10 @@ CRM platform cho công ty giả định _Nova Agency_ (agency digital marketing)
 Chạy trong container `dev` của `compose.yaml`, xem `make help`.
 
 ```bash
+make up / make down                # cả stack (localhost:5173); up tự install + build shared + migrate
+make restart                       # sau khi sửa packages/shared, hoặc pull khi stack đang chạy
 make install                       # pnpm install
-make up / make down                # postgres + api + web (localhost:5173)
-make migrate                       # prisma migrate deploy
+make migrate                       # chạy lại setup (có prisma migrate deploy)
 make migration NAME=add_contact    # tạo migration, chưa áp
 make lint typecheck test build
 make pnpm ARGS="add -D x --filter @crm/api"

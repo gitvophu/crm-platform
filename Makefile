@@ -9,7 +9,7 @@ RUN := docker compose run --rm dev
 DB_UP := docker compose up -d --wait postgres
 
 .DEFAULT_GOAL := help
-.PHONY: help image install lint typecheck test build format pnpm sh up down migrate migration
+.PHONY: help image install lint typecheck test build format pnpm sh up restart down migrate migration
 
 help: ## Liệt kê các lệnh
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F ':.*## ' '{printf "  make %-10s %s\n", $$1, $$2}'
@@ -46,17 +46,18 @@ pnpm: .env ## Lệnh pnpm bất kỳ: make pnpm ARGS="add -D x --filter @crm/api
 sh: .env ## Mở shell trong container
 	$(RUN) bash
 
-up: .env ## Chạy postgres + api + web (web ở localhost:5173, api ở localhost:3000)
-	# Build shared trước: api và web cùng build nó khi khởi động, cache miss thì hai container ghi đè dist/ của nhau.
-	$(RUN) pnpm turbo run build --filter=@crm/shared
-	docker compose up -d --wait postgres api web
+up: .env ## Chạy cả stack: tự cài dependency, build shared, migrate (web ở localhost:5173)
+	docker compose up -d --wait
+
+restart: .env ## Sau khi sửa packages/shared hoặc pull khi stack đang chạy: chạy lại setup, tạo lại api + web
+	docker compose run --rm setup
+	docker compose up -d --wait --force-recreate --no-deps api web
 
 down: .env ## Dừng các service
 	docker compose down
 
-migrate: .env ## Áp migration lên DB dev (prisma migrate deploy)
-	$(DB_UP)
-	$(RUN) pnpm --filter @crm/api exec prisma migrate deploy
+migrate: .env ## Áp migration lên DB dev: chạy lại service setup (install, build shared, migrate deploy)
+	docker compose run --rm setup
 
 migration: .env ## Tạo migration mới, chưa áp: make migration NAME=add_contact
 	@test -n '$(NAME)' || { echo 'Thiếu tên migration. Ví dụ: make migration NAME=add_contact' >&2; exit 1; }
