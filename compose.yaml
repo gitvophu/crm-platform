@@ -1,8 +1,16 @@
 name: crm-platform
 
 # Cấu hình chung cho các service chạy bằng image dev: chạy bằng UID/GID của host, mount repo.
+# `build` có ở mọi service dùng image này để `docker compose up` tự build khi máy chưa có image.
 x-node: &node
   image: crm-platform-dev:node${NODE_VERSION:-26}
+  build:
+    context: .
+    dockerfile: docker/dev.Dockerfile
+    args:
+      # Nguồn chính là .nvmrc, Makefile export NODE_VERSION. Giá trị mặc định cho trường hợp
+      # gọi compose trực tiếp (ví dụ WebStorm), phải khớp .nvmrc.
+      NODE_VERSION: ${NODE_VERSION:-26}
   user: '${UID:-1000}:${GID:-1000}'
   working_dir: /workspace
   env_file: .env
@@ -10,17 +18,21 @@ x-node: &node
     - .:/workspace
     - dev-home:/home/dev
 
+# Tham số healthcheck HTTP dùng chung cho api và web, mỗi service chỉ khác URL.
+x-http-healthcheck: &http-healthcheck
+  interval: 10s
+  timeout: 3s
+  retries: 3
+  # Lúc khởi động kiểm tra mỗi giây để `up --wait` trả về sớm.
+  start_period: 60s
+  start_interval: 1s
+
 services:
-  # Toolchain dev (ADR-0002). Gọi qua `make`, ví dụ `make lint`, `make sh`.
+  # Toolchain dev (ADR-0002). Gọi qua `make`, ví dụ `make lint`, `make sh`. Profile riêng để
+  # `docker compose up` không bật nó; `docker compose run dev` vẫn chạy được.
   dev:
     <<: *node
-    build:
-      context: .
-      dockerfile: docker/dev.Dockerfile
-      args:
-        # Nguồn chính là .nvmrc, Makefile export NODE_VERSION. Giá trị mặc định cho trường hợp
-        # gọi compose trực tiếp (ví dụ WebStorm), phải khớp .nvmrc.
-        NODE_VERSION: ${NODE_VERSION:-26}
+    profiles: [tools]
 
   postgres:
     image: postgres:18-trixie
@@ -39,29 +51,53 @@ services:
       timeout: 3s
       retries: 15
 
-  # Bản tối thiểu (slice 0.3, Q10): build rồi chạy. Hot reload và healthcheck ở slice 0.5.
-  api:
+  # Chạy một lần mỗi lần `up` rồi thoát (slice 0.5, Q1): là nơi duy nhất ghi node_modules,
+  # dist của shared và Prisma client, nên api và web không ghi đè nhau. Không có gì đổi thì ~2s.
+  setup:
     <<: *node
-    # `exec` + `init: true`: node nhận SIGTERM trực tiếp, nên `docker compose stop` tắt êm
-    # (chạy shutdown hooks) thay vì chờ 10s rồi bị SIGKILL.
-    init: true
-    command: sh -c 'pnpm turbo run build --filter=@crm/api && cd apps/api && exec node dist/main.js'
-    ports:
-      - '127.0.0.1:3000:3000'
+    command: >-
+      sh -c 'pnpm install --frozen-lockfile
+      && pnpm turbo run @crm/shared#build @crm/api#generate
+      && pnpm --filter @crm/api exec prisma migrate deploy'
     depends_on:
       postgres:
         condition: service_healthy
 
+  api:
+    <<: *node
+    # `exec` + `init: true`: Nest CLI nhận SIGTERM trực tiếp nên `docker compose stop` tắt êm
+    # thay vì chờ 10s rồi bị SIGKILL. `--watch`: sửa apps/api/src thì tự build lại và restart.
+    # Sửa packages/shared thì chạy `make restart` (slice 0.5, Q4). `--no-shell`: Nest CLI spawn node
+    # trực tiếp. Mặc định nó chạy qua `sh -c`, mà image slim không có `ps` nên khi reload chỉ kill được
+    # `sh`, node cũ vẫn giữ cổng 3000 (EADDRINUSE).
+    init: true
+    command: sh -c 'cd apps/api && exec node_modules/.bin/nest start --watch --no-shell'
+    ports:
+      - '127.0.0.1:${PORT:-3000}:${PORT:-3000}'
+    healthcheck:
+      <<: *http-healthcheck
+      # 200 chỉ khi cả API và DB ok (slice 0.5, Q5).
+      test: ['CMD', 'node', 'docker/healthcheck.mjs', 'http://localhost:${PORT:-3000}/health']
+    depends_on:
+      setup:
+        condition: service_completed_successfully
+
   web:
     <<: *node
-    # Như api: `exec` + `init: true` để Vite nhận SIGTERM. Web import bản build của @crm/shared
-    # nên build shared trước; sửa shared thì restart web.
+    # Như api: `exec` + `init: true` để Vite nhận SIGTERM. Không chờ api: proxy chỉ gọi api khi
+    # có request, api lỗi thì trang vẫn mở và hiện "không kết nối được" (slice 0.5, Q7).
     init: true
-    command: sh -c 'pnpm turbo run build --filter=@crm/shared && cd apps/web && exec node_modules/.bin/vite'
+    command: sh -c 'cd apps/web && exec node_modules/.bin/vite'
+    environment:
+      API_PROXY_TARGET: http://api:${PORT:-3000}
     ports:
       - '127.0.0.1:5173:5173'
+    healthcheck:
+      <<: *http-healthcheck
+      test: ['CMD', 'node', 'docker/healthcheck.mjs', 'http://localhost:5173']
     depends_on:
-      - api
+      setup:
+        condition: service_completed_successfully
 
 volumes:
   dev-home:
