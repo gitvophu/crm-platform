@@ -25,6 +25,7 @@ CRM platform cho công ty giả định _Nova Agency_ (agency digital marketing)
 - Lõi CRM: một app NestJS, modular monolith.
 - Mỗi module một schema PostgreSQL riêng, không join chéo schema.
 - Module khác chỉ gọi qua public service của module, không import repository/entity của nhau.
+- Module nằm ở `apps/api/src/modules/<tên>/`, public API là `index.ts`. ESLint chặn import vượt ranh giới (xem README, mục "Import và ranh giới module"). Đổi rule thì cập nhật fixture và `apps/api/test/boundaries.test.ts`.
 
 ## Convention
 
@@ -33,7 +34,7 @@ CRM platform cho công ty giả định _Nova Agency_ (agency digital marketing)
 - Cấu trúc module:
 - Đặt tên file/class:
 - ORM / migration: Prisma 7 (ADR-0003). Schema ở `apps/api/prisma/schema/<module>.prisma`, model có `@@schema("<module>")`, không `@relation` chéo schema. Chỉ `*.repository.ts` của module inject `PrismaService`. Chỉ roll forward, không down migration.
-- Import: `apps/api` (Node, nodenext) ghi đuôi `.js`; `apps/web` (Vite, bundler) không ghi đuôi. Web gọi API qua `/api/*` (Vite proxy), type response lấy từ `@crm/shared`.
+- Import: khác thư mục dùng alias `@/` (= `src/` của app), cùng thư mục dùng `./`, không dùng `../` (lint chặn). `apps/api` (Node, nodenext) ghi đuôi `.js`; `apps/web` (Vite, bundler) không ghi đuôi. Web gọi API qua `/api/*` (Vite proxy), type response lấy từ `@crm/shared`.
 - Test:
 - Format lỗi API:
 

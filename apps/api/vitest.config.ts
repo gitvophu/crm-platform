@@ -4,6 +4,8 @@ import { configDefaults, defineConfig } from 'vitest/config';
 export default defineConfig({
   // esbuild (Vite default) does not emit decorator metadata, which Nest DI relies on.
   plugins: [swc.vite({ module: { type: 'es6' } })],
+  // `@/*` alias from tsconfig.json (slice 0.6, Q4).
+  resolve: { tsconfigPaths: true },
   test: {
     // dist/ is build output; never run compiled copies of the tests.
     exclude: [...configDefaults.exclude, 'dist/**'],

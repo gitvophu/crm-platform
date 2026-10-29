@@ -8,6 +8,8 @@
     "lib": ["es2023", "dom", "dom.iterable"],
     "types": ["vite/client"],
     "noEmit": true,
+    // `@/x` = `src/x` (slice 0.6, Q8). Vite and Vitest read it via `resolve.tsconfigPaths`.
+    "paths": { "@/*": ["./src/*"] },
     "tsBuildInfoFile": "node_modules/.tmp/tsconfig.app.tsbuildinfo"
   },
   "include": ["src"]

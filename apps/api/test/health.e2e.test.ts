@@ -4,8 +4,8 @@ import request from 'supertest';
 import type { App } from 'supertest/types.js';
 import { afterAll, beforeAll, describe, it, vi } from 'vitest';
 
-import { AppModule } from '../src/app.module.js';
-import { PrismaService } from '../src/prisma/prisma.service.js';
+import { AppModule } from '@/app.module.js';
+import { PrismaService } from '@/prisma/prisma.service.js';
 
 describe('GET /health', () => {
   let app: INestApplication<App>;

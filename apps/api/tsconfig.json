@@ -4,7 +4,9 @@
     "noEmit": true,
     "types": ["node"],
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    // `@/x` = `src/x` (slice 0.6, Q4). Nest CLI passes `paths` to SWC, which rewrites them at build time.
+    "paths": { "@/*": ["./src/*"] }
   },
   "include": ["src", "test", "*.ts"]
 }

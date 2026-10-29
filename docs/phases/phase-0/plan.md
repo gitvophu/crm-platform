@@ -9,7 +9,7 @@ Mỗi slice có tài liệu Spec · Q&A · Plan riêng trong `slices/`, phải �
 | 0.3   | API NestJS + PostgreSQL + migration + `/health`         | [0.3](slices/0.3-api-db.md)     | `phase-0/slice-0-3-api-db`     | ADR-0003 chọn ORM, ranh giới module với Prisma | 🎉         |
 | 0.4   | Web React gọi `/health`                                 | [0.4](slices/0.4-web.md)        | `phase-0/slice-0-4-web`        | Cách gọi API, dùng type từ `packages/shared`   | 🎉         |
 | 0.5   | Compose hoàn chỉnh: hot reload + healthcheck            | [0.5](slices/0.5-compose.md)    | `phase-0/slice-0-5-compose`    | Hot reload, env, healthcheck                   | 🎉         |
-| 0.6   | CI + kiểm tra ranh giới module                          |                                 | `phase-0/slice-0-6-ci`         | Thời gian CI, cache                            | ⬜         |
+| 0.6   | CI + kiểm tra ranh giới module                          | [0.6](slices/0.6-ci.md)         | `phase-0/slice-0-6-ci`         | Thời gian CI, cache                            | 🚧         |
 | 0.7   | Logging + request-id + hoàn thiện CLAUDE.md             |                                 | `phase-0/slice-0-7-logging`    | Format log                                     | ⬜         |
 
 Trạng thái: ⬜ Chưa bắt đầu · 📝 Đang viết tài liệu · 👀 Chờ review · ✅ Đã duyệt · 🚧 Đang làm · 🎉 Xong

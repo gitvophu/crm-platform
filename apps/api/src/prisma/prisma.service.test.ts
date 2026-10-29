@@ -1,7 +1,7 @@
 import type { ConfigService } from '@nestjs/config';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import type { Env } from '../config/env.js';
+import type { Env } from '@/config/env.js';
 import { PrismaService } from './prisma.service.js';
 
 const config = {
