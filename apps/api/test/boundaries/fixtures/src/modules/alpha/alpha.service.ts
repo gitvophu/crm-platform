@@ -1,7 +1,8 @@
-import { PrismaService } from '@/prisma/prisma.service.js'; // ✗ boundaries/dependencies
+import type { PrismaClient } from '@/generated/prisma/client.js';
+import { PrismaService } from '@/prisma/prisma.service.js'; // ✗ prisma
 
-import { BetaRepository } from '../beta/beta.repository.js'; // ✗ boundaries/dependencies
-import { BetaService } from '../beta/index.js'; // ✗ import-x/no-cycle
+import { BetaRepository } from '../beta/beta.repository.js'; // ✗ public-api
+import { BetaService } from '../beta/index.js'; // ✗ cycle
 import { AlphaRepository } from './alpha.repository.js';
 
 export class AlphaService {
@@ -11,4 +12,6 @@ export class AlphaService {
     readonly betaRepository: BetaRepository,
     readonly prisma: PrismaService,
   ) {}
+
+  client?: PrismaClient;
 }

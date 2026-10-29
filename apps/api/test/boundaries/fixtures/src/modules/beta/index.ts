@@ -1,1 +1,1 @@
-export { BetaService } from './beta.service.js'; // ✗ import-x/no-cycle
+export { BetaService } from './beta.service.js'; // ✗ cycle

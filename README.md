@@ -72,7 +72,7 @@ Bắt PR phải xanh mới được merge (làm một lần, trong GitHub): _Set
 - `@/x` trỏ tới `src/x` của app đang đứng (api và web). Khác thư mục dùng `@/`, cùng thư mục dùng `./`, lint chặn `../`.
 - ESLint (`eslint-plugin-boundaries`, `import-x/no-cycle`) kiểm tra ranh giới của ADR-0001 và ADR-0003:
   - module khác chỉ được import qua `src/modules/<tên>/index.ts`
-  - trong module, chỉ `*.repository.ts` dùng `PrismaService` và Prisma client
+  - trong module, chỉ `*.repository.ts` (và test của nó) import `PrismaService`, Prisma client. File khác được `import type` model của Prisma
   - `apps/api` và `apps/web` không import nhau, code dùng chung đi qua `@crm/shared`
   - không import vòng giữa các module
 - Test `apps/api/test/boundaries.test.ts` chạy ESLint trên fixture để chắc chắn các rule trên còn hoạt động.

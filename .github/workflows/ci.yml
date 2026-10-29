@@ -61,6 +61,17 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - run: pnpm exec prettier --check .
+      # Script `lint` của root (prettier --check + turbo lint), giống `make lint`.
+      - run: pnpm lint --summarize
 
-      - run: pnpm turbo run lint typecheck test build
+      - run: pnpm turbo run typecheck test build --summarize
+
+      # Turbo không tự dọn cache: chỉ giữ artifact của các task vừa chạy để cache lưu lại không
+      # phình theo số lần chạy. Hash của task lấy từ run summary (--summarize).
+      - name: Prune turbo cache
+        run: |
+          jq -r '.tasks[].hash' .turbo/runs/*.json | sort -u > "$RUNNER_TEMP/turbo-hashes"
+          for file in .turbo/cache/*; do
+            hash=$(basename "$file"); hash=${hash%%[-.]*}
+            grep -qxF "$hash" "$RUNNER_TEMP/turbo-hashes" || rm -f "$file"
+          done

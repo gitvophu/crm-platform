@@ -56,7 +56,8 @@ export default defineConfig(
         { type: 'web', pattern: 'apps/web' },
         { type: 'shared', pattern: 'packages/shared' },
       ],
-      'boundaries/files': [{ category: 'repository', pattern: '**/*.repository.ts' }],
+      // A repository's own test sets up PrismaService too.
+      'boundaries/files': [{ category: 'repository', pattern: '**/*.repository{,.test}.ts' }],
       'import/resolver': { typescript: { project: tsconfigs } },
       'import-x/resolver-next': [createTypeScriptImportResolver({ project: tsconfigs })],
     },
@@ -89,8 +90,9 @@ export default defineConfig(
               allow: { to: { element: { type: 'module', fileInternalPath: 'index.ts' } } },
             },
             {
+              // Value imports only: services may still name the model types a repository returns.
               from: { element: { type: 'module' } },
-              disallow: { to: { element: { type: 'prisma' } } },
+              disallow: { to: { element: { type: 'prisma' } }, dependency: { kind: 'value' } },
               message: 'Only *.repository.ts may use PrismaService or the Prisma client (ADR-0003)',
             },
             {
@@ -126,7 +128,8 @@ export default defineConfig(
     rules: {
       'no-restricted-imports': [
         'error',
-        { patterns: [{ regex: '^\\.\\./', message: 'Use the @/ alias instead of ../' }] },
+        // Any `..` segment: `../x`, `..`, `./../x`.
+        { patterns: [{ regex: '(^|/)\\.\\.(/|$)', message: 'Use the @/ alias instead of ../' }] },
       ],
     },
   },

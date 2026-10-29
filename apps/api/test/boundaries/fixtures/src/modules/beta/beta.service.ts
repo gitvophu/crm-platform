@@ -1,6 +1,6 @@
-import { fetchHealth } from '../../../../../../../web/src/health/fetch-health.js'; // ✗ boundaries/dependencies
+import { webStub } from '../../../apps/web/src/web-stub.js'; // ✗ cross-app
 
-import { AlphaService } from '../alpha/index.js'; // ✗ import-x/no-cycle
+import { AlphaService } from '../alpha/index.js'; // ✗ cycle
 import { BetaRepository } from './beta.repository.js';
 
 export class BetaService {
@@ -9,5 +9,5 @@ export class BetaService {
     readonly alpha: AlphaService,
   ) {}
 
-  readonly health = fetchHealth;
+  readonly web = webStub;
 }
