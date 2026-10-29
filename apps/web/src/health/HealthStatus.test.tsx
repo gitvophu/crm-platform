@@ -4,7 +4,7 @@ import { render, screen } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 
-import { server } from '../test/setup';
+import { server } from '@/test/setup';
 import { HEALTH_URL } from './fetch-health';
 import { HealthStatus } from './HealthStatus';
 

@@ -1,0 +1,77 @@
+# Lint, typecheck, test, build cho mọi PR vào main và mọi push lên main (slice 0.6).
+# Chạy native trên runner (Q1): Node theo .nvmrc, pnpm theo `packageManager`.
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# Push mới lên cùng PR thì huỷ lần chạy cũ. Trên main thì để chạy hết.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+env:
+  TURBO_TELEMETRY_DISABLED: 1
+  # Test của api reset DB này (chỉ chấp nhận tên *_test, xem apps/api/test/global-setup.ts).
+  TEST_DATABASE_URL: postgresql://crm:crm@localhost:5432/crm_test
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    services:
+      postgres:
+        image: postgres:18-trixie
+        env:
+          POSTGRES_USER: crm
+          POSTGRES_PASSWORD: crm
+          POSTGRES_DB: crm_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U crm -d crm_test"
+          --health-interval 2s
+          --health-timeout 3s
+          --health-retries 15
+
+    steps:
+      - uses: actions/checkout@v7
+
+      # Không ghi version: action đọc `packageManager` trong package.json.
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      # Cache local của turbo (Q7). Key theo commit, khôi phục từ lần chạy gần nhất.
+      - uses: actions/cache@v6
+        with:
+          path: .turbo/cache
+          key: turbo-${{ runner.os }}-${{ github.sha }}
+          restore-keys: turbo-${{ runner.os }}-
+
+      - run: pnpm install --frozen-lockfile
+
+      # Script `lint` của root (prettier --check + turbo lint), giống `make lint`.
+      - run: pnpm lint --summarize
+
+      - run: pnpm turbo run typecheck test build --summarize
+
+      # Turbo không tự dọn cache: chỉ giữ artifact của các task vừa chạy để cache lưu lại không
+      # phình theo số lần chạy. Hash của task lấy từ run summary (--summarize).
+      - name: Prune turbo cache
+        run: |
+          jq -r '.tasks[].hash' .turbo/runs/*.json | sort -u > "$RUNNER_TEMP/turbo-hashes"
+          for file in .turbo/cache/*; do
+            hash=$(basename "$file"); hash=${hash%%[-.]*}
+            grep -qxF "$hash" "$RUNNER_TEMP/turbo-hashes" || rm -f "$file"
+          done

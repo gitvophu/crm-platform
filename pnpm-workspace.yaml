@@ -5,3 +5,5 @@ allowBuilds:
   '@prisma/engines': true
   '@swc/core': true
   prisma: true
+  # postinstall chỉ kiểm tra binary native, binary đã có qua optionalDependencies.
+  unrs-resolver: false

@@ -1,5 +1,7 @@
 # CRM Platform
 
+[![CI](https://github.com/gitvophu/crm-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/gitvophu/crm-platform/actions/workflows/ci.yml)
+
 CRM cho _Nova Agency_ (agency digital marketing giả định), dùng làm sân chơi thực hành nhiều tech stack: modular monolith cho phần lõi, các service vệ tinh tách ra khi có lý do đo được.
 
 ## Tài liệu
@@ -58,3 +60,19 @@ make help              # xem tất cả lệnh
   3. _Package manager_: `pnpm` (shim Corepack ở `/usr/local/bin/pnpm` trong container)
   4. _Languages & Frameworks → TypeScript_: TypeScript trỏ tới `node_modules/typescript` của project
   5. _Code Quality Tools → ESLint_: chọn _Automatic ESLint configuration_
+
+## CI
+
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) chạy với mọi PR vào `main` và mọi push lên `main`: `prettier --check`, rồi `turbo run lint typecheck test build`. CI chạy native trên runner (Node theo `.nvmrc`, pnpm theo `packageManager`), Postgres là service container, có cache pnpm store và `.turbo`.
+
+Bắt PR phải xanh mới được merge (làm một lần, trong GitHub): _Settings → Rules → Rulesets → New branch ruleset_, target `main`, bật _Require a pull request before merging_ và _Require status checks to pass_, thêm check `check` (tên job trong workflow).
+
+## Import và ranh giới module
+
+- `@/x` trỏ tới `src/x` của app đang đứng (api và web). Khác thư mục dùng `@/`, cùng thư mục dùng `./`, lint chặn `../`.
+- ESLint (`eslint-plugin-boundaries`, `import-x/no-cycle`) kiểm tra ranh giới của ADR-0001 và ADR-0003:
+  - module khác chỉ được import qua `src/modules/<tên>/index.ts`
+  - trong module, chỉ `*.repository.ts` (và test của nó) import `PrismaService`, Prisma client. File khác được `import type` model của Prisma
+  - `apps/api` và `apps/web` không import nhau, code dùng chung đi qua `@crm/shared`
+  - không import vòng giữa các module
+- Test `apps/api/test/boundaries.test.ts` chạy ESLint trên fixture để chắc chắn các rule trên còn hoạt động.

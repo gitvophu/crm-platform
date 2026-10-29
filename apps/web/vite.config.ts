@@ -3,6 +3,8 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   plugins: [react()],
+  // `@/*` alias from tsconfig.app.json (slice 0.6, Q8).
+  resolve: { tsconfigPaths: true },
   server: {
     // Listen on every interface so the port published by compose reaches the dev server.
     host: '0.0.0.0',
