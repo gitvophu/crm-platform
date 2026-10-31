@@ -1,5 +1,7 @@
 {
   // Two programs: browser code in src/ must not see Node globals, vite.config.ts runs in Node.
   "files": [],
-  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }]
+  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }],
+  // Only for the shadcn CLI, which reads the alias from this file (tsconfig.app.json is the source).
+  "compilerOptions": { "paths": { "@/*": ["./src/*"] } }
 }

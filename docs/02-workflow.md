@@ -4,19 +4,20 @@
  SPEC ──► PLAN ──► SLICES ──► VERIFY ──► REVIEW ──► RETRO/ADR ──► tag release
                      ▲    │
                      └────┘ mỗi slice = 1 branch = 1 PR nhỏ
-                            slice doc (Spec · Q&A · Plan) ──► duyệt ──► code
+                            slice doc (Spec · Q&A · Design · Plan) ──► duyệt ──► code
 ```
 
-| Bước          | Làm gì                                                                  | File kết quả                       |
-| ------------- | ----------------------------------------------------------------------- | ---------------------------------- |
-| **Spec**      | Phase này giải quyết gì, KHÔNG làm gì, tiêu chí "xong"                  | `phases/phase-N/spec.md`           |
-| **Plan**      | Chia 4–8 vertical slice (DB → API → UI → test), mỗi slice 1–3 ngày      | `phases/phase-N/plan.md`           |
-| **Slice doc** | Spec + Q&A làm rõ + plan chi tiết của slice. Chỉ code khi đã duyệt (✅) | `phases/phase-N/slices/N.x-ten.md` |
-| **Slice**     | Branch `phase-N/slice-x-y-ten`, 1 PR (gồm cả slice doc)                 | PR                                 |
-| **Verify**    | CI xanh, `docker compose up` chạy được, demo được                       | Checklist trong PR                 |
-| **Review**    | Đối chiếu `review-checklist.md`                                         | `phases/phase-N/review.md`         |
-| **Retro/ADR** | Ghi quyết định và số liệu đo được                                       | `adr/NNNN-*.md`                    |
-| **Release**   | `git tag phase-N`                                                       |                                    |
+| Bước          | Làm gì                                                                  | File kết quả                         |
+| ------------- | ----------------------------------------------------------------------- | ------------------------------------ |
+| **Spec**      | Phase này giải quyết gì, KHÔNG làm gì, tiêu chí "xong"                  | `phases/phase-N/spec.md`             |
+| **Plan**      | Chia 4–8 vertical slice (DB → API → UI → test), mỗi slice 1–3 ngày      | `phases/phase-N/plan.md`             |
+| **Slice doc** | Spec + Q&A làm rõ + plan chi tiết của slice. Chỉ code khi đã duyệt (✅) | `phases/phase-N/slices/N.x-ten.md`   |
+| **Design**    | Slice có UI: mockup HTML bấm được, giống thật, duyệt cùng slice doc     | `phases/phase-N/design/N.x-ten.html` |
+| **Slice**     | Branch `phase-N/slice-x-y-ten`, 1 PR (gồm cả slice doc)                 | PR                                   |
+| **Verify**    | CI xanh, `docker compose up` chạy được, demo được                       | Checklist trong PR                   |
+| **Review**    | Đối chiếu `review-checklist.md`                                         | `phases/phase-N/review.md`           |
+| **Retro/ADR** | Ghi quyết định và số liệu đo được                                       | `adr/NNNN-*.md`                      |
+| **Release**   | `git tag phase-N`                                                       |                                      |
 
 ## Nguyên tắc
 

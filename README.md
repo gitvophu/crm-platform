@@ -44,7 +44,7 @@ make help              # xem tất cả lệnh
 - Repo được mount vào `/workspace`. `node_modules` nằm trong repo nên IDE trên host đọc được.
 - Container chạy bằng UID/GID của bạn, file sinh ra không thuộc root.
 - pnpm store và cache nằm ở volume `crm-platform_dev-home`. Xoá volume này là cài lại từ đầu.
-- Mỗi lần `up`, service `setup` chạy `pnpm install --frozen-lockfile`, build `packages/shared`, generate Prisma client, `prisma migrate deploy` rồi thoát. api và web chờ nó xong mới chạy. Sau khi pull: stack đang tắt thì `make up`, đang chạy thì `make restart` (`up` không tạo lại api, web đang chạy nên chúng vẫn giữ code cũ).
+- Mỗi lần `up`, service `setup` chạy `pnpm install --frozen-lockfile`, build `packages/shared`, generate Prisma client và route tree của web, `prisma migrate deploy` rồi thoát. api và web chờ nó xong mới chạy. Sau khi pull: stack đang tắt thì `make up`, đang chạy thì `make restart` (`up` không tạo lại api, web đang chạy nên chúng vẫn giữ code cũ).
 - Hot reload: sửa `apps/api/src` thì api tự build lại và restart (`nest start --watch`), sửa `apps/web/src` thì trình duyệt cập nhật (Vite HMR). Sửa `packages/shared` thì chạy `make restart`.
 - Gọi `docker compose` trực tiếp (không qua `make`) thì container chạy bằng UID/GID `1000`. Máy có UID khác thì dùng `make`, hoặc `export UID GID` trước (trong bash, `UID` là biến shell chưa export).
 - `make up` chỉ trả về khi api trả `GET /health` 200 (cả DB ok) và web trả 200. `docker compose ps` hiện api `unhealthy` khi DB lỗi.
@@ -76,6 +76,16 @@ Bắt PR phải xanh mới được merge (làm một lần, trong GitHub): _Set
   - `apps/api` và `apps/web` không import nhau, code dùng chung đi qua `@crm/shared`
   - không import vòng giữa các module
 - Test `apps/api/test/boundaries.test.ts` chạy ESLint trên fixture để chắc chắn các rule trên còn hoạt động.
+
+## Web
+
+React + Vite, TanStack Router (route theo file), TanStack Query, Tailwind 4 + shadcn/ui. Giao diện tiếng Anh, chỉ theme sáng.
+
+- Route: mỗi file trong `apps/web/src/routes/` là một trang (`contacts.tsx` → `/contacts`), `__root.tsx` là layout (sidebar, header, 404). Tên trang trên breadcrumb đặt bằng `staticData: { title }`.
+- `src/routeTree.gen.ts` sinh tự động, không commit: Vite sinh lại khi dev, `make lint typecheck test build` chạy task `generate` (`tsr generate`) trước.
+- Component shadcn: `make sh`, rồi `cd apps/web && pnpm dlx shadcn@4.23.0 add <tên>`, sau đó `make format`. File sinh ra nằm ở `src/components/ui/`, ít sửa.
+- Gọi API bằng `api<T>(path)` (`src/lib/api.ts`): thêm prefix `/api`, response ngoài 2xx ném `ApiError` (status, body, request-id). Lỗi khi tải dữ liệu hiện bằng `ErrorState` trong trang, lỗi của thao tác (mutation) tự hiện toast (`meta: { errorTitle }` để đặt tiêu đề).
+- Devtools của Router (góc trái dưới) và Query (góc phải dưới) chỉ có khi chạy dev.
 
 ## Log
 

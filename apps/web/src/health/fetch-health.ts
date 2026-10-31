@@ -1,6 +1,8 @@
 import type { HealthResponse, ServiceStatus } from '@crm/shared';
 
-export const HEALTH_URL = '/api/health';
+import { api, ApiError } from '@/lib/api';
+
+export const HEALTH_PATH = '/health';
 
 const isServiceStatus = (value: unknown): value is ServiceStatus =>
   value === 'ok' || value === 'error';
@@ -17,13 +19,15 @@ function isHealthResponse(body: unknown): body is HealthResponse {
  * itself is unreachable.
  */
 export async function fetchHealth(): Promise<HealthResponse> {
-  const res = await fetch(HEALTH_URL);
-  if (res.status !== 200 && res.status !== 503) {
-    throw new Error(`Unexpected status ${res.status} from ${HEALTH_URL}`);
+  let body: unknown;
+  try {
+    body = await api<unknown>(HEALTH_PATH);
+  } catch (error) {
+    if (!(error instanceof ApiError && error.status === 503)) throw error;
+    body = error.body;
   }
-  const body: unknown = await res.json();
   if (!isHealthResponse(body)) {
-    throw new Error(`Unexpected body from ${HEALTH_URL}`);
+    throw new Error(`Unexpected body from ${HEALTH_PATH}`);
   }
   return body;
 }

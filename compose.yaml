@@ -57,7 +57,7 @@ services:
     <<: *node
     command: >-
       sh -c 'pnpm install --frozen-lockfile
-      && pnpm turbo run @crm/shared#build @crm/api#generate
+      && pnpm turbo run @crm/shared#build @crm/api#generate @crm/web#generate
       && pnpm --filter @crm/api exec prisma migrate deploy'
     depends_on:
       postgres:

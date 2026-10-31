@@ -1,0 +1,11 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    // src/routeTree.gen.ts is generated, not committed (slice 1.1, Q1). Vite regenerates it in dev.
+    "generate": {
+      "inputs": ["src/routes/**"],
+      "outputs": ["src/routeTree.gen.ts"]
+    }
+  }
+}

@@ -1,8 +1,16 @@
+import tailwindcss from '@tailwindcss/vite';
+import { tanstackRouter } from '@tanstack/router-plugin/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
-  plugins: [react()],
+  // The router plugin regenerates src/routeTree.gen.ts and must run before react (slice 1.1).
+  // No code splitting in tests: lazy route chunks make the first render slow and timing-dependent.
+  plugins: [
+    tanstackRouter({ target: 'react', autoCodeSplitting: !process.env.VITEST }),
+    react(),
+    tailwindcss(),
+  ],
   // `@/*` alias from tsconfig.app.json (slice 0.6, Q8).
   resolve: { tsconfigPaths: true },
   server: {
