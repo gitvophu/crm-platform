@@ -18,6 +18,7 @@ CRM platform cho công ty giả định _Nova Agency_ (agency digital marketing)
 - Trình bày plan và chờ xác nhận trước khi tạo/sửa nhiều file.
 - Quyết định kiến trúc mới → đề xuất ADR trong `docs/adr/`.
 - Trước khi báo xong: chạy `make lint typecheck test` và đối chiếu `docs/review-checklist.md`.
+- Implement xong một slice: chạy subagent với skill `/code-review` để review thay đổi của slice. Main agent xem từng điểm, sửa điểm hợp lý, điểm cần quyết định thiết kế thì hỏi, rồi chạy lại `make lint typecheck test`. Chỉ một vòng review. Báo cáo cuối liệt kê điểm đã sửa và điểm không sửa kèm lý do. Sau bước này mới báo slice xong.
 - Host không cài Node (ADR-0002): mọi lệnh node/pnpm chạy qua `make`, không gọi `pnpm`/`node`/`npx` trực tiếp trên host.
 
 ## Kiến trúc (ADR-0001)
@@ -29,14 +30,25 @@ CRM platform cho công ty giả định _Nova Agency_ (agency digital marketing)
 
 ## Convention
 
-> TODO (slice 0.7): điền sau khi Phase 0 chốt tooling.
+Chốt ở Phase 0. Mục ghi "slice 1.2" sẽ chốt ở slice Contacts (module mẫu) rồi cập nhật lại đây.
 
-- Cấu trúc module:
+- Cấu trúc module (api):
+  - Nghiệp vụ: `apps/api/src/modules/<tên>/`, mỗi module một Nest module. `index.ts` là public API (module class, service, type dùng chung), module khác và code ngoài module chỉ import qua đây. Truy cập DB chỉ trong `<tên>.repository.ts`.
+  - Hạ tầng dùng chung nằm ngoài `modules/`: `config/` (env, zod), `prisma/` (`PrismaService`, global), `logging/`, `health/`.
+  - Controller, service, DTO, validation input: chốt ở slice 1.2.
 - Đặt tên file/class:
-- ORM / migration: Prisma 7 (ADR-0003). Schema ở `apps/api/prisma/schema/<module>.prisma`, model có `@@schema("<module>")`, không `@relation` chéo schema. Chỉ `*.repository.ts` của module inject `PrismaService`. Chỉ roll forward, không down migration.
+  - File kebab-case theo vai trò: `<tên>.module.ts`, `.controller.ts`, `.service.ts`, `.repository.ts`. Class PascalCase cùng hậu tố (`HealthController`, `PrismaService`).
+  - Web: component React một file PascalCase (`HealthStatus.tsx`), file còn lại kebab-case (`fetch-health.ts`). Code chia theo tính năng (`src/health/`).
+  - `packages/shared`: chỉ type và hàm thuần dùng chung giữa api và web, không phụ thuộc Nest, React.
+- ORM / migration: Prisma 7 (ADR-0003). Schema ở `apps/api/prisma/schema/<module>.prisma`, model có `@@schema("<module>")`, không `@relation` chéo schema. Trong `modules/`, chỉ `*.repository.ts` (và test của nó) import `PrismaService`, Prisma client; file khác được `import type` model. Hạ tầng ngoài `modules/` không bị giới hạn (`health/` gọi `PrismaService.ping()`). Chỉ roll forward, không down migration.
 - Import: khác thư mục dùng alias `@/` (= `src/` của app), cùng thư mục dùng `./`, không dùng `../` (lint chặn). `apps/api` (Node, nodenext) ghi đuôi `.js`; `apps/web` (Vite, bundler) không ghi đuôi. Web gọi API qua `/api/*` (Vite proxy), type response lấy từ `@crm/shared`.
-- Test:
-- Format lỗi API:
+- Test (Vitest):
+  - Unit test đặt cạnh file: `x.ts` → `x.test.ts`.
+  - api: test qua HTTP và DB trong `apps/api/test/*.e2e.test.ts`, dựng `AppModule` thật với supertest, DB `crm_test` được reset bằng migration mỗi lần chạy (`make test` tự bật postgres). Mock bằng `vi.spyOn`, mock tự gỡ sau mỗi test (`restoreMocks`).
+  - web: Testing Library + jsdom, giả API bằng MSW (`src/test/setup.ts`), không mock `fetch` trực tiếp.
+  - Đổi rule ranh giới module thì cập nhật fixture của `apps/api/test/boundaries.test.ts`.
+- Logging (api): log JSON qua `nestjs-pino`. Trong code dùng `new Logger(<Class>.name)` của `@nestjs/common`, log trong request tự có `reqId`. Request-id nhận từ header `X-Request-Id` nếu hợp lệ, không thì tạo UUID, luôn trả về trong header. Không log dữ liệu nhạy cảm (header `authorization`, `cookie` đã redact). Mức log qua `LOG_LEVEL`.
+- Format lỗi API: chốt ở slice 1.2 (xem backlog). Hiện dùng mặc định của Nest; `/health` 503 trả body `HealthResponse`.
 
 ## Lệnh thường dùng
 

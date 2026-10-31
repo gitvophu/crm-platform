@@ -5,8 +5,8 @@ import { validateEnv } from './env.js';
 const valid = { DATABASE_URL: 'postgresql://crm:crm@postgres:5432/crm' };
 
 describe('validateEnv', () => {
-  it('defaults PORT to 3000', () => {
-    expect(validateEnv(valid)).toEqual({ ...valid, PORT: 3000 });
+  it('defaults PORT to 3000 and LOG_LEVEL to info', () => {
+    expect(validateEnv(valid)).toEqual({ ...valid, PORT: 3000, LOG_LEVEL: 'info' });
   });
 
   it('coerces PORT from string', () => {
@@ -19,6 +19,10 @@ describe('validateEnv', () => {
 
   it('rejects a non-postgres URL', () => {
     expect(() => validateEnv({ DATABASE_URL: 'mysql://localhost/crm' })).toThrow(/DATABASE_URL/);
+  });
+
+  it('rejects an unknown LOG_LEVEL', () => {
+    expect(() => validateEnv({ ...valid, LOG_LEVEL: 'verbose' })).toThrow(/LOG_LEVEL/);
   });
 
   it('rejects an invalid PORT', () => {
