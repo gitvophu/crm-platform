@@ -38,6 +38,14 @@ Trạng thái: ❓ Mở (có đề xuất, chờ chốt) · ✅ Đã chốt.
 - **Đề xuất / Quyết định:**
 - **Lý do:**
 
+## Design
+
+Chỉ cho slice có màn hình mới hoặc đổi giao diện. Bỏ mục này nếu slice chỉ có backend.
+
+- **Mockup:** `../design/<slice>.html` (mở bằng `xdg-open`; link artifact nếu có publish)
+- **Màn hình / trạng thái:**
+- **Điểm cần chú ý khi review:**
+
 ## Plan
 
 ### File thay đổi

@@ -1,10 +1,19 @@
-import { HealthStatus } from './health/HealthStatus';
+import type { QueryClient } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { RouterProvider } from '@tanstack/react-router';
 
-export function App() {
+import type { createAppRouter } from '@/router';
+
+interface AppProps {
+  queryClient: QueryClient;
+  router: ReturnType<typeof createAppRouter>;
+}
+
+/** Providers around the router; main.tsx and the tests render the same tree. */
+export function App({ queryClient, router }: AppProps) {
   return (
-    <main className="app">
-      <h1>Nova CRM</h1>
-      <HealthStatus />
-    </main>
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
   );
 }
