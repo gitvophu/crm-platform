@@ -21,7 +21,10 @@ describe('GET /health', () => {
   });
 
   it('returns 200 when the database is reachable', async () => {
-    await request(app.getHttpServer()).get('/health').expect(200, { status: 'ok', db: 'ok' });
+    await request(app.getHttpServer())
+      .get('/health')
+      .expect('x-request-id', /^[0-9a-f-]{36}$/)
+      .expect(200, { status: 'ok', db: 'ok' });
   });
 
   it('returns 503 when the database is unreachable', async () => {

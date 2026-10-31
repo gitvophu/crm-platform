@@ -76,3 +76,20 @@ Bắt PR phải xanh mới được merge (làm một lần, trong GitHub): _Set
   - `apps/api` và `apps/web` không import nhau, code dùng chung đi qua `@crm/shared`
   - không import vòng giữa các module
 - Test `apps/api/test/boundaries.test.ts` chạy ESLint trên fixture để chắc chắn các rule trên còn hoạt động.
+
+## Log
+
+api ghi log JSON (pino, qua `nestjs-pino`), mỗi dòng một object. Mức log đặt bằng `LOG_LEVEL` trong `.env` (mặc định `info`).
+
+- Mỗi request có request-id: lấy từ header `X-Request-Id` nếu hợp lệ (tối đa 128 ký tự, chữ, số, `-_.`), không thì tạo UUID. Id được trả về trong header `X-Request-Id` và có trên mọi dòng log của request (`reqId`).
+- `/health` trả 200 không ghi log (healthcheck gọi mỗi 10s), 503 ghi mức `warn`.
+- Header `authorization`, `cookie`, `set-cookie` được thay bằng `[Redacted]`.
+
+```bash
+# log của một request
+docker compose logs api --no-log-prefix | grep '^{' | jq 'select(.reqId == "<id>")'
+# chỉ warn trở lên
+docker compose logs api --no-log-prefix | grep '^{' | jq 'select(.level >= 40)'
+```
+
+Khi dev, api chạy bằng `nest start --watch` nên có vài dòng text của Nest CLI (`SWC Running...`, `Successfully compiled`). `grep '^{'` lọc chúng ra.

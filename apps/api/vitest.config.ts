@@ -12,6 +12,8 @@ export default defineConfig({
     globalSetup: ['./test/global-setup.ts'],
     restoreMocks: true,
     // Tests must never touch the dev database.
-    env: { DATABASE_URL: process.env.TEST_DATABASE_URL ?? '' },
+    // Logging tests use their own in-memory logger. Elsewhere keep only errors, which explain a
+    // failing test without flooding the output.
+    env: { DATABASE_URL: process.env.TEST_DATABASE_URL ?? '', LOG_LEVEL: 'error' },
   },
 });
