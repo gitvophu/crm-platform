@@ -4,15 +4,15 @@ Monolith trước, tách service sau. Chỉ tách khi có lý do rõ ràng, ghi 
 
 Chỉ viết `spec.md` + `plan.md` chi tiết cho **phase kế tiếp**. Các phase xa hơn chỉ giữ ở mức một dòng.
 
-| Phase                  | Nội dung                                                                                   | Stack                                    | Trạng thái  |
-| ---------------------- | ------------------------------------------------------------------------------------------ | ---------------------------------------- | ----------- |
-| **0. Foundation**      | Monorepo, Docker Compose, CI, convention                                                   | pnpm + Turborepo, Docker, GitHub Actions | ⏳ Đang làm |
-| **1. Core CRM**        | Auth đơn giản, Contacts, Companies, Deals, Activities, permission theo dòng, custom fields | NestJS, PostgreSQL, React                | ⬜          |
-| **1.5 Identity**       | Chuyển từ JWT tự viết sang OIDC, RBAC + ABAC                                               | Keycloak, OPA/Cedar                      | ⬜          |
-| **2. Event-driven**    | #3 Event Backbone (Outbox, idempotent consumer) → #4 Notification → #7 Search              | **Redpanda, Symfony/PHP**, Meilisearch   | ⬜          |
-| **3. Scale & Data**    | #6 Tracking Ingest (email open/click, web event) → #8 Analytics → #9 Import/Export         | **Go**, ClickHouse                       | ⬜          |
-| **4. Automation & AI** | #5 Workflow Automation → #10 AI Service                                                    | Temporal, Python                         | ⬜          |
-| **5. Mở rộng**         | #11 Omnichannel → #12 Integration Hub → #13 Portal → #14 DevOps                            | Tùy hứng thú                             | ⬜          |
+| Phase                  | Nội dung                                                                                   | Stack                                    | Trạng thái |
+| ---------------------- | ------------------------------------------------------------------------------------------ | ---------------------------------------- | ---------- |
+| **0. Foundation**      | Monorepo, Docker Compose, CI, convention                                                   | pnpm + Turborepo, Docker, GitHub Actions | ✅ Xong    |
+| **1. Core CRM**        | Auth đơn giản, Contacts, Companies, Deals, Activities, permission theo dòng, custom fields | NestJS, PostgreSQL, React                | ⬜         |
+| **1.5 Identity**       | Chuyển từ JWT tự viết sang OIDC, RBAC + ABAC                                               | Keycloak, OPA/Cedar                      | ⬜         |
+| **2. Event-driven**    | #3 Event Backbone (Outbox, idempotent consumer) → #4 Notification → #7 Search              | **Redpanda, Symfony/PHP**, Meilisearch   | ⬜         |
+| **3. Scale & Data**    | #6 Tracking Ingest (email open/click, web event) → #8 Analytics → #9 Import/Export         | **Go**, ClickHouse                       | ⬜         |
+| **4. Automation & AI** | #5 Workflow Automation → #10 AI Service                                                    | Temporal, Python                         | ⬜         |
+| **5. Mở rộng**         | #11 Omnichannel → #12 Integration Hub → #13 Portal → #14 DevOps                            | Tùy hứng thú                             | ⬜         |
 
 ## Lịch Phase 0 + 1 (8 tuần)
 
