@@ -29,10 +29,11 @@
 
 ## Mục tiêu thời gian
 
-| Mốc               | Thời hạn   | Kết quả                                               |
-| ----------------- | ---------- | ----------------------------------------------------- |
-| Phase 0 + Phase 1 | **8 tuần** | CRM dùng được, có seed data Nova Agency, có link demo |
-| Phase 2 trở đi    | Chưa chốt  | Lên kế hoạch khi Phase 1 xong                         |
+| Mốc                 | Thời hạn                                                    | Kết quả                                 |
+| ------------------- | ----------------------------------------------------------- | --------------------------------------- |
+| Phase 0 + Phase 1   | Không deadline cứng (ước lượng ban đầu 8 tuần, xem roadmap) | CRM dùng được, có seed data Nova Agency |
+| Link demo công khai | Sau Phase 1                                                 | Bỏ khỏi Phase 1 (spec Phase 1, Q11)     |
+| Phase 2 trở đi      | Chưa chốt                                                   | Lên kế hoạch khi Phase 1 xong           |
 
 ## Ngoài phạm vi (ít nhất đến hết Phase 1)
 
