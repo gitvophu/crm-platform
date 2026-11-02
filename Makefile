@@ -9,7 +9,7 @@ RUN := docker compose run --rm dev
 DB_UP := docker compose up -d --wait postgres
 
 .DEFAULT_GOAL := help
-.PHONY: help image install lint typecheck test build format pnpm sh up restart down migrate migration
+.PHONY: help image install lint typecheck test build format pnpm sh up restart down migrate migration seed
 
 help: ## Liệt kê các lệnh
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F ':.*## ' '{printf "  make %-10s %s\n", $$1, $$2}'
@@ -64,3 +64,7 @@ migration: .env ## Tạo migration mới, chưa áp: make migration NAME=add_con
 	@echo '$(NAME)' | grep -Eq '^[a-z0-9_]+$$' || { echo 'NAME chỉ gồm a-z, 0-9, _. Ví dụ: make migration NAME=add_contact' >&2; exit 1; }
 	$(DB_UP)
 	$(RUN) pnpm --filter @crm/api exec prisma migrate dev --create-only --name $(NAME)
+
+seed: .env ## Tạo dữ liệu dev (team, user; chạy lại không trùng). Cần đã migrate (make up)
+	$(DB_UP)
+	$(RUN) pnpm --filter @crm/api exec prisma db seed

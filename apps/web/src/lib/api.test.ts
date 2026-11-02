@@ -126,3 +126,68 @@ describe('describeError', () => {
     );
   });
 });
+
+describe('api session refresh', () => {
+  const unauthorized = () => HttpResponse.json({ message: 'Unauthorized' }, { status: 401 });
+
+  it('refreshes once on a 401 and sends the request again', async () => {
+    let refreshed = false;
+    server.use(
+      http.get('/api/things', () => (refreshed ? HttpResponse.json({ id: 1 }) : unauthorized())),
+      http.post('/api/auth/refresh', () => {
+        refreshed = true;
+        return new HttpResponse(null, { status: 204 });
+      }),
+    );
+
+    await expect(api('/things')).resolves.toEqual({ id: 1 });
+  });
+
+  it('shares one refresh between requests that fail at the same time', async () => {
+    let refreshes = 0;
+    server.use(
+      http.get('/api/things/:id', ({ params }) =>
+        refreshes > 0 ? HttpResponse.json({ id: params.id }) : unauthorized(),
+      ),
+      http.post('/api/auth/refresh', async () => {
+        refreshes += 1;
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        return new HttpResponse(null, { status: 204 });
+      }),
+    );
+
+    await Promise.all([api('/things/1'), api('/things/2'), api('/things/3')]);
+
+    expect(refreshes).toBe(1);
+  });
+
+  it('throws the 401 when the refresh fails too', async () => {
+    server.use(http.get('/api/things', unauthorized), http.post('/api/auth/refresh', unauthorized));
+
+    await expect(api('/things')).rejects.toMatchObject({ status: 401 });
+  });
+
+  it('does not refresh for the auth endpoints', async () => {
+    server.use(http.post('/api/auth/login', unauthorized));
+
+    await expect(api('/auth/login', { method: 'POST', json: {} })).rejects.toMatchObject({
+      status: 401,
+    });
+  });
+
+  it('sends `json` as a JSON body', async () => {
+    server.use(
+      http.post('/api/things', async ({ request }) =>
+        HttpResponse.json({
+          type: request.headers.get('content-type'),
+          body: (await request.json()) as unknown,
+        }),
+      ),
+    );
+
+    await expect(api('/things', { method: 'POST', json: { a: 1 } })).resolves.toEqual({
+      type: 'application/json',
+      body: { a: 1 },
+    });
+  });
+});

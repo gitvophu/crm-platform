@@ -4,7 +4,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { SystemStatusCard } from '@/health/SystemStatusCard';
 
-export const Route = createFileRoute('/')({
+export const Route = createFileRoute('/_app/')({
   staticData: { title: 'Dashboard' },
   component: Dashboard,
 });

@@ -3,7 +3,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { ComingSoon } from '@/components/ComingSoon';
 
 // Placeholder until slice 1.5.
-export const Route = createFileRoute('/deals')({
+export const Route = createFileRoute('/_app/deals')({
   staticData: { title: 'Deals' },
   component: () => (
     <ComingSoon

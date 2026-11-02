@@ -13,3 +13,4 @@ coverage/
 !.vscode/extensions.json
 apps/api/src/generated/
 apps/web/src/routeTree.gen.ts
+.tanstack/

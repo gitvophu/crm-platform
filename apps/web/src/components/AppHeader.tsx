@@ -1,5 +1,6 @@
 import { useMatches } from '@tanstack/react-router';
 
+import { UserMenu } from '@/auth/UserMenu';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -12,7 +13,7 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 
 export const NOT_FOUND_TITLE = 'Page not found';
 
-/** Sidebar toggle + breadcrumb. The right side is kept for the user menu (slice 1.2). */
+/** Sidebar toggle, breadcrumb, and the user menu on the right. */
 export function AppHeader() {
   // The deepest route with a title names the page; no title means no route matched (404).
   const title = useMatches({
@@ -32,6 +33,7 @@ export function AppHeader() {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
+      <UserMenu />
     </header>
   );
 }
