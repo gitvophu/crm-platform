@@ -8,5 +8,5 @@
     // `@/x` = `src/x` (slice 0.6, Q4). Nest CLI passes `paths` to SWC, which rewrites them at build time.
     "paths": { "@/*": ["./src/*"] }
   },
-  "include": ["src", "test", "*.ts"]
+  "include": ["src", "test", "prisma", "*.ts"]
 }

@@ -23,7 +23,8 @@ Mọi lệnh dev chạy trong container (xem [ADR-0002](docs/adr/0002-dev-env-do
 cp .env.example .env   # cấu hình local (DB, cổng), không phải secret
 make up                # = docker compose up -d --wait: build image dev nếu chưa có, cài dependency,
                        #   build shared, migrate, rồi chạy postgres + api + web
-# mở http://localhost:5173 → "API: ok, DB: ok"
+make seed              # tạo team, user để đăng nhập (chạy lại không trùng)
+# mở http://localhost:5173, đăng nhập manager@nova.test / nova-dev-password
 curl localhost:3000/health
 make lint typecheck test build
 make help              # xem tất cả lệnh
@@ -38,6 +39,7 @@ make help              # xem tất cả lệnh
 | `make down`             | Dừng postgres + api + web                                                                  |
 | `make restart`          | Chạy lại `setup` rồi tạo lại api + web (sau khi sửa shared, hoặc pull khi stack đang chạy) |
 | `make install`          | `pnpm install` (tự chạy mỗi lần `make up`)                                                 |
+| `make seed`             | Tạo dữ liệu dev (team, user). Chạy lại thì cập nhật, không tạo trùng                       |
 | `make migrate`          | Chạy lại `setup` để áp migration mới (tự chạy mỗi lần `make up`)                           |
 | `make migration NAME=x` | Tạo migration mới từ thay đổi trong `apps/api/prisma/schema/`, chưa áp                     |
 
@@ -67,6 +69,24 @@ make help              # xem tất cả lệnh
 
 Bắt PR phải xanh mới được merge (làm một lần, trong GitHub): _Settings → Rules → Rulesets → New branch ruleset_, target `main`, bật _Require a pull request before merging_ và _Require status checks to pass_, thêm check `check` (tên job trong workflow).
 
+## Đăng nhập
+
+Access token JWT 15 phút + refresh token, cả hai trong cookie httpOnly ([ADR-0004](docs/adr/0004-auth-jwt-cookie.md)). Phiên hết hạn sau 7 ngày không dùng, hoặc 30 ngày từ lúc đăng nhập.
+
+Tài khoản seed (`make seed`), mật khẩu chung `nova-dev-password`, chỉ dùng ở máy dev:
+
+| Email               | Role    | Team   |
+| ------------------- | ------- | ------ |
+| `admin@nova.test`   | admin   | Growth |
+| `manager@nova.test` | manager | Growth |
+| `member@nova.test`  | member  | Growth |
+| `brand@nova.test`   | member  | Brand  |
+
+- Mọi route của api cần đăng nhập, trừ route có `@Public()` (`/health`, `/auth/login`, `/auth/refresh`, `/auth/logout`).
+- `.env` cần `JWT_SECRET` (tối thiểu 32 ký tự). Clone trước slice 1.2 thì chép dòng này từ `.env.example`, không thì api không khởi động.
+- Cookie đăng nhập có cờ `Secure`. Chrome, Firefox chấp nhận trên `http://localhost`; Safari, hoặc mở web qua `http://<IP máy>:5173` từ điện thoại thì không (đăng nhập xong vẫn bị đưa về login). Khi đó đặt `COOKIE_SECURE=false` trong `.env` rồi `make restart`.
+- Gọi api bằng curl: `curl -c jar -H 'content-type: application/json' -d '{"email":"manager@nova.test","password":"nova-dev-password"}' localhost:5173/api/auth/login`, rồi `curl -b jar localhost:5173/api/auth/me`. Đi qua cổng 5173 để path cookie (`/api`) khớp.
+
 ## Import và ranh giới module
 
 - `@/x` trỏ tới `src/x` của app đang đứng (api và web). Khác thư mục dùng `@/`, cùng thư mục dùng `./`, lint chặn `../`.
@@ -81,10 +101,10 @@ Bắt PR phải xanh mới được merge (làm một lần, trong GitHub): _Set
 
 React + Vite, TanStack Router (route theo file), TanStack Query, Tailwind 4 + shadcn/ui. Giao diện tiếng Anh, chỉ theme sáng.
 
-- Route: mỗi file trong `apps/web/src/routes/` là một trang (`contacts.tsx` → `/contacts`), `__root.tsx` là layout (sidebar, header, 404). Tên trang trên breadcrumb đặt bằng `staticData: { title }`.
+- Route: mỗi file trong `apps/web/src/routes/` là một trang. Trang cần đăng nhập nằm trong `routes/_app/` (`_app/contacts.tsx` → `/contacts`), `_app.tsx` là layout (sidebar, header) và kiểm tra đăng nhập. `login.tsx` nằm ngoài, không có layout. URL không tồn tại → `_app/$.tsx` (404). Tên trang trên breadcrumb đặt bằng `staticData: { title }`.
 - `src/routeTree.gen.ts` sinh tự động, không commit: Vite sinh lại khi dev, `make lint typecheck test build` chạy task `generate` (`tsr generate`) trước.
-- Component shadcn: `make sh`, rồi `cd apps/web && pnpm dlx shadcn@4.23.0 add <tên>`, sau đó `make format`. File sinh ra nằm ở `src/components/ui/`, ít sửa.
-- Gọi API bằng `api<T>(path)` (`src/lib/api.ts`): thêm prefix `/api`, response ngoài 2xx ném `ApiError` (status, body, request-id). Lỗi khi tải dữ liệu hiện bằng `ErrorState` trong trang, lỗi của thao tác (mutation) tự hiện toast (`meta: { errorTitle }` để đặt tiêu đề).
+- Component shadcn: `make sh`, rồi `cd apps/web && pnpm dlx shadcn@4.23.0 add <tên>`, sau đó `make format`. File sinh ra nằm ở `src/components/ui/`, ít sửa. CLI có lỗi: import `cn` từ package `cn` và thêm package đó vào `package.json`; đổi import thành `@/lib/utils` và gỡ package.
+- Gọi API bằng `api<T>(path, { method, json })` (`src/lib/api.ts`): thêm prefix `/api`, response ngoài 2xx ném `ApiError` (status, body, request-id). Gặp 401 thì tự refresh phiên rồi gọi lại; vẫn 401 thì về trang login (`?redirect=` trang đang mở). Lỗi khi tải dữ liệu hiện bằng `ErrorState` trong trang, lỗi của thao tác (mutation) tự hiện toast (`meta: { errorTitle }` để đặt tiêu đề, `toastError: false` để tự xử lý).
 - Devtools của Router (góc trái dưới) và Query (góc phải dưới) chỉ có khi chạy dev.
 
 ## Log

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { isHealthy } from './index.js';
+import { isHealthy } from './health.js';
 
 describe('isHealthy', () => {
   it('is true when API and DB are both ok', () => {

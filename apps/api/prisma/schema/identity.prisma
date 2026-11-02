@@ -1,0 +1,61 @@
+// Identity module (slice 1.2): who the users are, their team and role, and their sessions.
+// Models use @@schema("identity"); relations stay inside this schema (ADR-0003).
+
+enum Role {
+  admin
+  manager
+  member
+
+  @@map("role")
+  @@schema("identity")
+}
+
+model Team {
+  id        String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  name      String   @unique
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  users     User[]
+
+  @@map("teams")
+  @@schema("identity")
+}
+
+model User {
+  id           String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  /// Stored lowercase; login compares lowercase.
+  email        String    @unique
+  name         String
+  passwordHash String    @map("password_hash")
+  role         Role
+  teamId       String    @map("team_id") @db.Uuid
+  team         Team      @relation(fields: [teamId], references: [id])
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  sessions     Session[]
+
+  @@index([teamId])
+  @@map("users")
+  @@schema("identity")
+}
+
+/// One sign-in on one device. The refresh token is `<id>.<secret>`; only hashes are stored (ADR-0004).
+model Session {
+  id                String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  userId            String    @map("user_id") @db.Uuid
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// SHA-256 of the current secret.
+  tokenHash         String    @map("token_hash")
+  /// Secret replaced by the last rotation; reusing it within the grace period is not a theft.
+  previousTokenHash String?   @map("previous_token_hash")
+  rotatedAt         DateTime? @map("rotated_at") @db.Timestamptz
+  /// Moves forward on every refresh (7 days), never past absoluteExpiresAt.
+  idleExpiresAt     DateTime  @map("idle_expires_at") @db.Timestamptz
+  /// Fixed at sign-in (30 days).
+  absoluteExpiresAt DateTime  @map("absolute_expires_at") @db.Timestamptz
+  revokedAt         DateTime? @map("revoked_at") @db.Timestamptz
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([userId])
+  @@map("sessions")
+  @@schema("identity")
+}

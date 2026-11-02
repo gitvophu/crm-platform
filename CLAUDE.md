@@ -36,24 +36,27 @@ Chốt ở Phase 0. Mục ghi "slice 1.3" sẽ chốt ở slice Contacts (module
 - Cấu trúc module (api):
   - Nghiệp vụ: `apps/api/src/modules/<tên>/`, mỗi module một Nest module. `index.ts` là public API (module class, service, type dùng chung), module khác và code ngoài module chỉ import qua đây. Truy cập DB chỉ trong `<tên>.repository.ts`.
   - Hạ tầng dùng chung nằm ngoài `modules/`: `config/` (env, zod), `prisma/` (`PrismaService`, global), `logging/`, `health/`.
-  - Controller, service, DTO, validation input: chốt ở slice 1.3.
+  - Auth (ADR-0004): guard toàn cục, mọi route cần đăng nhập trừ `@Public()`. Lấy người gọi bằng `@CurrentUser()` (`SessionUser`: id, role, teamId). Cả hai export từ `modules/identity/index.ts`.
+  - Validation input: schema zod trong `@crm/shared` (web dùng lại cho form), api dùng `@Body(new ZodValidationPipe(schema))` (`src/validation/`). Lỗi 400 có `errors` theo field.
+  - Controller, service, DTO: chốt ở slice 1.3.
 - Đặt tên file/class:
   - File kebab-case theo vai trò: `<tên>.module.ts`, `.controller.ts`, `.service.ts`, `.repository.ts`. Class PascalCase cùng hậu tố (`HealthController`, `PrismaService`).
   - Web: component React một file PascalCase (`SystemStatusCard.tsx`), file còn lại kebab-case (`fetch-health.ts`).
-  - `packages/shared`: chỉ type và hàm thuần dùng chung giữa api và web, không phụ thuộc Nest, React.
+  - `packages/shared`: type, hàm thuần và schema zod dùng chung giữa api và web, không phụ thuộc Nest, React. Chia file theo tính năng (`auth.ts`, `health.ts`).
 - Cấu trúc web (`apps/web/src/`):
-  - `routes/`: route theo file của TanStack Router, chỉ ghép trang, logic để ở thư mục tính năng. Tên trang đặt bằng `staticData: { title }`. `routeTree.gen.ts` sinh tự động, không commit.
-  - Thư mục theo tính năng (`health/`, sau này `contacts/`...): component, hook, hàm gọi API của tính năng đó.
+  - `routes/`: route theo file của TanStack Router, chỉ ghép trang, logic để ở thư mục tính năng. Trang cần đăng nhập đặt trong `routes/_app/` (layout + kiểm tra đăng nhập ở `_app.tsx`). Tên trang đặt bằng `staticData: { title }`. `routeTree.gen.ts` sinh tự động, không commit.
+  - Thư mục theo tính năng (`health/`, `auth/`, sau này `contacts/`...): component, hook, hàm gọi API của tính năng đó. User đang đăng nhập: `useCurrentUser()` (`auth/me-query.ts`).
   - `components/`: component dùng chung (`AppSidebar`, `ErrorState`, `ComingSoon`). `components/ui/`: sinh bằng shadcn CLI, ít sửa, lint nới vài rule.
   - `lib/`: `api.ts` (`api<T>()`, `ApiError`), `query-client.ts`, `utils.ts` (`cn`).
-  - Gọi API qua `api<T>()`, không gọi `fetch` trực tiếp. Lỗi tải dữ liệu: `ErrorState` trong trang. Lỗi thao tác: toast tự động từ `MutationCache`, đặt tiêu đề bằng `meta: { errorTitle }`. Query không retry lỗi 4xx, retry 1 lần với lỗi mạng/5xx.
+  - Gọi API qua `api<T>(path, { method, json })`, không gọi `fetch` trực tiếp. 401 tự refresh rồi gọi lại; hết phiên thì về login. Lỗi tải dữ liệu: `ErrorState` trong trang. Lỗi thao tác: toast tự động từ `MutationCache`, đặt tiêu đề bằng `meta: { errorTitle }`, form tự hiện lỗi thì `meta: { toastError: false }`. Query không retry lỗi 4xx, retry 1 lần với lỗi mạng/5xx.
+  - Form: state React + schema zod của `@crm/shared` (`safeParse`, `fieldErrors()`), component `FormField`. Chưa dùng thư viện form.
   - Giao diện tiếng Anh, không i18n. Màu lấy từ token (`bg-primary`, `text-muted-foreground`, `bg-success`...), không ghi mã màu trong component.
-- ORM / migration: Prisma 7 (ADR-0003). Schema ở `apps/api/prisma/schema/<module>.prisma`, model có `@@schema("<module>")`, không `@relation` chéo schema. Trong `modules/`, chỉ `*.repository.ts` (và test của nó) import `PrismaService`, Prisma client; file khác được `import type` model. Hạ tầng ngoài `modules/` không bị giới hạn (`health/` gọi `PrismaService.ping()`). Chỉ roll forward, không down migration.
+- ORM / migration: Prisma 7 (ADR-0003). Schema ở `apps/api/prisma/schema/<module>.prisma`, model có `@@schema("<module>")`, không `@relation` chéo schema. Id là UUID v7 do Postgres sinh: `@id @default(dbgenerated("uuidv7()")) @db.Uuid`. Bảng và cột snake_case, tên bảng số nhiều (`@@map("users")`, `@map("team_id")`), thời gian `@db.Timestamptz`. Dữ liệu dev ở `prisma/seed.ts` (`make seed`), chạy lại được (upsert). Trong `modules/`, chỉ `*.repository.ts` (và test của nó) import `PrismaService`, Prisma client; file khác được `import type` model. Hạ tầng ngoài `modules/` không bị giới hạn (`health/` gọi `PrismaService.ping()`). Chỉ roll forward, không down migration.
 - Import: khác thư mục dùng alias `@/` (= `src/` của app), cùng thư mục dùng `./`, không dùng `../` (lint chặn). `apps/api` (Node, nodenext) ghi đuôi `.js`; `apps/web` (Vite, bundler) không ghi đuôi. Web gọi API qua `/api/*` (Vite proxy), type response lấy từ `@crm/shared`.
 - Test (Vitest):
   - Unit test đặt cạnh file: `x.ts` → `x.test.ts`.
   - api: test qua HTTP và DB trong `apps/api/test/*.e2e.test.ts`, dựng `AppModule` thật với supertest, DB `crm_test` được reset bằng migration mỗi lần chạy (`make test` tự bật postgres). Mock bằng `vi.spyOn`, mock tự gỡ sau mỗi test (`restoreMocks`).
-  - web: Testing Library + jsdom, giả API bằng MSW (`src/test/setup.ts`, mặc định `/api/health` ok), không mock `fetch` trực tiếp. Test cả trang qua `renderApp(path)` (`src/test/render-app.tsx`: router thật với memory history).
+  - web: Testing Library + jsdom, giả API bằng MSW (`src/test/setup.ts`, mặc định đã đăng nhập (`testUser`) và `/api/health` ok), không mock `fetch` trực tiếp. Test cả trang qua `renderApp(path)` (`src/test/render-app.tsx`: router thật với memory history).
   - Đổi rule ranh giới module thì cập nhật fixture của `apps/api/test/boundaries.test.ts`.
 - Logging (api): log JSON qua `nestjs-pino`. Trong code dùng `new Logger(<Class>.name)` của `@nestjs/common`, log trong request tự có `reqId`. Request-id nhận từ header `X-Request-Id` nếu hợp lệ, không thì tạo UUID, luôn trả về trong header. Không log dữ liệu nhạy cảm (header `authorization`, `cookie` đã redact). Mức log qua `LOG_LEVEL`.
 - Format lỗi API: chốt ở slice 1.3 (xem backlog). Hiện dùng mặc định của Nest; `/health` 503 trả body `HealthResponse`.

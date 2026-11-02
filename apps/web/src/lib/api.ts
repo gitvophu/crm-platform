@@ -1,3 +1,5 @@
+import { refreshSession } from '@/lib/session-refresh';
+
 /** Every API call goes through the Vite proxy: `/api/x` → `http://api:3000/x` (slice 0.4, Q1). */
 export const API_PREFIX = '/api';
 
@@ -40,22 +42,42 @@ async function readBody(res: Response): Promise<unknown> {
   }
 }
 
-/**
- * Calls the API and returns the parsed body as `T` (types from `@crm/shared`, not validated).
- * Throws `ApiError` for a non-2xx response, `NetworkError` when there is no response. Slice 1.2
- * handles 401 here (redirect to login).
- */
-export async function api<T>(path: string, init?: RequestInit): Promise<T> {
-  const headers = new Headers(init?.headers);
-  if (!headers.has('accept')) headers.set('accept', 'application/json');
+export interface ApiInit extends RequestInit {
+  /** Sent as a JSON body with `Content-Type: application/json`. */
+  json?: unknown;
+}
 
-  let res: Response;
+// Their 401 means bad credentials or no session, never an expired access token to refresh.
+const AUTH_PATHS = new Set(['/auth/login', '/auth/refresh', '/auth/logout']);
+
+async function send(path: string, { json, ...init }: ApiInit = {}): Promise<Response> {
+  const headers = new Headers(init.headers);
+  if (!headers.has('accept')) headers.set('accept', 'application/json');
+  if (json !== undefined) headers.set('content-type', 'application/json');
+  const body = json !== undefined ? JSON.stringify(json) : init.body;
   try {
-    res = await fetch(`${API_PREFIX}${path}`, { ...init, headers });
+    return await fetch(`${API_PREFIX}${path}`, { ...init, headers, body });
   } catch (error) {
     // An abort is the caller's choice (TanStack Query cancels stale queries), not a failure.
-    if (init?.signal?.aborted) throw error;
+    if (init.signal?.aborted) throw error;
     throw new NetworkError({ cause: error });
+  }
+}
+
+/**
+ * Calls the API and returns the parsed body as `T` (types from `@crm/shared`, not validated).
+ * Throws `ApiError` for a non-2xx response, `NetworkError` when there is no response.
+ *
+ * A 401 means the access token expired (15 min, ADR-0004): refresh the session and send the
+ * request once more. If that fails too, the 401 is thrown; the query client then sends the user
+ * to the login page (see `createAppRouter`).
+ */
+export async function api<T>(path: string, init?: ApiInit): Promise<T> {
+  let res = await send(path, init);
+  if (res.status === 401 && !AUTH_PATHS.has(path)) {
+    await refreshSession();
+    // Retry even if this refresh failed: another tab may have refreshed the cookies meanwhile.
+    res = await send(path, init);
   }
   const body = await readBody(res);
   if (!res.ok) throw new ApiError(res.status, body, res.headers.get(REQUEST_ID_HEADER));

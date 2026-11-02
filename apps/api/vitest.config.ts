@@ -14,6 +14,11 @@ export default defineConfig({
     // Tests must never touch the dev database.
     // Logging tests use their own in-memory logger. Elsewhere keep only errors, which explain a
     // failing test without flooding the output.
-    env: { DATABASE_URL: process.env.TEST_DATABASE_URL ?? '', LOG_LEVEL: 'error' },
+    // A fixed JWT_SECRET, so tests do not depend on .env and CI needs no secret.
+    env: {
+      DATABASE_URL: process.env.TEST_DATABASE_URL ?? '',
+      LOG_LEVEL: 'error',
+      JWT_SECRET: 'test-only-jwt-secret-0123456789abcdef',
+    },
   },
 });

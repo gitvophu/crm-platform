@@ -4,6 +4,7 @@ import { defineConfig } from 'prisma/config';
 // Tests point DATABASE_URL at the test database (see test/global-setup.ts).
 export default defineConfig({
   schema: 'prisma/schema',
-  migrations: { path: 'prisma/migrations' },
+  // `prisma db seed` (`make seed`). tsx maps the `.js` imports of the generated client to `.ts`.
+  migrations: { path: 'prisma/migrations', seed: 'tsx prisma/seed.ts' },
   datasource: { url: process.env.DATABASE_URL ?? '' },
 });

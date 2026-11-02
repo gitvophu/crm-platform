@@ -5,7 +5,7 @@ Mỗi slice đi xuyên DB → API → UI → test, là 1 PR. Mỗi slice có tà
 | Slice | Nội dung                                                    | Tài liệu                       | Branch                            | Điểm cần review                                    | Trạng thái |
 | ----- | ----------------------------------------------------------- | ------------------------------ | --------------------------------- | -------------------------------------------------- | ---------- |
 | 1.1   | Khung web: router, Tailwind + shadcn/ui, layout, API client | [1.1](slices/1.1-web-shell.md) | `phase-1/slice-1-1-web-shell`     | Cấu trúc thư mục web, cách gọi API, xử lý lỗi      | 🎉         |
-| 1.2   | Auth + user/team (seed)                                     |                                | `phase-1/slice-1-2-auth`          | ADR auth, cookie, guard, seed                      | ⬜         |
+| 1.2   | Auth + user/team (seed)                                     | [1.2](slices/1.2-auth.md)      | `phase-1/slice-1-2-auth`          | ADR auth, cookie, guard, seed                      | 🎉         |
 | 1.3   | Contacts (module mẫu) + phân quyền theo dòng                |                                | `phase-1/slice-1-3-contacts`      | ADR phân quyền, format lỗi API, mẫu module         | ⬜         |
 | 1.4   | Companies + gắn contact với company                         |                                | `phase-1/slice-1-4-companies`     | ADR tham chiếu chéo module, gọi service theo lô    | ⬜         |
 | 1.5   | Deals + pipeline Kanban                                     |                                | `phase-1/slice-1-5-deals`         | Giai đoạn pipeline, kéo thả, ghép dữ liệu 3 module | ⬜         |

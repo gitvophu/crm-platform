@@ -38,6 +38,8 @@ export default defineConfig(
         tsconfigRootDir: import.meta.dirname,
       },
     },
+    // Not in recommendedTypeChecked; libraries announce their next breaking changes this way.
+    rules: { '@typescript-eslint/no-deprecated': 'error' },
   },
   {
     // Module boundaries (ADR-0001, ADR-0003). `basePattern` also matches the lint fixtures under
@@ -138,6 +140,13 @@ export default defineConfig(
     files: ['apps/web/src/**/*.{ts,tsx}'],
     extends: [reactHooks.configs.flat['recommended-latest'], reactRefresh.configs.vite()],
     languageOptions: { globals: globals.browser },
+    rules: {
+      // TanStack Router leaves a route by `throw redirect(...)`, which is not an Error.
+      '@typescript-eslint/only-throw-error': [
+        'error',
+        { allow: [{ from: 'package', package: '@tanstack/router-core', name: 'Redirect' }] },
+      ],
+    },
   },
   {
     // A route file exports `Route` next to its components. The router plugin splits the

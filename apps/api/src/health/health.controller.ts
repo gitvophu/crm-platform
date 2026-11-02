@@ -1,8 +1,11 @@
 import { isHealthy, type HealthResponse, type ServiceStatus } from '@crm/shared';
 import { Controller, Get, Logger, ServiceUnavailableException } from '@nestjs/common';
 
+import { Public } from '@/modules/identity/index.js';
 import { PrismaService } from '@/prisma/prisma.service.js';
 
+// Polled by the compose healthcheck and the web status, signed in or not.
+@Public()
 @Controller('health')
 export class HealthController {
   private readonly logger = new Logger(HealthController.name);

@@ -1,12 +1,9 @@
-import { createRootRoute, Outlet } from '@tanstack/react-router';
+import type { QueryClient } from '@tanstack/react-query';
+import { createRootRouteWithContext, Outlet } from '@tanstack/react-router';
 import { lazy, Suspense } from 'react';
 
-import { AppHeader } from '@/components/AppHeader';
-import { AppSidebar } from '@/components/AppSidebar';
 import { NotFound } from '@/components/NotFound';
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { Toaster } from '@/components/ui/sonner';
-import { TooltipProvider } from '@/components/ui/tooltip';
 
 // Dev server only: the import is dropped from the build (slice 1.1, Q8), and kept out of tests.
 const Devtools =
@@ -14,28 +11,26 @@ const Devtools =
     ? lazy(() => import('@/components/Devtools'))
     : () => null;
 
-export const Route = createRootRoute({
-  component: RootLayout,
-  // Rendered in place of <Outlet />, so a 404 keeps the sidebar.
+export interface RouterContext {
+  /** For `beforeLoad` and loaders: `await context.queryClient.query(options)`. */
+  queryClient: QueryClient;
+}
+
+/** Bare root: `/login` has no layout; the signed-in layout is `_app.tsx`. */
+export const Route = createRootRouteWithContext<RouterContext>()({
+  component: Root,
+  // Unknown URLs are caught by `_app/$.tsx` (404 inside the layout); this is the fallback.
   notFoundComponent: NotFound,
 });
 
-function RootLayout() {
+function Root() {
   return (
-    <TooltipProvider>
-      <SidebarProvider>
-        <AppSidebar />
-        <SidebarInset>
-          <AppHeader />
-          <main className="flex-1 p-4 md:p-6">
-            <Outlet />
-          </main>
-        </SidebarInset>
-      </SidebarProvider>
+    <>
+      <Outlet />
       <Toaster position="bottom-right" />
       <Suspense>
         <Devtools />
       </Suspense>
-    </TooltipProvider>
+    </>
   );
 }
