@@ -37,6 +37,6 @@
 | Slice doc   | _"Viết slice doc cho X"_: Claude hỏi Q&A, ghi câu trả lời vào file, chờ duyệt     |
 | Slice       | _"Implement slice X theo slice doc, theo convention trong CLAUDE.md"_             |
 | Verify      | Yêu cầu chạy test + `docker compose up`                                           |
-| Smoke       | Chạy script trong repo `crm-platform-tests`, Claude đọc ảnh chụp và so với mockup |
+| Smoke       | Chạy script trong repo `crm-platform-test`, Claude đọc ảnh chụp và so với mockup |
 | Review      | `/code-review` trên branch, sau đó tự đối chiếu checklist                         |
 | Retro       | Tóm tắt quyết định trong phase thành ADR, cập nhật `CLAUDE.md`                    |

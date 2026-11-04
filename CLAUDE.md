@@ -19,7 +19,7 @@ CRM platform cho công ty giả định _Nova Agency_ (agency digital marketing)
 - Trình bày plan và chờ xác nhận trước khi tạo/sửa nhiều file.
 - Quyết định kiến trúc mới → đề xuất ADR trong `docs/adr/`.
 - Trước khi báo xong: chạy `make lint typecheck test` và đối chiếu `docs/review-checklist.md`.
-- Slice có màn hình mới hoặc đổi giao diện: sau khi code, chạy smoke test trong repo `/home/phuvo/me/projects/crm-platform-tests` (Playwright chụp màn hình trên stack dev, chỉ đọc), đọc ảnh chụp và so với mockup đã duyệt. Lệch hoặc lỗi giao diện thì sửa, hoặc ghi vào "Ghi chú khi implement". Thêm màn hình mới vào script smoke trong cùng lần.
+- Slice có màn hình mới hoặc đổi giao diện: sau khi code, chạy smoke test trong repo `/home/phuvo/me/projects/crm-platform-test` (Playwright chụp màn hình trên stack dev, chỉ đọc), đọc ảnh chụp và so với mockup đã duyệt. Lệch hoặc lỗi giao diện thì sửa, hoặc ghi vào "Ghi chú khi implement". Thêm màn hình mới vào script smoke trong cùng lần.
 - Implement xong một slice: chạy subagent với skill `/code-review` để review thay đổi của slice. Main agent xem từng điểm, sửa điểm hợp lý, điểm cần quyết định thiết kế thì hỏi, rồi chạy lại `make lint typecheck test`. Chỉ một vòng review. Báo cáo cuối liệt kê điểm đã sửa và điểm không sửa kèm lý do. Sau bước này mới báo slice xong.
 - Host không cài Node (ADR-0002): mọi lệnh node/pnpm chạy qua `make`, không gọi `pnpm`/`node`/`npx` trực tiếp trên host.
 
