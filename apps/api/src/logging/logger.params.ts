@@ -1,3 +1,4 @@
+import { HttpStatus } from '@nestjs/common';
 import type { Params } from 'nestjs-pino';
 import type { DestinationStream, LevelWithSilent } from 'pino';
 import type { Options } from 'pino-http';
@@ -30,14 +31,15 @@ export function loggerParams(level: LevelWithSilent, destination?: DestinationSt
       return id;
     },
     customLogLevel: (req, res, error) => {
+      const status: HttpStatus = res.statusCode;
       // Compose and the web app poll /health every 10s: only failures are worth a line (Q4).
       // 503 means a dependency is down, which /health reports by design.
       if (pathOf(req) === HEALTH_PATH) {
-        if (res.statusCode < 400) return 'silent';
-        if (res.statusCode === 503) return 'warn';
+        if (status < HttpStatus.BAD_REQUEST) return 'silent';
+        if (status === HttpStatus.SERVICE_UNAVAILABLE) return 'warn';
       }
-      if (error || res.statusCode >= 500) return 'error';
-      if (res.statusCode >= 400) return 'warn';
+      if (error || status >= HttpStatus.INTERNAL_SERVER_ERROR) return 'error';
+      if (status >= HttpStatus.BAD_REQUEST) return 'warn';
       return 'info';
     },
     // For a 5xx pino-http attaches a synthetic `err` whose stack points into pino-http itself. Nest

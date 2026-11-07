@@ -1,6 +1,7 @@
+import { HTTP_STATUS } from '@crm/shared';
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 
-import { meQueryOptions } from '@/auth/me-query';
+import { meQueryOptions } from '@/features/auth';
 import { AppHeader } from '@/components/AppHeader';
 import { AppSidebar } from '@/components/AppSidebar';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
@@ -14,7 +15,7 @@ export const Route = createFileRoute('/_app')({
     try {
       await context.queryClient.query(meQueryOptions);
     } catch (error) {
-      if (error instanceof ApiError && error.status === 401) {
+      if (error instanceof ApiError && error.status === HTTP_STATUS.unauthorized) {
         throw redirect({
           to: '/login',
           search: { redirect: location.href === '/' ? undefined : location.href },

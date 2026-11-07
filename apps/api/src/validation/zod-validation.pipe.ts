@@ -1,10 +1,13 @@
-import { BadRequestException, Injectable, type PipeTransform } from '@nestjs/common';
+import { PROBLEM_CODES } from '@crm/shared';
+import { HttpStatus, Injectable, type PipeTransform } from '@nestjs/common';
 import { z } from 'zod';
+
+import { AppProblem } from '@/errors/app-problem.js';
 
 /**
  * Validates and parses an input with a zod schema from `@crm/shared` (slice 1.2, Q4):
- * `@Body(new ZodValidationPipe(loginInput)) body: z.output<typeof loginInput>`.
- * The 400 body is Nest's default plus `errors` per field; slice 1.3 settles the error format.
+ * `@Body(new ZodValidationPipe(schema)) body: z.output<typeof schema>`, same for `@Query`.
+ * Fails with 400 `validation_failed` and the messages of each field.
  */
 @Injectable()
 export class ZodValidationPipe<T extends z.ZodType> implements PipeTransform<unknown, z.output<T>> {
@@ -13,12 +16,17 @@ export class ZodValidationPipe<T extends z.ZodType> implements PipeTransform<unk
   transform(value: unknown): z.output<T> {
     const result = this.schema.safeParse(value);
     if (!result.success) {
-      throw new BadRequestException({
-        statusCode: 400,
-        error: 'Bad Request',
-        message: 'Validation failed',
-        errors: z.flattenError(result.error).fieldErrors,
-      });
+      const errors = Object.fromEntries(
+        Object.entries(z.flattenError(result.error).fieldErrors).filter(
+          (entry): entry is [string, string[]] => Array.isArray(entry[1]),
+        ),
+      );
+      throw new AppProblem(
+        HttpStatus.BAD_REQUEST,
+        PROBLEM_CODES.validationFailed,
+        'Some fields are invalid.',
+        errors,
+      );
     }
     return result.data;
   }

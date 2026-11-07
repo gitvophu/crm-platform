@@ -9,6 +9,8 @@ import { AuthController } from './auth.controller.js';
 import { AuthGuard } from './auth.guard.js';
 import { ACCESS_TOKEN_TTL_MS, AuthService } from './auth.service.js';
 import { IdentityRepository } from './identity.repository.js';
+import { UsersController } from './users.controller.js';
+import { UsersService } from './users.service.js';
 
 @Module({
   imports: [
@@ -21,13 +23,15 @@ import { IdentityRepository } from './identity.repository.js';
       }),
     }),
   ],
-  controllers: [AuthController],
+  controllers: [AuthController, UsersController],
   providers: [
     AuthService,
     IdentityRepository,
+    UsersService,
     // Global: applies to every route of every module (ADR-0004).
     { provide: APP_GUARD, useClass: AuthGuard },
   ],
+  exports: [UsersService],
 })
 export class IdentityModule implements NestModule {
   // Here rather than in main.ts, so the e2e tests (which skip main.ts) parse cookies too.

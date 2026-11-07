@@ -1,2 +1,33 @@
-// Contacts module (Phase 1, slice 1.3). Models here must use @@schema("contacts")
-// and must not declare @relation to models of other schemas (ADR-0003).
+// Contacts module (slice 1.3). Models here use @@schema("contacts") and must not declare
+// @relation to models of other schemas (ADR-0003): owner and team are ids of identity.
+
+enum ContactStage {
+  lead
+  prospect
+  customer
+  churned
+
+  @@map("contact_stage")
+  @@schema("contacts")
+}
+
+model Contact {
+  id         String       @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  teamId     String       @map("team_id") @db.Uuid
+  ownerId    String       @map("owner_id") @db.Uuid
+  firstName  String       @map("first_name")
+  lastName   String?      @map("last_name")
+  email      String?
+  phone      String?
+  jobTitle   String?      @map("job_title")
+  stage      ContactStage @default(lead)
+  notes      String?
+  archivedAt DateTime?    @map("archived_at") @db.Timestamptz
+  createdAt  DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt  DateTime     @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@unique([teamId, email], where: raw("archived_at IS NULL AND email IS NOT NULL"))
+  @@index([teamId, updatedAt])
+  @@map("contacts")
+  @@schema("contacts")
+}

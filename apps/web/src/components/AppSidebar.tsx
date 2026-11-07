@@ -17,7 +17,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { HealthIndicator } from '@/health/HealthIndicator';
+import { HealthIndicator } from '@/features/health';
 
 interface NavItem {
   to: LinkProps['to'];
@@ -28,7 +28,7 @@ interface NavItem {
 }
 
 const crmItems: NavItem[] = [
-  { to: '/contacts', label: 'Contacts', icon: Users, soon: true },
+  { to: '/contacts', label: 'Contacts', icon: Users },
   { to: '/companies', label: 'Companies', icon: Building2, soon: true },
   { to: '/deals', label: 'Deals', icon: Handshake, soon: true },
   { to: '/activities', label: 'Activities', icon: CalendarClock, soon: true },

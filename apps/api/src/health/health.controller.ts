@@ -1,5 +1,6 @@
 import { isHealthy, type HealthResponse, type ServiceStatus } from '@crm/shared';
-import { Controller, Get, Logger, ServiceUnavailableException } from '@nestjs/common';
+import { Controller, Get, HttpStatus, Logger, Res } from '@nestjs/common';
+import type { Response } from 'express';
 
 import { Public } from '@/modules/identity/index.js';
 import { PrismaService } from '@/prisma/prisma.service.js';
@@ -14,7 +15,7 @@ export class HealthController {
 
   /** 200 when everything is ok, 503 with the same body shape otherwise. */
   @Get()
-  async check(): Promise<HealthResponse> {
+  async check(@Res({ passthrough: true }) res: Response): Promise<HealthResponse> {
     const db: ServiceStatus = await this.prisma.ping().then(
       () => 'ok',
       (error: unknown) => {
@@ -23,9 +24,9 @@ export class HealthController {
       },
     );
     const health: HealthResponse = { status: 'ok', db };
-    if (!isHealthy(health)) {
-      throw new ServiceUnavailableException(health);
-    }
+    // A plain 503 with the same body, not an exception: the web reads it, and the problem+json
+    // filter would replace it.
+    if (!isHealthy(health)) res.status(HttpStatus.SERVICE_UNAVAILABLE);
     return health;
   }
 }

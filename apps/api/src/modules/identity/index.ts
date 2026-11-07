@@ -2,3 +2,4 @@
 export { CurrentUser, Public } from './auth.decorators.js';
 export type { SessionUser } from './auth.types.js';
 export { IdentityModule } from './identity.module.js';
+export { UsersService } from './users.service.js';

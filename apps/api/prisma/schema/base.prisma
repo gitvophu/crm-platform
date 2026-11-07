@@ -6,6 +6,8 @@ generator client {
   output              = "../../src/generated/prisma"
   moduleFormat        = "esm"
   importFileExtension = "js"
+  // Partial unique index on contacts (slice 1.3): one email per team among active contacts.
+  previewFeatures     = ["partialIndexes"]
 }
 
 datasource db {

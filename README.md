@@ -87,6 +87,19 @@ Tài khoản seed (`make seed`), mật khẩu chung `nova-dev-password`, chỉ d
 - Cookie đăng nhập có cờ `Secure`. Chrome, Firefox chấp nhận trên `http://localhost`; Safari, hoặc mở web qua `http://<IP máy>:5173` từ điện thoại thì không (đăng nhập xong vẫn bị đưa về login). Khi đó đặt `COOKIE_SECURE=false` trong `.env` rồi `make restart`.
 - Gọi api bằng curl: `curl -c jar -H 'content-type: application/json' -d '{"email":"manager@nova.test","password":"nova-dev-password"}' localhost:5173/api/auth/login`, rồi `curl -b jar localhost:5173/api/auth/me`. Đi qua cổng 5173 để path cookie (`/api`) khớp.
 
+## Contacts
+
+Module mẫu của Phase 1 (slice 1.3): danh sách `/contacts` (tìm, lọc owner/stage, sắp xếp, phân trang, tất cả trên URL), chi tiết `/contacts/$id`, tạo `/contacts/new`, sửa `/contacts/$id/edit`, lưu trữ và khôi phục.
+
+- Phân quyền theo dòng ([ADR-0005](docs/adr/0005-row-level-access.md)): thấy contact của team mình (admin thấy mọi team); member chỉ sửa contact mình là owner, manager sửa mọi contact của team. Thử bằng `manager@nova.test`, `member@nova.test`, `brand@nova.test` (team khác).
+- `make seed` tạo 20 contact (13 của Growth, 7 của Brand).
+- Lỗi API là `application/problem+json`:
+
+  ```bash
+  curl -s -b jar localhost:5173/api/contacts/abc | jq
+  # { "status": 404, "code": "contact.not_found", "detail": "...", "requestId": "..." }
+  ```
+
 ## Import và ranh giới module
 
 - `@/x` trỏ tới `src/x` của app đang đứng (api và web). Khác thư mục dùng `@/`, cùng thư mục dùng `./`, lint chặn `../`.
@@ -95,6 +108,7 @@ Tài khoản seed (`make seed`), mật khẩu chung `nova-dev-password`, chỉ d
   - trong module, chỉ `*.repository.ts` (và test của nó) import `PrismaService`, Prisma client. File khác được `import type` model của Prisma
   - `apps/api` và `apps/web` không import nhau, code dùng chung đi qua `@crm/shared`
   - không import vòng giữa các module
+  - web: tính năng khác, route và `components/` chỉ import một tính năng qua `src/features/<tên>/index.ts`, không import vòng giữa các tính năng
 - Test `apps/api/test/boundaries.test.ts` chạy ESLint trên fixture để chắc chắn các rule trên còn hoạt động.
 
 ## Web
@@ -105,7 +119,7 @@ React + Vite, TanStack Router (route theo file), TanStack Query, Tailwind 4 + sh
 - `src/routeTree.gen.ts` sinh tự động, không commit: Vite sinh lại khi dev, `make lint typecheck test build` chạy task `generate` (`tsr generate`) trước.
 - Component shadcn: `make sh`, rồi `cd apps/web && pnpm dlx shadcn@4.23.0 add <tên>`, sau đó `make format`. File sinh ra nằm ở `src/components/ui/`, ít sửa. CLI có lỗi: import `cn` từ package `cn` và thêm package đó vào `package.json`; đổi import thành `@/lib/utils` và gỡ package.
 - Gọi API bằng `api<T>(path, { method, json })` (`src/lib/api.ts`): thêm prefix `/api`, response ngoài 2xx ném `ApiError` (status, body, request-id). Gặp 401 thì tự refresh phiên rồi gọi lại; vẫn 401 thì về trang login (`?redirect=` trang đang mở). Lỗi khi tải dữ liệu hiện bằng `ErrorState` trong trang, lỗi của thao tác (mutation) tự hiện toast (`meta: { errorTitle }` để đặt tiêu đề, `toastError: false` để tự xử lý).
-- Devtools của Router (góc trái dưới) và Query (góc phải dưới) chỉ có khi chạy dev.
+- Devtools của Router và Query (hai nút cạnh nhau ở góc phải dưới) chỉ có khi chạy dev.
 
 ## Log
 

@@ -28,7 +28,8 @@ describe('app shell', () => {
   it('marks modules that are not built yet', async () => {
     await renderApp('/');
 
-    for (const name of ['Contacts', 'Companies', 'Deals', 'Activities']) {
+    expect(navLink('Contacts').closest('li')).not.toHaveTextContent('Soon');
+    for (const name of ['Companies', 'Deals', 'Activities']) {
       const item = navLink(name).closest('li');
       expect(item).toHaveTextContent('Soon');
     }
