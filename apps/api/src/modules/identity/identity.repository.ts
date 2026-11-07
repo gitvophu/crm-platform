@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
+import { Prisma } from '@/generated/prisma/client.js';
 import { PrismaService } from '@/prisma/prisma.service.js';
 
 const withTeam = { team: true } as const;
@@ -15,6 +16,22 @@ export class IdentityRepository {
 
   findUserById(id: string) {
     return this.prisma.user.findUnique({ where: { id }, include: withTeam });
+  }
+
+  findUsersByIds(ids: readonly string[]) {
+    return this.prisma.user.findMany({ where: { id: { in: [...ids] } }, include: withTeam });
+  }
+
+  findTeamsByIds(ids: readonly string[]) {
+    return this.prisma.team.findMany({ where: { id: { in: [...ids] } } });
+  }
+
+  listUsersByTeam(teamId: string) {
+    return this.prisma.user.findMany({
+      where: { teamId },
+      include: withTeam,
+      orderBy: [{ name: Prisma.SortOrder.asc }, { id: Prisma.SortOrder.asc }],
+    });
   }
 
   createSession(data: {

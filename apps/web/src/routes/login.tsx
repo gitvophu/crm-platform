@@ -1,8 +1,6 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
 
-import { LoginForm } from '@/auth/LoginForm';
-import { meQueryOptions } from '@/auth/me-query';
-import { safeRedirect } from '@/auth/redirect';
+import { LoginForm, meQueryOptions, safeRedirect } from '@/features/auth';
 
 export interface LoginSearch {
   /** App path to return to after signing in. */

@@ -51,6 +51,6 @@ describe('module boundary lint rules', () => {
 
     expect(actual).toEqual(expectedViolations());
     // Guards against markers and violations disappearing together. Update when fixtures change.
-    expect(actual).toHaveLength(10);
+    expect(actual).toHaveLength(16);
   }, 60_000);
 });

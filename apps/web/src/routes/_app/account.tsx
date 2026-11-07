@@ -1,8 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 
-import { ChangePasswordForm } from '@/auth/ChangePasswordForm';
-import { useCurrentUser } from '@/auth/me-query';
-import { ProfileCard } from '@/auth/ProfileCard';
+import { ChangePasswordForm, ProfileCard, useCurrentUser } from '@/features/auth';
 import { PageHeader } from '@/components/PageHeader';
 
 export const Route = createFileRoute('/_app/account')({

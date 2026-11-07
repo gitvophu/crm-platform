@@ -1,0 +1,1178 @@
+<title>Contacts Layout Options</title>
+<meta name="claude:viewport-fit-sides" content="cover" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap"
+/>
+<style>
+  /* Options for slice 1.3 (Q9 layout, Q11 archive). Same tokens as slices 1.1–1.2, light only. */
+  :root {
+    color-scheme: light;
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.141 0.005 285.8);
+    --muted: oklch(0.967 0.001 286.4);
+    --muted-foreground: oklch(0.552 0.016 285.9);
+    --border: oklch(0.92 0.004 286.3);
+    --primary: oklch(0.5 0.09 192);
+    --primary-hover: oklch(0.45 0.09 192);
+    --primary-foreground: oklch(0.985 0 0);
+    --primary-soft: oklch(0.95 0.03 192);
+    --ring: oklch(0.7 0.08 192);
+    --sidebar: oklch(0.985 0.001 286.4);
+    --sidebar-accent: oklch(0.94 0.004 286.3);
+    --success: oklch(0.6 0.15 150);
+    --warning: oklch(0.72 0.15 75);
+    --destructive: oklch(0.577 0.245 27.3);
+    --destructive-soft: oklch(0.97 0.02 27);
+    --overlay: oklch(0.2 0.01 286 / 0.35);
+    --review-bg: oklch(0.27 0.01 286);
+    --review-fg: oklch(0.96 0 0);
+    --radius: 0.625rem;
+    --font-sans: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-mono: 'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  }
+  * {
+    box-sizing: border-box;
+  }
+  html,
+  body {
+    height: 100%;
+  }
+  body {
+    margin: 0;
+    background: oklch(0.93 0.004 286.3);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    display: flex;
+    flex-direction: column;
+  }
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  /* ---------- review bar ---------- */
+  .review {
+    background: var(--review-bg);
+    color: var(--review-fg);
+    padding-block: 10px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 20px;
+    align-items: center;
+    font-size: 12px;
+  }
+  .review strong {
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-size: 11px;
+    opacity: 0.8;
+  }
+  .review-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+  .review-group > span {
+    opacity: 0.7;
+  }
+  .chip {
+    border: 1px solid oklch(0.45 0.01 286);
+    background: transparent;
+    color: var(--review-fg);
+    border-radius: 999px;
+    padding: 2px 10px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  .chip[aria-pressed='true'] {
+    background: var(--review-fg);
+    color: var(--review-bg);
+    border-color: var(--review-fg);
+  }
+  .notes {
+    flex-basis: 100%;
+    margin: 0;
+    opacity: 0.85;
+    min-width: 0;
+  }
+
+  /* ---------- shell ---------- */
+  .frame {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    background: var(--background);
+    position: relative;
+    overflow: hidden;
+  }
+  .sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    background: var(--sidebar);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 12px;
+    height: 56px;
+  }
+  .logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--primary);
+    color: var(--primary-foreground);
+    display: grid;
+    place-items: center;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .brand-text {
+    display: grid;
+    line-height: 1.2;
+  }
+  .brand-text b {
+    font-weight: 600;
+  }
+  .brand-text small {
+    color: var(--muted-foreground);
+    font-size: 12px;
+  }
+  .nav {
+    padding: 8px;
+    display: grid;
+    gap: 2px;
+  }
+  .nav-label {
+    font-size: 11px;
+    color: var(--muted-foreground);
+    padding: 8px 8px 4px;
+  }
+  .nav span {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 8px;
+    border-radius: calc(var(--radius) - 4px);
+    height: 32px;
+  }
+  .nav span.active {
+    background: var(--sidebar-accent);
+    font-weight: 500;
+  }
+  .nav .soon {
+    margin-left: auto;
+    font-size: 10px;
+    color: var(--muted-foreground);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0 6px;
+    height: auto;
+  }
+  .sidebar-foot {
+    margin-top: auto;
+    padding: 12px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--muted-foreground);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .header {
+    height: 56px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 16px;
+  }
+  .crumbs {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    color: var(--muted-foreground);
+    min-width: 0;
+  }
+  .crumbs a {
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .crumbs a:hover {
+    color: var(--foreground);
+  }
+  .crumbs b {
+    color: var(--foreground);
+    font-weight: 500;
+  }
+  .user {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--primary-soft);
+    color: var(--primary);
+    display: grid;
+    place-items: center;
+    font-size: 11px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .avatar.lg {
+    width: 48px;
+    height: 48px;
+    font-size: 16px;
+  }
+  .content {
+    flex: 1;
+    overflow: auto;
+    padding: 24px;
+  }
+  .page {
+    max-width: 1080px;
+    display: grid;
+    gap: 16px;
+  }
+  .page-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  h1 {
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin: 0;
+    text-wrap: balance;
+  }
+  .lede {
+    color: var(--muted-foreground);
+    margin: 4px 0 0;
+  }
+
+  /* ---------- controls ---------- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 34px;
+    padding: 0 12px;
+    border-radius: calc(var(--radius) - 2px);
+    border: 1px solid var(--border);
+    background: var(--background);
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+  .btn:hover {
+    background: var(--muted);
+  }
+  .btn-primary {
+    background: var(--primary);
+    color: var(--primary-foreground);
+    border-color: var(--primary);
+  }
+  .btn-primary:hover {
+    background: var(--primary-hover);
+  }
+  .btn-danger {
+    background: var(--destructive);
+    color: var(--primary-foreground);
+    border-color: var(--destructive);
+  }
+  .btn-ghost {
+    border-color: transparent;
+    background: transparent;
+  }
+  .btn-sm {
+    height: 28px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+  .input,
+  .select,
+  textarea {
+    height: 34px;
+    border: 1px solid var(--border);
+    border-radius: calc(var(--radius) - 2px);
+    padding: 0 10px;
+    background: var(--background);
+    width: 100%;
+    min-width: 0;
+  }
+  textarea {
+    height: 72px;
+    padding: 8px 10px;
+    resize: vertical;
+  }
+  .field {
+    display: grid;
+    gap: 6px;
+  }
+  .field label {
+    font-weight: 500;
+  }
+  .field .hint {
+    font-size: 12px;
+    color: var(--muted-foreground);
+  }
+  .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+  }
+
+  /* ---------- list ---------- */
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+  .toolbar .search {
+    position: relative;
+    flex: 1 1 240px;
+    max-width: 320px;
+  }
+  .toolbar .search svg {
+    position: absolute;
+    left: 10px;
+    top: 9px;
+    color: var(--muted-foreground);
+  }
+  .toolbar .search .input {
+    padding-left: 32px;
+  }
+  .toolbar .select {
+    width: auto;
+  }
+  .toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 34px;
+    padding: 0 10px;
+    border: 1px dashed var(--border);
+    border-radius: calc(var(--radius) - 2px);
+    cursor: pointer;
+    color: var(--muted-foreground);
+    background: var(--background);
+  }
+  .toggle[aria-pressed='true'] {
+    border-style: solid;
+    color: var(--foreground);
+    background: var(--muted);
+  }
+  .table-wrap {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow-x: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 720px;
+  }
+  th {
+    text-align: left;
+    font-weight: 500;
+    color: var(--muted-foreground);
+    font-size: 12px;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+    background: var(--sidebar);
+  }
+  th .sort {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+  }
+  th .sort.active {
+    color: var(--foreground);
+  }
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  tbody tr:last-child td {
+    border-bottom: 0;
+  }
+  tbody tr {
+    cursor: pointer;
+  }
+  tbody tr:hover {
+    background: var(--muted);
+  }
+  tbody tr.archived {
+    color: var(--muted-foreground);
+  }
+  .who {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+  .who b {
+    font-weight: 500;
+  }
+  .who small {
+    display: block;
+    color: var(--muted-foreground);
+    font-size: 12px;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 999px;
+    padding: 1px 9px;
+    border: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .stage-lead .dot {
+    background: oklch(0.65 0.12 250);
+  }
+  .stage-prospect .dot {
+    background: var(--warning);
+  }
+  .stage-customer .dot {
+    background: var(--success);
+  }
+  .stage-churned .dot {
+    background: var(--muted-foreground);
+  }
+  .tag-archived {
+    color: var(--muted-foreground);
+    border-style: dashed;
+  }
+  .num {
+    font-variant-numeric: tabular-nums;
+    color: var(--muted-foreground);
+    white-space: nowrap;
+  }
+  .pager {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    color: var(--muted-foreground);
+    font-size: 13px;
+  }
+  .pager .btns {
+    display: flex;
+    gap: 6px;
+  }
+
+  /* ---------- detail ---------- */
+  .detail-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(240px, 1fr);
+    gap: 16px;
+    align-items: start;
+  }
+  .card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--background);
+    padding: 20px;
+    display: grid;
+    gap: 12px;
+  }
+  .card h2 {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0;
+  }
+  .card .sub {
+    margin: 0;
+    color: var(--muted-foreground);
+  }
+  dl.props {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr);
+    gap: 8px 16px;
+    margin: 0;
+  }
+  dl.props dt {
+    color: var(--muted-foreground);
+  }
+  dl.props dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+  .placeholder {
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    color: var(--muted-foreground);
+    display: grid;
+    gap: 4px;
+  }
+  .placeholder b {
+    color: var(--foreground);
+    font-weight: 500;
+  }
+  .banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 10px 14px;
+    border-radius: var(--radius);
+    background: var(--muted);
+    border: 1px dashed var(--border);
+  }
+
+  /* ---------- overlays ---------- */
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: var(--overlay);
+    z-index: 20;
+  }
+  .sheet {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(440px, 100%);
+    background: var(--background);
+    border-left: 1px solid var(--border);
+    z-index: 21;
+    display: flex;
+    flex-direction: column;
+    box-shadow: -12px 0 32px oklch(0.2 0.01 286 / 0.12);
+  }
+  .sheet-head,
+  .sheet-foot {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .sheet-head {
+    border-bottom: 1px solid var(--border);
+    justify-content: space-between;
+  }
+  .sheet-head h2,
+  .dialog h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .sheet-body {
+    padding: 20px;
+    overflow: auto;
+    display: grid;
+    gap: 14px;
+    align-content: start;
+    flex: 1;
+  }
+  .sheet-foot {
+    border-top: 1px solid var(--border);
+    justify-content: flex-end;
+  }
+  .dialog {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: min(560px, calc(100% - 32px));
+    max-height: calc(100% - 48px);
+    overflow: auto;
+    background: var(--background);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    z-index: 21;
+    padding: 20px;
+    display: grid;
+    gap: 14px;
+    box-shadow: 0 16px 40px oklch(0.2 0.01 286 / 0.2);
+  }
+  .dialog.sm {
+    width: min(420px, calc(100% - 32px));
+  }
+  .dialog .actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  .form-page {
+    max-width: 640px;
+  }
+  .toast {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    width: min(360px, calc(100% - 32px));
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow:
+      0 8px 24px oklch(0.2 0.01 286 / 0.12),
+      0 1px 3px oklch(0.2 0.01 286 / 0.08);
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 30;
+  }
+  .toast .grow {
+    flex: 1;
+    display: grid;
+  }
+  .toast b {
+    font-weight: 600;
+  }
+  .toast span {
+    color: var(--muted-foreground);
+    font-size: 13px;
+  }
+  @media (max-width: 760px) {
+    .sidebar {
+      display: none;
+    }
+    .content {
+      padding: 16px;
+    }
+    .detail-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .hide-sm {
+      display: none;
+    }
+  }
+</style>
+
+<div class="review" role="region" aria-label="Review controls">
+  <strong>Options · slice 1.3</strong>
+  <div class="review-group" data-group="layout">
+    <span>Q9 Layout</span>
+    <button class="chip" data-layout="sheet" aria-pressed="true">
+      A · Detail page + Sheet form
+    </button>
+    <button class="chip" data-layout="pages" aria-pressed="false">
+      B · Detail page + form pages
+    </button>
+    <button class="chip" data-layout="dialog" aria-pressed="false">C · List + dialogs only</button>
+  </div>
+  <div class="review-group" data-group="archive">
+    <span>Q11 Archive</span>
+    <button class="chip" data-archive="confirm" aria-pressed="true">
+      1 · Confirm + Archived filter + Restore
+    </button>
+    <button class="chip" data-archive="undo" aria-pressed="false">
+      2 · No confirm, toast Undo
+    </button>
+  </div>
+  <p class="notes" id="notes"></p>
+</div>
+
+<div class="frame" id="frame"></div>
+
+<script>
+  const ICON = {
+    search:
+      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
+    plus: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
+    sort: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 15 5 5 5-5M7 9l5-5 5 5"/></svg>',
+    down: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>',
+    close:
+      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+    archive:
+      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="4" rx="1"/><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8M10 12h4"/></svg>',
+    edit: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+    check:
+      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:var(--success)"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>',
+  };
+
+  const STAGES = { lead: 'Lead', prospect: 'Prospect', customer: 'Customer', churned: 'Churned' };
+  const contacts = [
+    {
+      id: 1,
+      first: 'Hana',
+      last: 'Vo',
+      email: 'hana@greenleafcoffee.vn',
+      phone: '+84 90 123 4567',
+      title: 'Marketing Director',
+      stage: 'customer',
+      owner: 'Linh Tran',
+      updated: '2 hours ago',
+      notes: 'Monthly retainer since March. Prefers calls on Tuesday.',
+    },
+    {
+      id: 2,
+      first: 'Minh',
+      last: 'Nguyen',
+      email: 'minh.nguyen@saigonbikes.com',
+      phone: '+84 91 555 0182',
+      title: 'Founder',
+      stage: 'prospect',
+      owner: 'Duc Pham',
+      updated: 'yesterday',
+      notes: '',
+    },
+    {
+      id: 3,
+      first: 'Thao',
+      last: 'Le',
+      email: 'thao@lotusspa.vn',
+      phone: '',
+      title: 'Owner',
+      stage: 'lead',
+      owner: 'Linh Tran',
+      updated: '3 days ago',
+      notes: 'Met at Saigon Retail Expo.',
+    },
+    {
+      id: 4,
+      first: 'Quang',
+      last: 'Do',
+      email: 'quang.do@techhub.io',
+      phone: '+84 98 220 7714',
+      title: 'Head of Growth',
+      stage: 'customer',
+      owner: 'Mai Nguyen',
+      updated: 'last week',
+      notes: '',
+    },
+    {
+      id: 5,
+      first: 'Anh',
+      last: 'Bui',
+      email: '',
+      phone: '+84 93 410 9921',
+      title: 'Brand Manager',
+      stage: 'lead',
+      owner: 'Duc Pham',
+      updated: 'last week',
+      notes: '',
+    },
+    {
+      id: 6,
+      first: 'Khoa',
+      last: 'Truong',
+      email: 'khoa@mekongfoods.vn',
+      phone: '+84 97 300 1188',
+      title: 'CEO',
+      stage: 'churned',
+      owner: 'Linh Tran',
+      updated: '2 weeks ago',
+      notes: 'Paused the SEO contract in August.',
+    },
+    {
+      id: 7,
+      first: 'Lan',
+      last: 'Pham',
+      email: 'lan.pham@urbanyoga.vn',
+      phone: '',
+      title: 'Studio Manager',
+      stage: 'prospect',
+      owner: 'Linh Tran',
+      updated: '3 weeks ago',
+      notes: '',
+    },
+    {
+      id: 8,
+      first: 'Tuan',
+      last: 'Hoang',
+      email: 'tuan@hoangfurniture.com',
+      phone: '+84 90 777 4410',
+      title: 'Sales Director',
+      stage: 'customer',
+      owner: 'Duc Pham',
+      updated: 'last month',
+      notes: '',
+    },
+    {
+      id: 9,
+      first: 'Vy',
+      last: 'Dang',
+      email: 'vy.dang@oldcafe.vn',
+      phone: '',
+      title: 'Owner',
+      stage: 'churned',
+      owner: 'Linh Tran',
+      updated: '2 months ago',
+      notes: '',
+      archived: true,
+    },
+  ];
+
+  const state = {
+    layout: 'sheet',
+    archive: 'confirm',
+    view: 'list', // list | detail | form-page
+    selected: 1,
+    overlay: null, // sheet-new | sheet-edit | dialog-view | dialog-new | dialog-edit | confirm
+    showArchived: false,
+    toast: null,
+  };
+  let toastTimer;
+
+  const notes = {
+    sheet:
+      'A: row → detail page (/contacts/$id), room for deals (1.5) and timeline (1.6). New/Edit slide in from the right; the list or detail stays visible behind it.',
+    pages:
+      'B: row → detail page. New and Edit are full pages (/contacts/new, /contacts/$id/edit): shareable URL, but leaving the list each time.',
+    dialog:
+      'C: no detail page. A row opens a dialog with the details; New/Edit are dialogs too. Compact now, but deals and timeline (1.5–1.6) will not fit in a dialog.',
+    confirm:
+      '1: Archive asks first. "Archived" toggle in the toolbar lists archived contacts (dimmed) with a Restore button.',
+    undo: '2: Archive happens at once, toast offers Undo for a few seconds. No screen to see archived contacts later.',
+  };
+
+  const initials = (c) => (c.first[0] + (c.last[0] ?? '')).toUpperCase();
+  const fullName = (c) => `${c.first} ${c.last}`.trim();
+  const stageBadge = (s) =>
+    `<span class="badge stage-${s}"><span class="dot"></span>${STAGES[s]}</span>`;
+  const current = () => contacts.find((c) => c.id === state.selected);
+
+  function shell(title, crumbs, content) {
+    const items = ['Contacts', 'Companies', 'Deals', 'Activities']
+      .map((n) =>
+        n === 'Contacts'
+          ? `<span class="active">${n}</span>`
+          : `<span>${n}<span class="soon">Soon</span></span>`,
+      )
+      .join('');
+    return `<aside class="sidebar"><div class="brand"><div class="logo" aria-hidden="true">N</div>
+        <div class="brand-text"><b>Nova CRM</b><small>Nova Agency</small></div></div>
+        <nav class="nav"><span>Dashboard</span><div class="nav-label">CRM</div>${items}</nav>
+        <div class="sidebar-foot"><span class="dot" style="background:var(--success)"></span>All systems operational</div></aside>
+      <div class="main"><header class="header"><div class="crumbs">${crumbs}</div>
+        <div class="user"><span class="avatar">LT</span><span class="hide-sm">Linh Tran</span>${ICON.down}</div></header>
+        <main class="content">${content}</main></div>`;
+  }
+
+  function listView() {
+    const rows = contacts
+      .filter((c) => (state.showArchived ? c.archived : !c.archived))
+      .map(
+        (c) => `<tr data-open="${c.id}" class="${c.archived ? 'archived' : ''}">
+          <td><div class="who"><span class="avatar">${initials(c)}</span><div><b>${fullName(c)}</b><small>${c.email || '—'}</small></div></div></td>
+          <td>${stageBadge(c.stage)}</td>
+          <td>${c.title}</td>
+          <td>${c.owner}</td>
+          <td class="num">${c.updated}</td>
+          ${
+            state.showArchived
+              ? `<td><button class="btn btn-sm" data-restore="${c.id}">Restore</button></td>`
+              : ''
+          }
+        </tr>`,
+      )
+      .join('');
+    const archivedToggle =
+      state.archive === 'confirm'
+        ? `<button class="toggle" data-toggle-archived aria-pressed="${state.showArchived}">${ICON.archive}Archived</button>`
+        : '';
+    return `<div class="page">
+      <div class="page-head"><div><h1>Contacts</h1><p class="lede">People at your client companies. You see your team’s contacts.</p></div>
+        <button class="btn btn-primary" data-new>${ICON.plus}New contact</button></div>
+      <div class="toolbar">
+        <div class="search">${ICON.search}<input class="input" placeholder="Search name or email" aria-label="Search contacts" /></div>
+        <select class="select" aria-label="Owner"><option>All owners</option><option>Me</option><option>Duc Pham</option><option>Mai Nguyen</option></select>
+        <select class="select" aria-label="Stage"><option>All stages</option><option>Lead</option><option>Prospect</option><option>Customer</option><option>Churned</option></select>
+        ${archivedToggle}
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr>
+          <th><span class="sort">Name ${ICON.sort}</span></th>
+          <th><span class="sort">Stage ${ICON.sort}</span></th>
+          <th>Job title</th><th>Owner</th>
+          <th><span class="sort active">Updated ${ICON.down}</span></th>
+          ${state.showArchived ? '<th></th>' : ''}
+        </tr></thead>
+        <tbody>${rows || '<tr><td colspan="6" style="text-align:center;color:var(--muted-foreground);padding:32px">No archived contacts.</td></tr>'}</tbody>
+      </table></div>
+      <div class="pager"><span>1–8 of 23 contacts</span>
+        <div class="btns"><button class="btn btn-sm" disabled>Previous</button><button class="btn btn-sm">Next</button></div></div>
+    </div>`;
+  }
+
+  function detailBody(c) {
+    return `<dl class="props">
+      <dt>Email</dt><dd>${c.email || '—'}</dd>
+      <dt>Phone</dt><dd>${c.phone || '—'}</dd>
+      <dt>Job title</dt><dd>${c.title}</dd>
+      <dt>Stage</dt><dd>${stageBadge(c.stage)}</dd>
+      <dt>Notes</dt><dd>${c.notes || '—'}</dd>
+    </dl>`;
+  }
+
+  function detailView() {
+    const c = current();
+    const archivedBanner = c.archived
+      ? `<div class="banner"><span>This contact is archived and hidden from the list.</span><button class="btn btn-sm" data-restore="${c.id}">Restore</button></div>`
+      : '';
+    return `<div class="page">
+      ${archivedBanner}
+      <div class="page-head">
+        <div class="who"><span class="avatar lg">${initials(c)}</span><div><h1>${fullName(c)}</h1><p class="lede">${c.title}</p></div></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn" data-edit>${ICON.edit}Edit</button>
+          ${c.archived ? '' : `<button class="btn" data-archive-btn>${ICON.archive}Archive</button>`}
+        </div>
+      </div>
+      <div class="detail-grid">
+        <div style="display:grid;gap:16px">
+          <section class="card"><h2>Details</h2>${detailBody(c)}</section>
+          <div class="placeholder"><b>Deals</b>Deals with this contact appear here (slice 1.5).</div>
+          <div class="placeholder"><b>Activity</b>Calls, meetings and notes appear here (slice 1.6).</div>
+        </div>
+        <section class="card"><h2>Ownership</h2>
+          <dl class="props"><dt>Owner</dt><dd>${c.owner}</dd><dt>Team</dt><dd>Growth</dd><dt>Created</dt><dd>12 Oct 2026</dd><dt>Updated</dt><dd>${c.updated}</dd></dl>
+        </section>
+      </div>
+    </div>`;
+  }
+
+  function formFields(c) {
+    const v = (x) => (c ? (x ?? '') : '');
+    const options = Object.entries(STAGES)
+      .map(([k, l]) => `<option ${c && c.stage === k ? 'selected' : ''}>${l}</option>`)
+      .join('');
+    return `<div class="grid-2">
+        <div class="field"><label for="f-first">First name</label><input id="f-first" class="input" value="${v(c?.first)}" /></div>
+        <div class="field"><label for="f-last">Last name</label><input id="f-last" class="input" value="${v(c?.last)}" /></div>
+      </div>
+      <div class="field"><label for="f-email">Email</label><input id="f-email" class="input" value="${v(c?.email)}" /><span class="hint">Optional. Unique within your team.</span></div>
+      <div class="grid-2">
+        <div class="field"><label for="f-phone">Phone</label><input id="f-phone" class="input" value="${v(c?.phone)}" /></div>
+        <div class="field"><label for="f-title">Job title</label><input id="f-title" class="input" value="${v(c?.title)}" /></div>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label for="f-stage">Stage</label><select id="f-stage" class="select">${options}</select></div>
+        <div class="field"><label for="f-owner">Owner</label><select id="f-owner" class="select"><option>${c ? c.owner : 'Linh Tran'}</option><option>Duc Pham</option><option>Mai Nguyen</option></select><span class="hint">Managers and admins can assign anyone in the team.</span></div>
+      </div>
+      <div class="field"><label for="f-notes">Notes</label><textarea id="f-notes">${v(c?.notes)}</textarea></div>`;
+  }
+
+  function formPage(edit) {
+    const c = edit ? current() : null;
+    return `<div class="page form-page">
+      <div><h1>${edit ? `Edit ${fullName(c)}` : 'New contact'}</h1><p class="lede">${edit ? 'Changes are saved for your whole team.' : 'The contact belongs to your team; you are the owner.'}</p></div>
+      <section class="card">${formFields(c)}
+        <div style="display:flex;justify-content:flex-end;gap:8px"><button class="btn" data-cancel-page>Cancel</button><button class="btn btn-primary" data-save>${edit ? 'Save changes' : 'Create contact'}</button></div>
+      </section></div>`;
+  }
+
+  function overlayHtml() {
+    const c = current();
+    switch (state.overlay) {
+      case 'sheet-new':
+      case 'sheet-edit': {
+        const edit = state.overlay === 'sheet-edit';
+        return `<div class="overlay" data-close></div><aside class="sheet" role="dialog" aria-label="${edit ? 'Edit contact' : 'New contact'}">
+          <div class="sheet-head"><h2>${edit ? `Edit ${fullName(c)}` : 'New contact'}</h2><button class="btn btn-ghost btn-sm" data-close aria-label="Close">${ICON.close}</button></div>
+          <div class="sheet-body">${formFields(edit ? c : null)}</div>
+          <div class="sheet-foot"><button class="btn" data-close>Cancel</button><button class="btn btn-primary" data-save>${edit ? 'Save changes' : 'Create contact'}</button></div></aside>`;
+      }
+      case 'dialog-new':
+      case 'dialog-edit': {
+        const edit = state.overlay === 'dialog-edit';
+        return `<div class="overlay" data-close></div><div class="dialog" role="dialog" aria-label="${edit ? 'Edit contact' : 'New contact'}">
+          <h2>${edit ? `Edit ${fullName(c)}` : 'New contact'}</h2>${formFields(edit ? c : null)}
+          <div class="actions"><button class="btn" data-close>Cancel</button><button class="btn btn-primary" data-save>${edit ? 'Save changes' : 'Create contact'}</button></div></div>`;
+      }
+      case 'dialog-view':
+        return `<div class="overlay" data-close></div><div class="dialog" role="dialog" aria-label="${fullName(c)}">
+          <div class="who"><span class="avatar lg">${initials(c)}</span><div><h2>${fullName(c)}</h2><span style="color:var(--muted-foreground)">${c.title} · owner ${c.owner}</span></div></div>
+          ${detailBody(c)}
+          <div class="actions"><button class="btn" data-archive-btn>${ICON.archive}Archive</button><button class="btn" data-edit>${ICON.edit}Edit</button><button class="btn btn-primary" data-close>Close</button></div></div>`;
+      case 'confirm':
+        return `<div class="overlay" data-close></div><div class="dialog sm" role="alertdialog" aria-label="Archive contact">
+          <h2>Archive ${fullName(c)}?</h2>
+          <p style="margin:0;color:var(--muted-foreground)">The contact is hidden from lists. Deals and activities keep showing the name. You can restore it from <b style="color:var(--foreground)">Archived</b>.</p>
+          <div class="actions"><button class="btn" data-close>Cancel</button><button class="btn btn-danger" data-do-archive>Archive</button></div></div>`;
+      default:
+        return '';
+    }
+  }
+
+  function toastHtml() {
+    if (!state.toast) return '';
+    const undo = state.toast.undo ? `<button class="btn btn-sm" data-undo>Undo</button>` : '';
+    return `<div class="toast" role="status">${ICON.check}<div class="grow"><b>${state.toast.title}</b><span>${state.toast.text}</span></div>${undo}</div>`;
+  }
+
+  function render() {
+    const frame = document.getElementById('frame');
+    const c = current();
+    let content;
+    let crumbs;
+    if (state.view === 'detail') {
+      content = detailView();
+      crumbs = `<a data-back>Contacts</a><span aria-hidden="true">/</span><b>${fullName(c)}</b>`;
+    } else if (state.view === 'form-page') {
+      content = formPage(state.formEdit);
+      crumbs = state.formEdit
+        ? `<a data-back>Contacts</a><span>/</span><a data-open="${c.id}">${fullName(c)}</a><span>/</span><b>Edit</b>`
+        : `<a data-back>Contacts</a><span>/</span><b>New</b>`;
+    } else {
+      content = listView();
+      crumbs = `<span>Nova CRM</span><span aria-hidden="true">/</span><b>Contacts</b>`;
+    }
+    frame.innerHTML = shell('Contacts', crumbs, content) + overlayHtml() + toastHtml();
+    document.getElementById('notes').textContent = `${notes[state.layout]} ${notes[state.archive]}`;
+    document
+      .querySelectorAll('[data-layout]')
+      .forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.layout === state.layout)));
+    document
+      .querySelectorAll('[data-archive]')
+      .forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.archive === state.archive)));
+  }
+
+  function showToast(toast) {
+    state.toast = toast;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      state.toast = null;
+      render();
+    }, 5000);
+  }
+
+  function archiveNow() {
+    const c = current();
+    c.archived = true;
+    state.overlay = null;
+    state.view = 'list';
+    showToast(
+      state.archive === 'undo'
+        ? { title: 'Contact archived', text: fullName(c), undo: true }
+        : { title: 'Contact archived', text: `${fullName(c)} · find it under Archived` },
+    );
+  }
+
+  document.getElementById('frame').addEventListener('click', (e) => {
+    const t = e.target.closest('button, a, tr, .overlay');
+    if (!t) return;
+    const d = t.dataset;
+    if (d.restore) {
+      e.stopPropagation();
+      const c = contacts.find((x) => x.id === Number(d.restore));
+      c.archived = false;
+      showToast({ title: 'Contact restored', text: fullName(c) });
+    } else if (d.open) {
+      state.selected = Number(d.open);
+      if (state.layout === 'dialog') state.overlay = 'dialog-view';
+      else state.view = 'detail';
+    } else if ('back' in d) {
+      state.view = 'list';
+    } else if ('new' in d) {
+      if (state.layout === 'sheet') state.overlay = 'sheet-new';
+      else if (state.layout === 'dialog') state.overlay = 'dialog-new';
+      else {
+        state.view = 'form-page';
+        state.formEdit = false;
+      }
+    } else if ('edit' in d) {
+      if (state.layout === 'sheet') state.overlay = 'sheet-edit';
+      else if (state.layout === 'dialog') state.overlay = 'dialog-edit';
+      else {
+        state.view = 'form-page';
+        state.formEdit = true;
+      }
+    } else if ('archiveBtn' in d) {
+      if (state.archive === 'confirm') state.overlay = 'confirm';
+      else archiveNow();
+    } else if ('doArchive' in d) {
+      archiveNow();
+    } else if ('undo' in d) {
+      current().archived = false;
+      state.toast = null;
+    } else if ('toggleArchived' in d) {
+      state.showArchived = !state.showArchived;
+    } else if ('save' in d) {
+      const editing =
+        state.overlay?.endsWith('edit') || (state.view === 'form-page' && state.formEdit);
+      state.overlay = null;
+      state.view = editing || state.layout === 'pages' ? 'detail' : state.view;
+      showToast({
+        title: editing ? 'Contact saved' : 'Contact created',
+        text: editing ? fullName(current()) : 'Minh Nguyen',
+      });
+    } else if ('cancelPage' in d) {
+      state.view = state.formEdit ? 'detail' : 'list';
+    } else if ('close' in d) {
+      state.overlay = null;
+    } else {
+      return;
+    }
+    render();
+  });
+
+  document.querySelectorAll('[data-layout]').forEach((b) =>
+    b.addEventListener('click', () => {
+      state.layout = b.dataset.layout;
+      state.view = 'list';
+      state.overlay = null;
+      render();
+    }),
+  );
+  document.querySelectorAll('[data-archive]').forEach((b) =>
+    b.addEventListener('click', () => {
+      state.archive = b.dataset.archive;
+      state.showArchived = false;
+      state.overlay = null;
+      render();
+    }),
+  );
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && state.overlay) {
+      state.overlay = null;
+      render();
+    }
+  });
+  render();
+</script>

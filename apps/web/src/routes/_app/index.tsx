@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router';
 
 import { PageHeader } from '@/components/PageHeader';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { SystemStatusCard } from '@/health/SystemStatusCard';
+import { SystemStatusCard } from '@/features/health';
 
 export const Route = createFileRoute('/_app/')({
   staticData: { title: 'Dashboard' },

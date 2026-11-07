@@ -1,19 +1,7 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Outlet } from '@tanstack/react-router';
 
-import { ComingSoon } from '@/components/ComingSoon';
-
-// Placeholder until slice 1.3.
+/** `/contacts/*`: names the first breadcrumb; each page below is its own route. */
 export const Route = createFileRoute('/_app/contacts')({
   staticData: { title: 'Contacts' },
-  component: () => (
-    <ComingSoon
-      title="Contacts"
-      what="people at your client companies"
-      features={[
-        'Search, filter and sort your contacts',
-        'See only your team’s contacts',
-        'Owner and team on every record',
-      ]}
-    />
-  ),
+  component: Outlet,
 });

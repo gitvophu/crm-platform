@@ -1,3 +1,5 @@
+import { HTTP_STATUS, type ProblemDetails } from '@crm/shared';
+
 import { refreshSession } from '@/lib/session-refresh';
 
 /** Every API call goes through the Vite proxy: `/api/x` → `http://api:3000/x` (slice 0.4, Q1). */
@@ -5,7 +7,7 @@ export const API_PREFIX = '/api';
 
 export const REQUEST_ID_HEADER = 'x-request-id';
 
-/** A response outside 2xx. */
+/** A response outside 2xx. The API answers problem+json (slice 1.3, Q5); read it with `problem`. */
 export class ApiError extends Error {
   constructor(
     readonly status: number,
@@ -16,6 +18,24 @@ export class ApiError extends Error {
   ) {
     super(`API request failed with status ${status}`);
     this.name = 'ApiError';
+  }
+
+  /** The problem+json body, or null when the response is not one (proxy error, HTML...). */
+  get problem(): ProblemDetails | null {
+    const body = this.body as Partial<ProblemDetails> | null;
+    return typeof body === 'object' && body !== null && typeof body.code === 'string'
+      ? (body as ProblemDetails)
+      : null;
+  }
+
+  /** Stable error code: `validation_failed`, `contact.email_taken`... */
+  get code(): string | undefined {
+    return this.problem?.code;
+  }
+
+  /** Messages per field, for validation and field conflicts. */
+  get fieldErrors(): Record<string, string[]> {
+    return this.problem?.errors ?? {};
   }
 }
 
@@ -74,7 +94,7 @@ async function send(path: string, { json, ...init }: ApiInit = {}): Promise<Resp
  */
 export async function api<T>(path: string, init?: ApiInit): Promise<T> {
   let res = await send(path, init);
-  if (res.status === 401 && !AUTH_PATHS.has(path)) {
+  if (res.status === HTTP_STATUS.unauthorized && !AUTH_PATHS.has(path)) {
     await refreshSession();
     // Retry even if this refresh failed: another tab may have refreshed the cookies meanwhile.
     res = await send(path, init);
@@ -96,9 +116,12 @@ export function describeError(error: unknown): { message: string; requestId: str
     // A bug in the page (render error, unexpected data), not a network problem.
     return { message: 'Something went wrong. Try again in a moment.', requestId: null };
   }
+  // A business error (`contact.forbidden`) carries a sentence written for the user; generic
+  // codes may carry framework text ("Cannot GET /x"), so keep ours for those.
+  const detail = error.code?.includes('.') ? error.problem?.detail : undefined;
   const message =
-    error.status >= 500
+    error.status >= HTTP_STATUS.internalServerError
       ? `The server answered with an error (${error.status}). Try again in a moment.`
-      : `The request was rejected (${error.status}).`;
+      : (detail ?? `The request was rejected (${error.status}).`);
   return { message, requestId: error.requestId };
 }

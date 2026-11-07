@@ -104,8 +104,18 @@ describe('auth', () => {
         .send({ email: 'nobody@nova.test', password: 'nope-nope' })
         .expect(401);
 
-      expect(wrongPassword.body).toEqual(unknownEmail.body);
-      expect(wrongPassword.body).toMatchObject({ message: 'Invalid email or password' });
+      // Same answer apart from the request id, so the response does not tell which emails exist.
+      const withoutRequestId = (body: Record<string, unknown>) =>
+        Object.fromEntries(Object.entries(body).filter(([key]) => key !== 'requestId'));
+      expect(withoutRequestId(wrongPassword.body as Record<string, unknown>)).toEqual(
+        withoutRequestId(unknownEmail.body as Record<string, unknown>),
+      );
+      expect(wrongPassword.body).toMatchObject({
+        status: 401,
+        code: 'auth.invalid_credentials',
+        detail: 'Invalid email or password.',
+      });
+      expect(wrongPassword.headers['content-type']).toMatch(/^application\/problem\+json/);
       expect(wrongPassword.headers['set-cookie']).toBeUndefined();
     });
 
@@ -113,7 +123,7 @@ describe('auth', () => {
       const res = await http().post('/auth/login').send({ email: 'x' }).expect(400);
 
       expect(res.body).toMatchObject({
-        message: 'Validation failed',
+        code: 'validation_failed',
         errors: { email: ['Enter a valid email.'], password: [expect.any(String)] },
       });
     });
@@ -280,7 +290,10 @@ describe('auth', () => {
       await changePassword(access, { currentPassword: 'wrong-one', newPassword: 'new-password-1' })
         .expect(403)
         .expect(({ body }) =>
-          expect(body).toMatchObject({ message: 'Current password is incorrect' }),
+          expect(body).toMatchObject({
+            code: 'auth.wrong_password',
+            errors: { currentPassword: ['Current password is incorrect.'] },
+          }),
         );
     });
 

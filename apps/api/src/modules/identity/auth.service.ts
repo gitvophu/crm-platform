@@ -1,8 +1,14 @@
-import type { AuthUser, ChangePasswordInput, LoginInput } from '@crm/shared';
-import { ForbiddenException, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import {
+  AUTH_PROBLEMS,
+  type AuthUser,
+  type ChangePasswordInput,
+  type LoginInput,
+} from '@crm/shared';
+import { HttpStatus, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { randomBytes } from 'node:crypto';
 
+import { AppProblem } from '@/errors/app-problem.js';
 import type { Team, User } from '@/generated/prisma/client.js';
 import type { IssuedTokens } from './auth.cookies.js';
 import type { AccessTokenPayload, SessionUser } from './auth.types.js';
@@ -25,8 +31,6 @@ export const SESSION_IDLE_TTL_MS = 7 * DAY;
 export const SESSION_ABSOLUTE_TTL_MS = 30 * DAY;
 /** Reusing the token a rotation just replaced is a race (parallel requests, tabs), not a theft. */
 export const REFRESH_REUSE_GRACE_MS = 30_000;
-
-const INVALID_CREDENTIALS = 'Invalid email or password';
 
 /**
  * The refresh lost a race with another refresh of the same session (parallel requests, tabs).
@@ -68,7 +72,13 @@ export class AuthService {
       user?.passwordHash ?? (await this.dummyHash),
       input.password,
     );
-    if (!user || !valid) throw new UnauthorizedException(INVALID_CREDENTIALS);
+    if (!user || !valid) {
+      throw new AppProblem(
+        HttpStatus.UNAUTHORIZED,
+        AUTH_PROBLEMS.invalidCredentials,
+        'Invalid email or password.',
+      );
+    }
 
     const now = Date.now();
     const absoluteExpiresAt = new Date(now + SESSION_ABSOLUTE_TTL_MS);
@@ -164,7 +174,14 @@ export class AuthService {
     if (!user) throw new UnauthorizedException();
     // 403, not 401: the caller is signed in, and a 401 would make the web refresh and retry.
     if (!(await verifyPassword(user.passwordHash, input.currentPassword))) {
-      throw new ForbiddenException('Current password is incorrect');
+      throw new AppProblem(
+        HttpStatus.FORBIDDEN,
+        AUTH_PROBLEMS.wrongPassword,
+        'Current password is incorrect.',
+        {
+          currentPassword: ['Current password is incorrect.'],
+        },
+      );
     }
     await this.repository.changePassword(
       user.id,

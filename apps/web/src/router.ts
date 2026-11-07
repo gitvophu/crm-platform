@@ -26,6 +26,8 @@ export function createAppRouter(history?: RouterHistory) {
     history,
     context: { queryClient },
     defaultPreload: 'intent',
+    // TanStack Query caches the data; the router must not skip a loader on its own.
+    defaultPreloadStaleTime: 0,
     defaultErrorComponent: RouteError,
   });
 

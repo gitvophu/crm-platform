@@ -1,0 +1,1243 @@
+<title>Nova CRM Contacts</title>
+<meta name="claude:viewport-fit-sides" content="cover" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap"
+/>
+<style>
+  /* Mockup slice 1.3 (Contacts): list + detail page + form pages (Q9: B), archive with confirm. Same tokens as 1.1–1.2. */
+  :root {
+    color-scheme: light;
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.141 0.005 285.8);
+    --muted: oklch(0.967 0.001 286.4);
+    --muted-foreground: oklch(0.552 0.016 285.9);
+    --border: oklch(0.92 0.004 286.3);
+    --primary: oklch(0.5 0.09 192);
+    --primary-hover: oklch(0.45 0.09 192);
+    --primary-foreground: oklch(0.985 0 0);
+    --primary-soft: oklch(0.95 0.03 192);
+    --ring: oklch(0.7 0.08 192);
+    --sidebar: oklch(0.985 0.001 286.4);
+    --sidebar-accent: oklch(0.94 0.004 286.3);
+    --success: oklch(0.6 0.15 150);
+    --warning: oklch(0.72 0.15 75);
+    --destructive: oklch(0.577 0.245 27.3);
+    --destructive-soft: oklch(0.97 0.02 27);
+    --overlay: oklch(0.2 0.01 286 / 0.35);
+    --review-bg: oklch(0.27 0.01 286);
+    --review-fg: oklch(0.96 0 0);
+    --radius: 0.625rem;
+    --font-sans: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-mono: 'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  }
+  * {
+    box-sizing: border-box;
+  }
+  html,
+  body {
+    height: 100%;
+  }
+  body {
+    margin: 0;
+    background: oklch(0.93 0.004 286.3);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    display: flex;
+    flex-direction: column;
+  }
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  /* ---------- review bar ---------- */
+  .review {
+    background: var(--review-bg);
+    color: var(--review-fg);
+    padding-block: 10px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 20px;
+    align-items: center;
+    font-size: 12px;
+  }
+  .review strong {
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-size: 11px;
+    opacity: 0.8;
+  }
+  .review-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+  .review-group[hidden] {
+    display: none;
+  }
+  .review-group > span {
+    opacity: 0.7;
+  }
+  .chip {
+    border: 1px solid oklch(0.45 0.01 286);
+    background: transparent;
+    color: var(--review-fg);
+    border-radius: 999px;
+    padding: 2px 10px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  .chip[aria-pressed='true'] {
+    background: var(--review-fg);
+    color: var(--review-bg);
+    border-color: var(--review-fg);
+  }
+  .notes {
+    flex-basis: 100%;
+    margin: 0;
+    opacity: 0.85;
+    min-width: 0;
+  }
+
+  /* ---------- shell ---------- */
+  .frame {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    background: var(--background);
+    position: relative;
+    overflow: hidden;
+  }
+  .sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    background: var(--sidebar);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 12px;
+    height: 56px;
+  }
+  .logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--primary);
+    color: var(--primary-foreground);
+    display: grid;
+    place-items: center;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .brand-text {
+    display: grid;
+    line-height: 1.2;
+  }
+  .brand-text b {
+    font-weight: 600;
+  }
+  .brand-text small {
+    color: var(--muted-foreground);
+    font-size: 12px;
+  }
+  .nav {
+    padding: 8px;
+    display: grid;
+    gap: 2px;
+  }
+  .nav-label {
+    font-size: 11px;
+    color: var(--muted-foreground);
+    padding: 8px 8px 4px;
+  }
+  .nav span {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 8px;
+    border-radius: calc(var(--radius) - 4px);
+    height: 32px;
+  }
+  .nav span.active {
+    background: var(--sidebar-accent);
+    font-weight: 500;
+  }
+  .nav .soon {
+    margin-left: auto;
+    font-size: 10px;
+    color: var(--muted-foreground);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0 6px;
+    height: auto;
+  }
+  .sidebar-foot {
+    margin-top: auto;
+    padding: 12px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--muted-foreground);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .header {
+    height: 56px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 16px;
+  }
+  .crumbs {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    color: var(--muted-foreground);
+    min-width: 0;
+  }
+  .crumbs a {
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .crumbs a:hover {
+    color: var(--foreground);
+  }
+  .crumbs b {
+    color: var(--foreground);
+    font-weight: 500;
+  }
+  .user {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--primary-soft);
+    color: var(--primary);
+    display: grid;
+    place-items: center;
+    font-size: 11px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .avatar.lg {
+    width: 48px;
+    height: 48px;
+    font-size: 16px;
+  }
+  .content {
+    flex: 1;
+    overflow: auto;
+    padding: 24px;
+  }
+  .page {
+    max-width: 1080px;
+    display: grid;
+    gap: 16px;
+  }
+  .page-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  h1 {
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin: 0;
+    text-wrap: balance;
+  }
+  .lede {
+    color: var(--muted-foreground);
+    margin: 4px 0 0;
+  }
+
+  /* ---------- controls ---------- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 34px;
+    padding: 0 12px;
+    border-radius: calc(var(--radius) - 2px);
+    border: 1px solid var(--border);
+    background: var(--background);
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+  .btn:hover {
+    background: var(--muted);
+  }
+  .btn-primary {
+    background: var(--primary);
+    color: var(--primary-foreground);
+    border-color: var(--primary);
+  }
+  .btn-primary:hover {
+    background: var(--primary-hover);
+  }
+  .btn-danger {
+    background: var(--destructive);
+    color: var(--primary-foreground);
+    border-color: var(--destructive);
+  }
+  .btn-ghost {
+    border-color: transparent;
+    background: transparent;
+  }
+  .btn-sm {
+    height: 28px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+  .input,
+  .select,
+  textarea {
+    height: 34px;
+    border: 1px solid var(--border);
+    border-radius: calc(var(--radius) - 2px);
+    padding: 0 10px;
+    background: var(--background);
+    width: 100%;
+    min-width: 0;
+  }
+  textarea {
+    height: 72px;
+    padding: 8px 10px;
+    resize: vertical;
+  }
+  .field {
+    display: grid;
+    gap: 6px;
+  }
+  .field label {
+    font-weight: 500;
+  }
+  .field .hint {
+    font-size: 12px;
+    color: var(--muted-foreground);
+  }
+  .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+  }
+
+  /* ---------- list ---------- */
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+  .toolbar .search {
+    position: relative;
+    flex: 1 1 240px;
+    max-width: 320px;
+  }
+  .toolbar .search svg {
+    position: absolute;
+    left: 10px;
+    top: 9px;
+    color: var(--muted-foreground);
+  }
+  .toolbar .search .input {
+    padding-left: 32px;
+  }
+  .toolbar .select {
+    width: auto;
+  }
+  .toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 34px;
+    padding: 0 10px;
+    border: 1px dashed var(--border);
+    border-radius: calc(var(--radius) - 2px);
+    cursor: pointer;
+    color: var(--muted-foreground);
+    background: var(--background);
+  }
+  .toggle[aria-pressed='true'] {
+    border-style: solid;
+    color: var(--foreground);
+    background: var(--muted);
+  }
+  .table-wrap {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow-x: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 720px;
+  }
+  th {
+    text-align: left;
+    font-weight: 500;
+    color: var(--muted-foreground);
+    font-size: 12px;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+    background: var(--sidebar);
+  }
+  th .sort {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+  }
+  th .sort.active {
+    color: var(--foreground);
+  }
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  tbody tr:last-child td {
+    border-bottom: 0;
+  }
+  tbody tr {
+    cursor: pointer;
+  }
+  tbody tr:hover {
+    background: var(--muted);
+  }
+  tbody tr.archived {
+    color: var(--muted-foreground);
+  }
+  .who {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+  .who b {
+    font-weight: 500;
+  }
+  .who small {
+    display: block;
+    color: var(--muted-foreground);
+    font-size: 12px;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 999px;
+    padding: 1px 9px;
+    border: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .stage-lead .dot {
+    background: oklch(0.65 0.12 250);
+  }
+  .stage-prospect .dot {
+    background: var(--warning);
+  }
+  .stage-customer .dot {
+    background: var(--success);
+  }
+  .stage-churned .dot {
+    background: var(--muted-foreground);
+  }
+  .tag-archived {
+    color: var(--muted-foreground);
+    border-style: dashed;
+  }
+  .num {
+    font-variant-numeric: tabular-nums;
+    color: var(--muted-foreground);
+    white-space: nowrap;
+  }
+  .pager {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    color: var(--muted-foreground);
+    font-size: 13px;
+  }
+  .pager .btns {
+    display: flex;
+    gap: 6px;
+  }
+
+  /* ---------- detail ---------- */
+  .detail-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(240px, 1fr);
+    gap: 16px;
+    align-items: start;
+  }
+  .card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--background);
+    padding: 20px;
+    display: grid;
+    gap: 12px;
+  }
+  .card h2 {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0;
+  }
+  .card .sub {
+    margin: 0;
+    color: var(--muted-foreground);
+  }
+  dl.props {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr);
+    gap: 8px 16px;
+    margin: 0;
+  }
+  dl.props dt {
+    color: var(--muted-foreground);
+  }
+  dl.props dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+  .placeholder {
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    color: var(--muted-foreground);
+    display: grid;
+    gap: 4px;
+  }
+  .placeholder b {
+    color: var(--foreground);
+    font-weight: 500;
+  }
+  .banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 10px 14px;
+    border-radius: var(--radius);
+    background: var(--muted);
+    border: 1px dashed var(--border);
+  }
+
+  /* ---------- overlays ---------- */
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: var(--overlay);
+    z-index: 20;
+  }
+  .dialog h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .dialog {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: min(560px, calc(100% - 32px));
+    max-height: calc(100% - 48px);
+    overflow: auto;
+    background: var(--background);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    z-index: 21;
+    padding: 20px;
+    display: grid;
+    gap: 14px;
+    box-shadow: 0 16px 40px oklch(0.2 0.01 286 / 0.2);
+  }
+  .dialog.sm {
+    width: min(420px, calc(100% - 32px));
+  }
+  .dialog .actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  .form-page {
+    max-width: 640px;
+  }
+  .form-page .card {
+    display: grid;
+    gap: 14px;
+  }
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  .toast {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    width: min(360px, calc(100% - 32px));
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow:
+      0 8px 24px oklch(0.2 0.01 286 / 0.12),
+      0 1px 3px oklch(0.2 0.01 286 / 0.08);
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 30;
+  }
+  .toast .grow {
+    flex: 1;
+    display: grid;
+  }
+  .toast b {
+    font-weight: 600;
+  }
+  .toast span {
+    color: var(--muted-foreground);
+    font-size: 13px;
+  }
+  @media (max-width: 760px) {
+    .sidebar {
+      display: none;
+    }
+    .content {
+      padding: 16px;
+    }
+    .detail-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .hide-sm {
+      display: none;
+    }
+  }
+</style>
+<style>
+  .err {
+    font-size: 12px;
+    color: var(--destructive);
+  }
+  .input.invalid,
+  .select.invalid {
+    border-color: var(--destructive);
+  }
+  .skeleton {
+    background: linear-gradient(90deg, var(--muted), oklch(0.985 0 0), var(--muted));
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+    border-radius: 6px;
+    height: 12px;
+  }
+  @keyframes shimmer {
+    to {
+      background-position: -200% 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .skeleton {
+      animation: none;
+    }
+  }
+  .error-state {
+    border: 1px solid oklch(0.88 0.06 27);
+    background: var(--destructive-soft);
+    border-radius: var(--radius);
+    padding: 16px;
+    display: grid;
+    gap: 6px;
+  }
+  .error-state b {
+    font-weight: 600;
+  }
+  .error-state .reqid {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--muted-foreground);
+  }
+  .empty {
+    display: grid;
+    justify-items: center;
+    text-align: center;
+    gap: 8px;
+    padding: 48px 24px;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    color: var(--muted-foreground);
+  }
+  .empty b {
+    color: var(--foreground);
+    font-size: 15px;
+  }
+  .btn[disabled] {
+    opacity: 0.55;
+    cursor: default;
+  }
+  .form-alert {
+    border: 1px solid oklch(0.88 0.06 27);
+    background: var(--destructive-soft);
+    border-radius: calc(var(--radius) - 2px);
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+  .spinner {
+    width: 13px;
+    height: 13px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+</style>
+
+<div class="review" role="region" aria-label="Review controls">
+  <strong>Mockup · slice 1.3</strong>
+  <div class="review-group">
+    <span>Screen</span>
+    <button class="chip" data-screen="list" aria-pressed="true">List</button>
+    <button class="chip" data-screen="detail" aria-pressed="false">Detail</button>
+    <button class="chip" data-screen="new" aria-pressed="false">New</button>
+    <button class="chip" data-screen="edit" aria-pressed="false">Edit</button>
+    <button class="chip" data-screen="saved" aria-pressed="false">Saved</button>
+    <button class="chip" data-screen="discard" aria-pressed="false">Leave unsaved</button>
+    <button class="chip" data-screen="forbidden" aria-pressed="false">Edit not allowed</button>
+    <button class="chip" data-screen="confirm" aria-pressed="false">Archive</button>
+    <button class="chip" data-screen="archived" aria-pressed="false">Archived list</button>
+    <button class="chip" data-screen="archived-detail" aria-pressed="false">Archived detail</button>
+    <button class="chip" data-screen="restore" aria-pressed="false">Restore</button>
+    <button class="chip" data-screen="missing" aria-pressed="false">Not found</button>
+  </div>
+  <div class="review-group">
+    <span>Signed in as</span>
+    <button class="chip" data-role="manager" aria-pressed="true">Manager</button>
+    <button class="chip" data-role="member" aria-pressed="false">Member</button>
+  </div>
+  <div class="review-group" id="data-states">
+    <span>Data</span>
+    <button class="chip" data-data="loaded" aria-pressed="true">Loaded</button>
+    <button class="chip" data-data="loading" aria-pressed="false">Loading</button>
+    <button class="chip" data-data="empty" aria-pressed="false">Empty</button>
+    <button class="chip" data-data="no-results" aria-pressed="false">No results</button>
+    <button class="chip" data-data="error" aria-pressed="false">Load error</button>
+  </div>
+  <div class="review-group" id="form-states">
+    <span>Form</span>
+    <button class="chip" data-form="default" aria-pressed="true">Default</button>
+    <button class="chip" data-form="validation" aria-pressed="false">Validation</button>
+    <button class="chip" data-form="taken" aria-pressed="false">Email taken (409)</button>
+    <button class="chip" data-form="saving" aria-pressed="false">Saving</button>
+  </div>
+  <p class="notes" id="notes"></p>
+</div>
+
+<div class="frame" id="frame"></div>
+
+<script>
+  const ICON = {
+    search:
+      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
+    plus: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
+    sort: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 15 5 5 5-5M7 9l5-5 5 5"/></svg>',
+    down: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>',
+    close:
+      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+    archive:
+      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="4" rx="1"/><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8M10 12h4"/></svg>',
+    edit: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+    users:
+      '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg>',
+  };
+
+  const STAGES = { lead: 'Lead', prospect: 'Prospect', customer: 'Customer', churned: 'Churned' };
+  const contacts = [
+    {
+      id: 1,
+      first: 'Hana',
+      last: 'Vo',
+      email: 'hana@greenleafcoffee.vn',
+      phone: '+84 90 123 4567',
+      title: 'Marketing Director',
+      stage: 'customer',
+      owner: 'Linh Tran',
+      updated: '2 hours ago',
+      notes: 'Monthly retainer since March. Prefers calls on Tuesday.',
+    },
+    {
+      id: 2,
+      first: 'Minh',
+      last: 'Nguyen',
+      email: 'minh.nguyen@saigonbikes.com',
+      phone: '+84 91 555 0182',
+      title: 'Founder',
+      stage: 'prospect',
+      owner: 'Duc Pham',
+      updated: 'yesterday',
+      notes: '',
+    },
+    {
+      id: 3,
+      first: 'Thao',
+      last: 'Le',
+      email: 'thao@lotusspa.vn',
+      phone: '',
+      title: 'Owner',
+      stage: 'lead',
+      owner: 'Linh Tran',
+      updated: '3 days ago',
+      notes: 'Met at Saigon Retail Expo.',
+    },
+    {
+      id: 4,
+      first: 'Quang',
+      last: 'Do',
+      email: 'quang.do@techhub.io',
+      phone: '+84 98 220 7714',
+      title: 'Head of Growth',
+      stage: 'customer',
+      owner: 'Mai Nguyen',
+      updated: 'last week',
+      notes: '',
+    },
+    {
+      id: 5,
+      first: 'Anh',
+      last: 'Bui',
+      email: '',
+      phone: '+84 93 410 9921',
+      title: 'Brand Manager',
+      stage: 'lead',
+      owner: 'Duc Pham',
+      updated: 'last week',
+      notes: '',
+    },
+    {
+      id: 6,
+      first: 'Khoa',
+      last: 'Truong',
+      email: 'khoa@mekongfoods.vn',
+      phone: '+84 97 300 1188',
+      title: 'CEO',
+      stage: 'churned',
+      owner: 'Linh Tran',
+      updated: '2 weeks ago',
+      notes: 'Paused the SEO contract in August.',
+    },
+    {
+      id: 7,
+      first: 'Lan',
+      last: 'Pham',
+      email: 'lan.pham@urbanyoga.vn',
+      phone: '',
+      title: 'Studio Manager',
+      stage: 'prospect',
+      owner: 'Linh Tran',
+      updated: '3 weeks ago',
+      notes: '',
+    },
+    {
+      id: 8,
+      first: 'Tuan',
+      last: 'Hoang',
+      email: 'tuan@hoangfurniture.com',
+      phone: '+84 90 777 4410',
+      title: 'Sales Director',
+      stage: 'customer',
+      owner: 'Duc Pham',
+      updated: 'last month',
+      notes: '',
+    },
+  ];
+  const archived = [
+    {
+      id: 9,
+      first: 'Vy',
+      last: 'Dang',
+      email: 'vy.dang@oldcafe.vn',
+      phone: '',
+      title: 'Owner',
+      stage: 'churned',
+      owner: 'Linh Tran',
+      updated: '2 months ago',
+      notes: 'Closed the shop in September.',
+    },
+    {
+      id: 10,
+      first: 'Bao',
+      last: 'Ly',
+      email: 'bao@lyprint.vn',
+      phone: '+84 90 555 1212',
+      title: 'Owner',
+      stage: 'lead',
+      owner: 'Duc Pham',
+      updated: '3 months ago',
+      notes: '',
+    },
+  ];
+  const USERS = { manager: 'Linh Tran', member: 'Duc Pham' };
+
+  const state = { screen: 'list', role: 'manager', data: 'loaded', form: 'default' };
+
+  const notes = {
+    list: 'Search (name, email), owner and stage filters, sort by clicking Name / Stage / Updated; all of it lives in the URL (?q=&owner=&stage=&sort=&page=). 25 per page.',
+    detail:
+      'Detail page /contacts/$id. A member sees every contact of the team but can edit only their own: on someone else’s contact, Edit and Archive are replaced by a note.',
+    new: 'Full page /contacts/new (Q9: B). Owner: a member is always the owner; a manager can pick anyone in the team. Create → the new contact’s detail page; Cancel → back to the list with its filters.',
+    edit: 'Full page /contacts/$id/edit, prefilled. Save or Cancel → back to the detail page. Email taken comes from the API (409, code contact.email_taken) and shows under Email.',
+    saved: 'After saving: the detail page, with a toast.',
+    discard:
+      'Leaving a form with unsaved changes (menu, Back, breadcrumb) asks first. Closing the tab or reloading shows the browser’s own prompt.',
+    forbidden:
+      'A member opens /contacts/$id/edit of someone else’s contact (e.g. from a shared link). The API would answer 403; the page says why instead of showing a form.',
+    confirm:
+      'Archive asks first. Archived contacts are hidden from the list; deals and activities keep showing the name.',
+    archived:
+      'Toolbar toggle "Archived": archived contacts only, with Restore. Same permissions as edit.',
+    'archived-detail':
+      'Opening an archived contact (e.g. from a link) shows a banner with Restore.',
+    restore:
+      'Restore asks first too, from the Archived list or the banner of an archived contact (added 2026-11-07).',
+    missing:
+      'Unknown id, or a contact of another team: the API answers 404 for both, so the page cannot tell them apart (no leak across teams).',
+  };
+
+  const me = () => USERS[state.role];
+  const canEdit = (c) => state.role === 'manager' || c.owner === me();
+  const initials = (c) => (c.first[0] + (c.last[0] ?? '')).toUpperCase();
+  const fullName = (c) => `${c.first} ${c.last}`.trim();
+  const stageBadge = (s) =>
+    `<span class="badge stage-${s}"><span class="dot"></span>${STAGES[s]}</span>`;
+
+  function shell(crumbs, content) {
+    const items = ['Contacts', 'Companies', 'Deals', 'Activities']
+      .map((n) =>
+        n === 'Contacts'
+          ? `<span class="active">${n}</span>`
+          : `<span>${n}<span class="soon">Soon</span></span>`,
+      )
+      .join('');
+    const name = me();
+    const ini = name
+      .split(' ')
+      .map((p) => p[0])
+      .join('');
+    return `<aside class="sidebar"><div class="brand"><div class="logo" aria-hidden="true">N</div>
+        <div class="brand-text"><b>Nova CRM</b><small>Nova Agency</small></div></div>
+        <nav class="nav"><span>Dashboard</span><div class="nav-label">CRM</div>${items}</nav>
+        <div class="sidebar-foot"><span class="dot" style="background:var(--success)"></span>All systems operational</div></aside>
+      <div class="main"><header class="header"><div class="crumbs">${crumbs}</div>
+        <div class="user"><span class="avatar">${ini}</span><span class="hide-sm">${name}</span>${ICON.down}</div></header>
+        <main class="content">${content}</main></div>`;
+  }
+
+  function tableRows(list, withRestore) {
+    return list
+      .map(
+        (c) => `<tr class="${withRestore ? 'archived' : ''}">
+          <td><div class="who"><span class="avatar">${initials(c)}</span><div><b>${fullName(c)}</b><small>${c.email || '—'}</small></div></div></td>
+          <td>${stageBadge(c.stage)}</td><td>${c.title}</td><td>${c.owner}</td><td class="num">${c.updated}</td>
+          ${withRestore ? `<td>${canEdit(c) ? '<button class="btn btn-sm">Restore</button>' : ''}</td>` : ''}
+        </tr>`,
+      )
+      .join('');
+  }
+
+  function listView(showArchived) {
+    const toolbar = `<div class="toolbar">
+        <div class="search">${ICON.search}<input class="input" placeholder="Search name or email" aria-label="Search contacts" value="${state.data === 'no-results' ? 'zzz' : ''}" /></div>
+        <select class="select" aria-label="Owner"><option>All owners</option><option>Me</option><option>Duc Pham</option><option>Mai Nguyen</option><option>Linh Tran</option></select>
+        <select class="select" aria-label="Stage"><option>All stages</option><option>Lead</option><option>Prospect</option><option>Customer</option><option>Churned</option></select>
+        <button class="toggle" aria-pressed="${showArchived}">${ICON.archive}Archived</button>
+      </div>`;
+    const head = `<thead><tr>
+        <th><span class="sort">Name ${ICON.sort}</span></th><th><span class="sort">Stage ${ICON.sort}</span></th>
+        <th>Job title</th><th>Owner</th><th><span class="sort active">Updated ${ICON.down}</span></th>${showArchived ? '<th></th>' : ''}
+      </tr></thead>`;
+    let body;
+    const data = showArchived ? 'loaded' : state.data;
+    if (data === 'loading') {
+      const row =
+        '<tr><td><div class="who"><span class="avatar"></span><div style="display:grid;gap:6px;width:160px"><div class="skeleton" style="width:70%"></div><div class="skeleton" style="width:90%"></div></div></div></td><td><div class="skeleton" style="width:70px"></div></td><td><div class="skeleton" style="width:110px"></div></td><td><div class="skeleton" style="width:80px"></div></td><td><div class="skeleton" style="width:70px"></div></td></tr>';
+      body = `<div class="table-wrap" aria-busy="true"><table>${head}<tbody>${row.repeat(6)}</tbody></table></div>`;
+    } else if (data === 'error') {
+      body = `<div class="error-state" role="alert"><b>Couldn’t load contacts</b><span>The server answered with an error (500). Try again in a moment.</span>
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><button class="btn btn-sm">Try again</button><span class="reqid">Request ID 01a1c3e2-77b0-7c11-9a4e-3f1b2d9e6c10</span></div></div>`;
+    } else if (data === 'empty') {
+      body = `<div class="empty"><span class="avatar lg" style="background:var(--primary-soft)">${ICON.users}</span><b>No contacts yet</b>
+        <span>Add the people you work with at your clients.</span><button class="btn btn-primary" data-go="new">${ICON.plus}New contact</button></div>`;
+    } else if (data === 'no-results') {
+      body = `<div class="empty"><b>No contacts match</b><span>Nothing for “zzz” with these filters.</span><button class="btn">Clear filters</button></div>`;
+    } else {
+      const list = showArchived ? archived : contacts;
+      body = `<div class="table-wrap"><table>${head}<tbody>${tableRows(list, showArchived)}</tbody></table></div>
+        <div class="pager"><span>${showArchived ? '1–2 of 2 archived contacts' : '1–8 of 23 contacts'}</span>
+          <div class="btns"><button class="btn btn-sm" disabled>Previous</button><button class="btn btn-sm" ${showArchived ? 'disabled' : ''}>Next</button></div></div>`;
+    }
+    return `<div class="page">
+      <div class="page-head"><div><h1>Contacts</h1><p class="lede">People at your client companies. You see your team’s contacts.</p></div>
+        <button class="btn btn-primary">${ICON.plus}New contact</button></div>
+      ${toolbar}${body}</div>`;
+  }
+
+  function detailView(c, isArchived) {
+    const actions = canEdit(c)
+      ? `<div style="display:flex;gap:8px"><button class="btn">${ICON.edit}Edit</button>${isArchived ? '' : `<button class="btn">${ICON.archive}Archive</button>`}</div>`
+      : `<span class="lede" style="max-width:280px;text-align:right">Only ${c.owner} or a manager can edit this contact.</span>`;
+    const banner = isArchived
+      ? `<div class="banner"><span>This contact is archived and hidden from the list.</span>${canEdit(c) ? '<button class="btn btn-sm">Restore</button>' : ''}</div>`
+      : '';
+    return `<div class="page">${banner}
+      <div class="page-head">
+        <div class="who"><span class="avatar lg">${initials(c)}</span><div><h1>${fullName(c)}</h1><p class="lede">${c.title}</p></div></div>
+        ${actions}
+      </div>
+      <div class="detail-grid">
+        <div style="display:grid;gap:16px">
+          <section class="card"><h2>Details</h2><dl class="props">
+            <dt>Email</dt><dd>${c.email || '—'}</dd><dt>Phone</dt><dd>${c.phone || '—'}</dd>
+            <dt>Job title</dt><dd>${c.title}</dd><dt>Stage</dt><dd>${stageBadge(c.stage)}</dd><dt>Notes</dt><dd>${c.notes || '—'}</dd>
+          </dl></section>
+          <div class="placeholder"><b>Deals</b>Deals with this contact appear here (slice 1.5).</div>
+          <div class="placeholder"><b>Activity</b>Calls, meetings and notes appear here (slice 1.6).</div>
+        </div>
+        <section class="card"><h2>Ownership</h2>
+          <dl class="props"><dt>Owner</dt><dd>${c.owner}</dd><dt>Team</dt><dd>Growth</dd><dt>Created</dt><dd>12 Oct 2026</dd><dt>Updated</dt><dd>${c.updated}</dd></dl>
+        </section>
+      </div></div>`;
+  }
+
+  function field(id, label, value, { error, hint, type = 'input', options } = {}) {
+    const cls = error ? ' invalid' : '';
+    const disabled = state.form === 'saving' ? 'disabled' : '';
+    const control =
+      type === 'select'
+        ? `<select id="${id}" class="select${cls}" ${disabled}>${options.map((o) => `<option ${o === value ? 'selected' : ''}>${o}</option>`).join('')}</select>`
+        : type === 'textarea'
+          ? `<textarea id="${id}" ${disabled}>${value}</textarea>`
+          : `<input id="${id}" class="input${cls}" value="${value}" ${error ? 'aria-invalid="true"' : ''} ${disabled} />`;
+    const note = error
+      ? `<span class="err">${error}</span>`
+      : hint
+        ? `<span class="hint">${hint}</span>`
+        : '';
+    return `<div class="field"><label for="${id}">${label}</label>${control}${note}</div>`;
+  }
+
+  function formPage(edit) {
+    const c = edit ? contacts[0] : null;
+    const f = state.form;
+    const v = (x) => (f === 'validation' && !edit ? '' : (x ?? ''));
+    const firstErr = f === 'validation' ? 'Enter a first name.' : '';
+    const emailVal =
+      f === 'validation' ? 'hana@' : f === 'taken' ? 'minh.nguyen@saigonbikes.com' : v(c?.email);
+    const emailErr =
+      f === 'validation'
+        ? 'Enter a valid email.'
+        : f === 'taken'
+          ? 'Another contact of your team already uses this email.'
+          : '';
+    const ownerField =
+      state.role === 'manager'
+        ? field('f-owner', 'Owner', c ? c.owner : me(), {
+            type: 'select',
+            options: ['Linh Tran', 'Duc Pham', 'Mai Nguyen'],
+            hint: 'Anyone in your team.',
+          })
+        : `<div class="field"><label>Owner</label><span style="padding:6px 0">${c ? c.owner : 'You'}</span></div>`;
+    const busy = f === 'saving' ? 'disabled' : '';
+    const saveLabel =
+      f === 'saving'
+        ? `<span class="spinner" aria-hidden="true"></span>Saving…`
+        : edit
+          ? 'Save changes'
+          : 'Create contact';
+    return `<div class="page form-page">
+      <div><h1>${edit ? `Edit ${fullName(c)}` : 'New contact'}</h1>
+        <p class="lede">${edit ? 'Changes are visible to your whole team.' : state.role === 'manager' ? 'The contact belongs to your team.' : 'The contact belongs to your team; you are the owner.'}</p></div>
+      <form class="card" onsubmit="return false">
+        ${f === 'taken' ? '<div class="form-alert" role="alert">Couldn’t save the contact. Check the fields below.</div>' : ''}
+        <div class="grid-2">${field('f-first', 'First name', f === 'validation' ? '' : v(c?.first ?? (f === 'taken' ? 'Minh' : '')), { error: firstErr })}${field('f-last', 'Last name', v(c?.last ?? (f === 'taken' ? 'Nguyen' : '')))}</div>
+        ${field('f-email', 'Email', emailVal, { error: emailErr, hint: 'Optional. Unique within your team.' })}
+        <div class="grid-2">${field('f-phone', 'Phone', v(c?.phone))}${field('f-title', 'Job title', v(c?.title))}</div>
+        <div class="grid-2">${field('f-stage', 'Stage', c ? STAGES[c.stage] : 'Lead', { type: 'select', options: Object.values(STAGES) })}${ownerField}</div>
+        ${field('f-notes', 'Notes', v(c?.notes), { type: 'textarea' })}
+        <div class="form-actions"><button class="btn" type="button" ${busy}>Cancel</button><button class="btn btn-primary" ${busy}>${saveLabel}</button></div>
+      </form></div>`;
+  }
+
+  function discardDialog() {
+    return `<div class="overlay"></div><div class="dialog sm" role="alertdialog" aria-label="Discard changes">
+      <h2>Discard changes?</h2>
+      <p style="margin:0;color:var(--muted-foreground)">You have unsaved changes to this contact. If you leave now, they are lost.</p>
+      <div class="actions"><button class="btn">Keep editing</button><button class="btn btn-danger">Discard</button></div></div>`;
+  }
+
+  function forbiddenView(c) {
+    return `<div class="page"><div class="empty" style="justify-items:start;text-align:left;border:0;padding:24px 0">
+      <span style="font-family:var(--font-mono)">403</span><b style="font-size:22px">You can’t edit this contact</b>
+      <span>Only ${c.owner} (the owner) or a manager of the team can edit ${fullName(c)}.</span>
+      <button class="btn btn-primary">Back to ${fullName(c)}</button></div></div>`;
+  }
+
+  function savedToast() {
+    return `<div class="toast" role="status"><div class="grow"><b>Contact saved</b><span>Hana Vo was updated.</span></div></div>`;
+  }
+
+  function confirmDialog(c) {
+    return `<div class="overlay"></div><div class="dialog sm" role="alertdialog" aria-label="Archive contact">
+      <h2>Archive ${fullName(c)}?</h2>
+      <p style="margin:0;color:var(--muted-foreground)">The contact is hidden from lists. Deals and activities keep showing the name. You can restore it from <b style="color:var(--foreground)">Archived</b>.</p>
+      <div class="actions"><button class="btn">Cancel</button><button class="btn btn-danger">Archive</button></div></div>`;
+  }
+
+  function restoreDialog(c) {
+    return `<div class="overlay"></div><div class="dialog sm" role="alertdialog" aria-label="Restore contact">
+      <h2>Restore ${fullName(c)}?</h2>
+      <p style="margin:0;color:var(--muted-foreground)">The contact shows up in the list again, with the same owner and details.</p>
+      <div class="actions"><button class="btn">Cancel</button><button class="btn btn-primary">Restore</button></div></div>`;
+  }
+
+  function missingView() {
+    return `<div class="page"><div class="empty" style="justify-items:start;text-align:left;border:0;padding:24px 0">
+      <span style="font-family:var(--font-mono)">404</span><b style="font-size:22px">Contact not found</b>
+      <span>It may have been deleted, or it belongs to another team.</span><button class="btn btn-primary">Back to contacts</button></div></div>`;
+  }
+
+  function render() {
+    const s = state.screen;
+    const listCrumb = `<span>Nova CRM</span><span aria-hidden="true">/</span><b>Contacts</b>`;
+    const detailCrumb = (c) =>
+      `<a>Contacts</a><span aria-hidden="true">/</span><b>${fullName(c)}</b>`;
+    const editCrumb = (c) =>
+      `<a>Contacts</a><span aria-hidden="true">/</span><a>${fullName(c)}</a><span aria-hidden="true">/</span><b>Edit</b>`;
+    // A member looks at Minh Nguyen (owned by Duc Pham = the member) or Hana Vo (owned by Linh Tran).
+    const detailContact = contacts[0];
+    let html;
+    if (s === 'list') html = shell(listCrumb, listView(false));
+    else if (s === 'archived') html = shell(listCrumb, listView(true));
+    else if (s === 'detail')
+      html = shell(detailCrumb(detailContact), detailView(detailContact, false));
+    else if (s === 'archived-detail')
+      html = shell(detailCrumb(archived[0]), detailView(archived[0], true));
+    else if (s === 'missing')
+      html = shell(
+        `<a>Contacts</a><span aria-hidden="true">/</span><b>Not found</b>`,
+        missingView(),
+      );
+    else if (s === 'new')
+      html = shell(
+        `<a>Contacts</a><span aria-hidden="true">/</span><b>New contact</b>`,
+        formPage(false),
+      );
+    else if (s === 'edit') html = shell(editCrumb(detailContact), formPage(true));
+    else if (s === 'saved')
+      html = shell(detailCrumb(detailContact), detailView(detailContact, false)) + savedToast();
+    else if (s === 'discard')
+      html = shell(editCrumb(detailContact), formPage(true)) + discardDialog();
+    else if (s === 'forbidden')
+      html = shell(editCrumb(detailContact), forbiddenView(detailContact));
+    else if (s === 'restore') html = shell(listCrumb, listView(true)) + restoreDialog(archived[0]);
+    else if (s === 'confirm')
+      html =
+        shell(detailCrumb(detailContact), detailView(detailContact, false)) +
+        confirmDialog(detailContact);
+    document.getElementById('frame').innerHTML = html;
+
+    document.getElementById('data-states').hidden = s !== 'list';
+    document.getElementById('form-states').hidden = s !== 'new' && s !== 'edit';
+    for (const [attr, key] of [
+      ['screen', 'screen'],
+      ['role', 'role'],
+      ['data', 'data'],
+      ['form', 'form'],
+    ]) {
+      document
+        .querySelectorAll(`[data-${attr}]`)
+        .forEach((b) => b.setAttribute('aria-pressed', String(b.dataset[attr] === state[key])));
+    }
+    const roleNote =
+      state.role === 'member'
+        ? ' Signed in as a member (Duc Pham): Hana Vo is owned by Linh Tran, so no Edit/Archive.'
+        : '';
+    document.getElementById('notes').textContent = notes[s] + roleNote;
+  }
+
+  document.querySelector('.review').addEventListener('click', (e) => {
+    const b = e.target.closest('button.chip');
+    if (!b) return;
+    for (const key of ['screen', 'role', 'data', 'form'])
+      if (b.dataset[key]) state[key] = b.dataset[key];
+    if (b.dataset.screen) {
+      state.data = 'loaded';
+      state.form = 'default';
+      // Hana Vo is owned by Linh Tran: only a member is refused.
+      if (b.dataset.screen === 'forbidden') state.role = 'member';
+    }
+    render();
+  });
+  document.getElementById('frame').addEventListener('click', (e) => {
+    if (e.target.closest('[data-go="new"]')) {
+      state.screen = 'new';
+      render();
+    }
+  });
+  render();
+</script>

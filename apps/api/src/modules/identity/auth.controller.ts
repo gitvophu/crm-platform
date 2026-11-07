@@ -5,7 +5,7 @@ import {
   loginInput,
   type LoginInput,
 } from '@crm/shared';
-import { Body, Controller, Get, HttpCode, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Req, Res } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Request, Response } from 'express';
 
@@ -29,7 +29,7 @@ export class AuthController {
 
   @Public()
   @Post('login')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   async login(
     @Body(new ZodValidationPipe(loginInput)) body: LoginInput,
     @Res({ passthrough: true }) res: Response,
@@ -41,7 +41,7 @@ export class AuthController {
 
   @Public()
   @Post('refresh')
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response): Promise<void> {
     try {
       setAuthCookies(
@@ -59,7 +59,7 @@ export class AuthController {
   /** Public: signing out must work with an expired access token. */
   @Public()
   @Post('logout')
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response): Promise<void> {
     await this.auth.logout(readCookie(req, REFRESH_COOKIE));
     clearAuthCookies(res, this.secureCookies);
@@ -71,7 +71,7 @@ export class AuthController {
   }
 
   @Post('change-password')
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   changePassword(
     @CurrentUser() user: SessionUser,
     @Body(new ZodValidationPipe(changePasswordInput)) body: ChangePasswordInput,

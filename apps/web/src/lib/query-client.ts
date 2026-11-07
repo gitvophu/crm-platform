@@ -1,3 +1,4 @@
+import { HTTP_STATUS } from '@crm/shared';
 import { MutationCache, QueryCache, QueryClient, type QueryKey } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
@@ -15,14 +16,15 @@ declare module '@tanstack/react-query' {
 
 /** A 4xx will fail the same way again; a network error or 5xx may be transient (slice 1.1, Q6). */
 export function shouldRetry(failureCount: number, error: unknown): boolean {
-  if (error instanceof ApiError && error.status < 500) return false;
+  if (error instanceof ApiError && error.status < HTTP_STATUS.internalServerError) return false;
   return failureCount < 1;
 }
 
 /** Queries and mutations under `['auth', ...]` handle their own 401 (bad credentials, signed out). */
 const isAuthKey = (key: QueryKey | undefined) => key?.[0] === 'auth';
 
-const isUnauthorized = (error: unknown) => error instanceof ApiError && error.status === 401;
+const isUnauthorized = (error: unknown) =>
+  error instanceof ApiError && error.status === HTTP_STATUS.unauthorized;
 
 interface QueryClientOptions {
   /** Called when a call still gets 401 after `api()` tried to refresh: the session is over. */
