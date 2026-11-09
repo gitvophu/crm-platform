@@ -1,105 +1,88 @@
-# Phase 1: Core CRM · Plan
+# Phase 1: CRM · Plan
 
 Mỗi slice đi xuyên DB → API → UI → test, là 1 PR. Mỗi slice có tài liệu Spec · Q&A · Plan riêng trong `slices/`, phải được duyệt trước khi code (xem `docs/02-workflow.md`). Lịch chỉ để ước lượng (spec, Q4): ghi ngày bắt đầu/kết thúc thật của từng slice.
 
-| Slice | Nội dung                                                    | Tài liệu                       | Branch                            | Điểm cần review                                    | Trạng thái |
-| ----- | ----------------------------------------------------------- | ------------------------------ | --------------------------------- | -------------------------------------------------- | ---------- |
-| 1.1   | Khung web: router, Tailwind + shadcn/ui, layout, API client | [1.1](slices/1.1-web-shell.md) | `phase-1/slice-1-1-web-shell`     | Cấu trúc thư mục web, cách gọi API, xử lý lỗi      | 🎉         |
-| 1.2   | Auth + user/team (seed)                                     | [1.2](slices/1.2-auth.md)      | `phase-1/slice-1-2-auth`          | ADR auth, cookie, guard, seed                      | 🎉         |
-| 1.3   | Contacts (module mẫu) + phân quyền theo dòng                | [1.3](slices/1.3-contacts.md)  | `phase-1/slice-1-3-contacts`      | ADR phân quyền, format lỗi API, mẫu module         | 🎉         |
-| 1.4   | Companies + gắn contact với company                         |                                | `phase-1/slice-1-4-companies`     | ADR tham chiếu chéo module, gọi service theo lô    | ⬜         |
-| 1.5   | Deals + pipeline Kanban                                     |                                | `phase-1/slice-1-5-deals`         | Giai đoạn pipeline, kéo thả, ghép dữ liệu 3 module | ⬜         |
-| 1.6   | Activities + timeline                                       |                                | `phase-1/slice-1-6-activities`    | Timeline đa thực thể                               | ⬜         |
-| 1.7   | Custom fields                                               |                                | `phase-1/slice-1-7-custom-fields` | Cách lưu, validate, hiển thị                       | ⬜         |
-| 1.8   | Seed data Nova Agency + review phase                        |                                | `phase-1/slice-1-8-seed`          | Dữ liệu giống thật, `review.md`                    | ⬜         |
+Slice 1.4 trở đi viết lại ngày 2026-11-09 theo mô hình Odoo 19.0 (spec, Q13–Q23). 1.1–1.3 giữ nguyên.
+
+| Slice | Nội dung                                                    | Yêu cầu          | Tài liệu                       | Branch                              | Điểm cần review                                                | Trạng thái |
+| ----- | ----------------------------------------------------------- | ---------------- | ------------------------------ | ----------------------------------- | -------------------------------------------------------------- | ---------- |
+| 1.1   | Khung web: router, Tailwind + shadcn/ui, layout, API client |                  | [1.1](slices/1.1-web-shell.md) | `phase-1/slice-1-1-web-shell`       | Cấu trúc thư mục web, cách gọi API, xử lý lỗi                  | 🎉         |
+| 1.2   | Auth + user/team (seed)                                     | AUTH-01, AUTH-02 | [1.2](slices/1.2-auth.md)      | `phase-1/slice-1-2-auth`            | ADR auth, cookie, guard, seed                                  | 🎉         |
+| 1.3   | Contacts (module mẫu) + phân quyền theo dòng                |                  | [1.3](slices/1.3-contacts.md)  | `phase-1/slice-1-3-contacts`        | ADR phân quyền, format lỗi API, mẫu module                     | 🎉         |
+| 1.4   | Contacts theo `res.partner`: công ty + người một bảng       | CON-01..04       |                                | `phase-1/slice-1-4-partners`        | Cây công ty → người, bỏ scope theo team                        | ⬜         |
+| 1.5   | Settings: user, quyền theo app, Sales Team                  | SET-01..04       |                                | `phase-1/slice-1-5-settings`        | ADR quyền theo app (thay ADR-0005), `access.ts`, `SessionUser` | ⬜         |
+| 1.6   | Lead / Opportunity + pipeline Kanban                        | CRM-01..10       |                                | `phase-1/slice-1-6-leads`           | ADR tham chiếu chéo module, record rule Own/All, Won/Lost      | ⬜         |
+| 1.7   | Activity + chatter                                          | ACT-01..05       |                                | `phase-1/slice-1-7-activities`      | Bản ghi polymorphic, kiểm quyền qua module sở hữu              | ⬜         |
+| 1.8   | Form website + chia lead tự động                            | CRM-11..14       |                                | `phase-1/slice-1-8-lead-assignment` | Endpoint công khai, rate limit, xoay vòng đồng thời            | ⬜         |
+| 1.9   | Seed data Nova + review phase                               |                  |                                | `phase-1/slice-1-9-seed`            | Dữ liệu giống thật, `review.md`                                | ⬜         |
 
 Trạng thái: ⬜ Chưa bắt đầu · 📝 Đang viết tài liệu · 👀 Chờ review · ✅ Đã duyệt · 🚧 Đang làm · 🎉 Xong
 
 ## Chi tiết từng slice
 
-### 1.1 Khung web
+1.1–1.3: xem slice doc. Phần dưới là slice còn lại; chi tiết chốt trong slice doc qua Q&A.
 
-- **Kết quả:** web có router, layout (sidebar + nội dung), bộ component shadcn/ui, API client dùng chung. Trang trạng thái `/health` của Phase 0 chạy trong khung mới
+### 1.4 Contacts theo `res.partner`
+
+- **Kết quả:** một bảng contact cho công ty và người; người thuộc công ty; mọi nhân viên thấy mọi contact
 - **Việc cần làm:**
-  - [ ] TanStack Router (file-based, plugin Vite), route gốc + layout
-  - [ ] Tailwind 4 + shadcn/ui, theme cơ bản
-  - [ ] API client: gọi `/api/*`, parse lỗi theo một chỗ, chuẩn bị xử lý 401 (chuyển tới login ở 1.2)
-  - [ ] Trang 404, trạng thái loading/lỗi dùng chung
-- **Test:** component test layout + điều hướng, API client với MSW
-- **Demo:** `make up`, mở web thấy layout, điều hướng giữa các trang
+  - [ ] Đổi schema `contacts`: `is_company`, `parent_id`, `salesperson_id`, địa chỉ, MST, ngành, tag; bỏ `owner_id`, `team_id`
+  - [ ] Bỏ `teamScope` khỏi contacts (quyền tạm: mọi user đăng nhập xem, sửa); ghi ADR-0005 bị thay một phần
+  - [ ] API: lọc loại, công ty, tag, salesperson; con của một công ty; archive / restore
+  - [ ] Web: danh sách có cột công ty, form chọn loại + công ty cha (combobox tìm trên server), chi tiết công ty liệt kê người
+- **Test:** e2e CRUD, cây cha-con (không vòng, cha phải là công ty), archive; web test các trang
+- **Demo:** mở Greenleaf Coffee thấy Hana và các người liên hệ khác
 
-### 1.2 Auth + user/team
+### 1.5 Settings: user, quyền theo app, Sales Team
 
-- **Kết quả:** đăng nhập bằng user seed, mọi API (trừ `/health`, login) yêu cầu đăng nhập, web chuyển tới login khi chưa đăng nhập
+- **Kết quả:** quản trị viên quản lý user và mức quyền Sales; Sales Administrator quản lý Sales Team; quyền tính theo app
 - **Việc cần làm:**
-  - [ ] ADR-0004: auth bằng JWT trong cookie httpOnly
-  - [ ] Module `identity` (schema `identity`): user, team, role, mật khẩu argon2
-  - [ ] `POST /auth/login`, `POST /auth/logout`, `GET /auth/me`, đổi mật khẩu
-  - [ ] Guard toàn cục, decorator lấy user hiện tại, route public
-  - [ ] Seed/CLI tạo team và user (`make seed`)
-  - [ ] Web: trang login, giữ phiên, đăng xuất, đổi mật khẩu
-- **Test:** e2e đăng nhập/đăng xuất, gọi API không có cookie → 401, cookie hết hạn/sai chữ ký → 401
-- **Demo:** đăng nhập bằng user seed, thấy tên mình trên header, đăng xuất
+  - [ ] ADR-0006: quyền theo app kiểu Odoo, thay ADR-0005
+  - [ ] Identity: bỏ `role`, `team_id`; thêm `sales_access`, `is_system_admin`, archive user; cập nhật `SessionUser`, JWT, guard
+  - [ ] Sales Team + thành viên (nhiều team, leader, capacity, tạm dừng); chốt module đặt Sales Team
+  - [ ] `access.ts` viết lại theo app (helper kiểm Own/All/Admin)
+  - [ ] Web: khu Settings (Users, Sales Teams), ẩn menu theo quyền
+- **Test:** e2e từng mức quyền, archive user không đăng nhập được, quản trị viên cuối cùng
+- **Demo:** tạo user mới mức Own Documents, thêm vào Sales Team SME, đăng nhập bằng user đó
 
-### 1.3 Contacts (module mẫu)
+### 1.6 Lead / Opportunity + pipeline Kanban
 
-- **Kết quả:** CRUD contact, danh sách lọc/sắp xếp/phân trang, chỉ thấy contact của team mình. Là mẫu cho các module sau
+- **Kết quả:** sales tạo lead/opportunity, convert, kéo stage trên Kanban, Won/Lost/Restore, thấy đúng theo Own/All
 - **Việc cần làm:**
-  - [ ] ADR-0005: mô hình phân quyền owner + team
-  - [ ] Module `contacts` (schema `contacts`) theo convention: controller, service, repository, DTO, validation
-  - [ ] Lọc quyền trong repository, kiểm quyền sửa/xoá
-  - [ ] Format lỗi API + global exception filter (đóng mục backlog), cập nhật CLAUDE.md
-  - [ ] Convention phân trang, lọc, sắp xếp cho mọi danh sách
-  - [ ] Web: danh sách (TanStack Table, filter/sort trên URL), form tạo/sửa, chi tiết
-- **Test:** unit service, e2e CRUD, test phân quyền (team A không thấy team B, member không sửa của người khác)
-- **Demo:** user team A và team B đăng nhập, mỗi người chỉ thấy contact của team mình
+  - [ ] ADR-0007: tham chiếu chéo module bằng id, gọi theo lô, bản ghi đích đã archive
+  - [ ] Module `crm`: lead, stage (seed, theo team), lost reason, tag; `won_status`
+  - [ ] Convert lead (chọn hoặc tạo contact qua public service của contacts)
+  - [ ] Web: danh sách lead, Kanban opportunity (kéo thả, thứ tự), chi tiết, form, hộp Lost
+  - [ ] Chi tiết công ty (contacts) hiện opportunity của nó
+- **Test:** record rule Own/All (404, 403), convert, Won/Lost/Restore, kéo thả, ghép dữ liệu không N+1
+- **Demo:** convert lead của Hana, kéo qua Proposition, đánh Won
 
-### 1.4 Companies
+### 1.7 Activity + chatter
 
-- **Kết quả:** CRUD company, contact gắn với company, danh sách contact hiện tên company, chi tiết company liệt kê contact
+- **Kết quả:** lên lịch activity, đánh xong, note, chatter tự ghi thay đổi trên contact và lead/opportunity
 - **Việc cần làm:**
-  - [ ] ADR-0006: tham chiếu chéo module bằng id, không FK, gọi service theo lô, xử lý bản ghi đã xoá
-  - [ ] Module `companies` theo mẫu Contacts
-  - [ ] `contact.company_id`, public service `getByIds` của companies
-  - [ ] Web: danh sách, chi tiết company, chọn company trong form contact
-- **Test:** như Contacts + ghép dữ liệu không N+1, xoá company đang được tham chiếu
-- **Demo:** mở company thấy các contact thuộc company đó
+  - [ ] Chốt module (`mail` hay tên khác), bản ghi polymorphic `(res_model, res_id)`, kiểm quyền qua module sở hữu
+  - [ ] Activity type (seed), activity, "My activities"
+  - [ ] Message: note, activity done, tracking field từ module `crm` (gọi public service hoặc event nội bộ)
+  - [ ] Web: khung chatter dùng chung, hộp lên lịch activity, trạng thái activity trên Kanban
+- **Test:** quyền theo bản ghi đích, thứ tự chatter, tracking đúng field
+- **Demo:** lên lịch cuộc gọi cho opportunity, đánh xong, thấy trong chatter cùng lịch sử đổi stage
 
-### 1.5 Deals + pipeline Kanban
+### 1.8 Form website + chia lead tự động
 
-- **Kết quả:** deal (hợp đồng one-off hoặc retainer) gắn contact/company, đi qua các giai đoạn pipeline, kéo thả trên Kanban
+- **Kết quả:** khách gửi form → lead → tự vào đúng team và salesperson → opportunity
 - **Việc cần làm:**
-  - [ ] Module `deals`, giai đoạn pipeline (cố định hay cấu hình được: hỏi trong slice doc)
-  - [ ] Đổi giai đoạn, giá trị deal, loại hợp đồng
-  - [ ] Web: Kanban kéo thả, danh sách, chi tiết deal
-- **Test:** như Contacts + đổi giai đoạn, ghép dữ liệu contact/company
-- **Demo:** kéo deal từ "Đề xuất" sang "Thắng", reload vẫn giữ
+  - [ ] Endpoint công khai tạo lead, honeypot, rate limit; trang form demo
+  - [ ] Rule chia lead của team (điều kiện đơn giản), xoay vòng theo capacity, tạm dừng; nút "Assign leads"
+  - [ ] Xử lý đồng thời (khoá hoặc transaction)
+  - [ ] Web: cấu hình rule trong Sales Team, form demo
+- **Test:** rule khớp/không khớp, xoay vòng đều, capacity, tạm dừng, spam
+- **Demo:** gửi form với quy mô 30 cửa hàng → lead vào Key Accounts, gán cho Linh
 
-### 1.6 Activities + timeline
+### 1.9 Seed data Nova + review phase
 
-- **Kết quả:** ghi call, meeting, note gắn với contact/company/deal, timeline hiện trên trang chi tiết của từng thực thể
+- **Kết quả:** `make seed` tạo dữ liệu giống Nova (team, user mọi mức quyền, contact, lead/opportunity ở mọi stage, activity, chatter), `review.md` của Phase 1
 - **Việc cần làm:**
-  - [ ] Module `activities`, gắn với nhiều loại thực thể bằng (type, id)
-  - [ ] Timeline API theo thực thể, phân trang
-  - [ ] Web: form ghi activity, timeline trên các trang chi tiết
-- **Test:** như Contacts + timeline đúng thứ tự, đúng quyền
-- **Demo:** ghi một cuộc gọi cho contact, thấy trên timeline của contact và deal liên quan
-
-### 1.7 Custom fields
-
-- **Kết quả:** admin định nghĩa trường tuỳ biến (text, số, ngày, lựa chọn) cho một số thực thể, nhập và hiển thị được giá trị
-- **Việc cần làm:**
-  - [ ] Cách lưu (JSONB hay bảng riêng), validate theo định nghĩa: hỏi trong slice doc
-  - [ ] Áp cho ít nhất contact và deal
-  - [ ] Web: form và chi tiết hiện trường tuỳ biến
-- **Test:** validate theo kiểu, phân quyền như thực thể gốc
-- **Demo:** thêm trường "Ngân sách hàng tháng" cho deal, nhập và thấy trên chi tiết
-
-### 1.8 Seed data Nova Agency + review phase
-
-- **Kết quả:** `make seed` tạo dữ liệu giống agency thật (team, user, khách hàng, deal, activity), `review.md` của Phase 1
-- **Việc cần làm:**
-  - [ ] Seed có kịch bản: vài team, account manager, client theo ngành, deal retainer/one-off, lịch sử activity
-  - [ ] Xem lại Q8 (số liệu): seed lớn để đo nếu quyết định đo
+  - [ ] Seed theo cơ cấu và câu chuyện trong vision
   - [ ] `review.md`, cập nhật CLAUDE.md, tag `phase-1`
-- **Demo:** `make seed`, đăng nhập bằng các role khác nhau và đi qua toàn bộ luồng
+- **Demo:** `make seed`, đăng nhập lần lượt các mức quyền, đi hết quy trình A
