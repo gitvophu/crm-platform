@@ -27,7 +27,36 @@
 3. **Không thêm scope giữa chừng.** Ý tưởng mới ghi vào `phases/backlog.md`.
 4. **Quyết định kiến trúc → ADR.** Kể cả quyết định "không làm".
    Quyết định nhỏ chỉ ảnh hưởng một slice (tooling, quy ước) ghi ở phần Q&A của slice doc. Câu trả lời trong Q&A không được để lại trong chat.
-5. **Mỗi phase có ít nhất 1 con số** (latency, throughput, memory, thời gian import...).
+
+## Tiêu chí một spec tốt
+
+Áp cho `00-vision.md` (cấp sản phẩm) và `phases/phase-N/spec.md` (cấp phase). Template: `phases/_template/spec.md`.
+
+**Chung**
+
+1. **Đủ để làm mà không phải đoán:** người đọc trả lời được ai, làm gì, khi nào, có được phép không, kết quả ra sao.
+2. **Có mô hình tham khảo:** mỗi khái niệm ghi tương ứng trong Odoo (`crm.lead`, `sale.order`...). Làm khác Odoo thì ghi lý do.
+3. **Đo được:** mỗi tiêu chí hoàn thành kiểm tra được bằng test, demo hoặc con số.
+4. **Có ranh giới:** trong phạm vi và ngoài phạm vi; phần ngoài phạm vi ghi để ở đâu (phase sau, backlog, không làm).
+5. **Thống nhất thuật ngữ:** một khái niệm một tên, có trong bảng thuật ngữ, trùng với chữ trên giao diện.
+6. **Truy vết được:** mỗi yêu cầu có mã (`CRM-03`), slice doc ghi mình làm yêu cầu nào.
+7. **Không lặp:** chi tiết nằm ở một chỗ, chỗ khác dẫn link.
+
+**Vision phải có:** bối cảnh business (Nova làm gì, dịch vụ, gói, cách tính tiền, quy mô, cơ cấu team) · vấn đề cần giải quyết · người dùng và role · quy trình end-to-end · mô hình nghiệp vụ (entity, quan hệ, map Odoo, sơ đồ) · ma trận phân quyền (role × hành động × phạm vi own/team/all) · phạm vi hệ thống theo app và ngoài phạm vi · bảng thuật ngữ · stack và nghiệp vụ mỗi stack phục vụ · mục tiêu học.
+
+**Spec phase phải có:** mục tiêu (dẫn tới phần nào của vision) · quy trình nào được làm, tới bước nào · yêu cầu chức năng có mã · mô hình dữ liệu và trạng thái của phase · phân quyền áp dụng · yêu cầu phi chức năng (khi có) · ngoài phạm vi · tiêu chí hoàn thành · số liệu (khi có) · giả định, phụ thuộc, rủi ro, câu hỏi mở · quyết định đã chốt.
+
+**Cách viết**
+
+- **Yêu cầu chức năng:** mã + user story + quy tắc nghiệp vụ.
+
+  ```markdown
+  - **CRM-03** Là salesperson, tôi chuyển lead thành opportunity để theo dõi trên pipeline.
+    - Chọn hoặc tạo contact; lead đã có contact trùng email thì gợi ý gộp.
+    - Opportunity vào stage đầu của pipeline sales team.
+  ```
+
+- **Quy trình:** bảng bước đánh số (bước · ai · làm gì · trạng thái sau bước) + Mermaid `stateDiagram-v2` cho entity có trạng thái (lead, quotation, subscription, ticket).
 
 ## Dùng Claude Code
 

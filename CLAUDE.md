@@ -5,6 +5,7 @@ CRM platform cho công ty giả định _Nova Agency_ (agency digital marketing)
 ## Đọc trước khi làm
 
 - `docs/00-vision.md`: scope và những gì KHÔNG làm
+- `docs/reference/odoo.md`: mô hình nghiệp vụ tham khảo (Odoo 19.0). Model, field, trạng thái, quyền theo Odoo; làm khác thì ghi lý do trong spec
 - `docs/02-workflow.md`: vòng lặp spec → plan → slice → review
 - `docs/phases/<phase hiện tại>/plan.md`: danh sách slice và trạng thái
 - `docs/phases/<phase hiện tại>/slices/<slice>.md`: spec, Q&A, plan của slice đang làm
@@ -42,7 +43,7 @@ Chốt ở Phase 0, bổ sung ở slice 1.3 (Contacts là module mẫu: module m
   - Auth (ADR-0004): guard toàn cục, mọi route cần đăng nhập trừ `@Public()`. Lấy người gọi bằng `@CurrentUser()` (`SessionUser`: id, role, teamId). Cả hai export từ `modules/identity/index.ts`.
   - Validation input: schema zod trong `@crm/shared` (web dùng lại cho form), api dùng `@Body(new ZodValidationPipe(schema))` (`src/validation/`). Lỗi 400 có `errors` theo field.
   - Controller chỉ lo HTTP: parse input bằng pipe zod, lấy `@CurrentUser()`, gọi service, trả DTO. Service chứa nghiệp vụ và kiểm quyền. Repository nhận `teamScope` ở mọi truy vấn. Mapper `<tên>.mapper.ts` đổi row thành DTO (type DTO, schema input trong `@crm/shared`, ngày giờ là chuỗi ISO).
-  - Phân quyền theo dòng (ADR-0005): bảng nghiệp vụ có `owner_id`, `team_id` (không FK sang identity). Dùng `teamScope`, `canEdit`, `canAssignOwner` của `src/access/access.ts`. Không thấy (team khác, id lạ) → 404, thấy mà không được sửa → 403. DTO có `permissions: { canEdit }`.
+  - Phân quyền theo dòng (ADR-0005, **đang được thay**: từ slice 1.4 contact không giới hạn theo team, slice 1.5 chuyển sang quyền theo app kiểu Odoo, xem spec Phase 1 Q15; module mới làm theo spec, không theo `teamScope`): bảng nghiệp vụ có `owner_id`, `team_id` (không FK sang identity). Dùng `teamScope`, `canEdit`, `canAssignOwner` của `src/access/access.ts`. Không thấy (team khác, id lạ) → 404, thấy mà không được sửa → 403. DTO có `permissions: { canEdit }`.
   - Dữ liệu của module khác: gọi public service theo lô một lần cho cả trang (`UsersService.findByIds`), không N+1, không join chéo schema.
   - Hành động không phải CRUD là `POST /<tên>/:id/<hành động>` (`archive`, `restore`). Xoá mềm bằng `archived_at`.
 - Đặt tên file/class:

@@ -3,6 +3,7 @@
 - **Branch:** `phase-N/slice-N-x-ten`
 - **Trạng thái:** 📝 Đang viết | 👀 Chờ review | ✅ Đã duyệt | 🚧 Đang làm | 🎉 Xong
 - **Liên kết:** [Phase spec](../spec.md) · [Phase plan](../plan.md)
+- **Yêu cầu:** `XXX-01`, `XXX-02` (mã trong spec phase)
 
 > Viết và review file này **trước khi code**. Chỉ implement khi trạng thái là ✅ Đã duyệt.
 
