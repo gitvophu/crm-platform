@@ -34,15 +34,7 @@ export class UsersService {
     return (await this.findByIds([id])).get(id);
   }
 
-  /** Team names found among `ids`, keyed by id. */
-  async findTeamNames(ids: Iterable<string>): Promise<Map<string, string>> {
-    const unique = [...new Set(ids)];
-    if (unique.length === 0) return new Map();
-    const teams = await this.repository.findTeamsByIds(unique);
-    return new Map(teams.map((team) => [team.id, team.name]));
-  }
-
-  async listByTeam(teamId: string): Promise<UserSummary[]> {
-    return (await this.repository.listUsersByTeam(teamId)).map(toSummary);
+  async listAll(): Promise<UserSummary[]> {
+    return (await this.repository.listUsers()).map(toSummary);
   }
 }

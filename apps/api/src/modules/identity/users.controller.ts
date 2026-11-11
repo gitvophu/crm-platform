@@ -1,22 +1,15 @@
-import { userListQuery, type UserListQuery, type UserSummary } from '@crm/shared';
-import { Controller, Get, Query } from '@nestjs/common';
+import type { UserSummary } from '@crm/shared';
+import { Controller, Get } from '@nestjs/common';
 
-import { ZodValidationPipe } from '@/validation/zod-validation.pipe.js';
-import { CurrentUser } from './auth.decorators.js';
-import type { SessionUser } from './auth.types.js';
 import { UsersService } from './users.service.js';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly users: UsersService) {}
 
-  /** Members of the caller's team (owner pickers, filters). Admins may ask for another team. */
+  /** Every user, for salesperson pickers and filters (slice 1.4: no team scope anymore). */
   @Get()
-  list(
-    @CurrentUser() caller: SessionUser,
-    @Query(new ZodValidationPipe(userListQuery)) query: UserListQuery,
-  ): Promise<UserSummary[]> {
-    const teamId = caller.role === 'admin' && query.teamId ? query.teamId : caller.teamId;
-    return this.users.listByTeam(teamId);
+  list(): Promise<UserSummary[]> {
+    return this.users.listAll();
   }
 }

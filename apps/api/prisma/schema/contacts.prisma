@@ -1,33 +1,77 @@
-// Contacts module (slice 1.3). Models here use @@schema("contacts") and must not declare
-// @relation to models of other schemas (ADR-0003): owner and team are ids of identity.
+// Contacts module (slice 1.3, remodelled on Odoo's res.partner in slice 1.4): companies and people
+// in one table, a person points to their company. Models here use @@schema("contacts") and must
+// not declare @relation to models of other schemas (ADR-0003): the salesperson is a user id of
+// identity.
 
-enum ContactStage {
-  lead
-  prospect
-  customer
-  churned
+model Contact {
+  id            String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  isCompany     Boolean   @map("is_company")
+  name          String
+  /** The company of a person; null for a company (companies have no parent, slice 1.4). */
+  parentId      String?   @map("parent_id") @db.Uuid
+  parent        Contact?  @relation("ContactPeople", fields: [parentId], references: [id], onDelete: Restrict)
+  people        Contact[] @relation("ContactPeople")
+  /** Stored lowercase (the input schema lowercases it), so the plain index serves exact lookups. */
+  email         String?
+  phone         String?
+  website       String?
+  jobTitle      String?   @map("job_title")
+  street        String?
+  city          String?
+  /** ISO 3166-1 alpha-2. */
+  countryCode   String?   @map("country_code") @db.Char(2)
+  taxId         String?   @map("tax_id")
+  industryId    String?   @map("industry_id") @db.Uuid
+  industry      Industry? @relation(fields: [industryId], references: [id], onDelete: Restrict)
+  salespersonId String?   @map("salesperson_id") @db.Uuid
+  notes         String?
+  tags          ContactTag[]
+  archivedAt    DateTime? @map("archived_at") @db.Timestamptz
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz
 
-  @@map("contact_stage")
+  @@index([parentId])
+  @@index([email])
+  @@index([salespersonId])
+  @@index([updatedAt])
+  @@map("contacts")
   @@schema("contacts")
 }
 
-model Contact {
-  id         String       @id @default(dbgenerated("uuidv7()")) @db.Uuid
-  teamId     String       @map("team_id") @db.Uuid
-  ownerId    String       @map("owner_id") @db.Uuid
-  firstName  String       @map("first_name")
-  lastName   String?      @map("last_name")
-  email      String?
-  phone      String?
-  jobTitle   String?      @map("job_title")
-  stage      ContactStage @default(lead)
-  notes      String?
-  archivedAt DateTime?    @map("archived_at") @db.Timestamptz
-  createdAt  DateTime     @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt  DateTime     @updatedAt @map("updated_at") @db.Timestamptz
+/** `res.partner.industry` of Odoo: seeded, no screen yet (slice 1.4, Q7). */
+model Industry {
+  id         String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  name       String    @unique
+  archivedAt DateTime? @map("archived_at") @db.Timestamptz
+  contacts   Contact[]
 
-  @@unique([teamId, email], where: raw("archived_at IS NULL AND email IS NOT NULL"))
-  @@index([teamId, updatedAt])
-  @@map("contacts")
+  @@map("industries")
+  @@schema("contacts")
+}
+
+/** `res.partner.category` of Odoo: created from the contact form. */
+model Tag {
+  id        String       @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  name      String
+  /** `name` lowercased: one tag per name, whatever the case. */
+  nameKey   String       @unique @map("name_key")
+  /** Index into the tag palette of the web. */
+  color     Int
+  createdAt DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  contacts  ContactTag[]
+
+  @@map("tags")
+  @@schema("contacts")
+}
+
+model ContactTag {
+  contactId String  @map("contact_id") @db.Uuid
+  contact   Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  tagId     String  @map("tag_id") @db.Uuid
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([contactId, tagId])
+  @@index([tagId])
+  @@map("contact_tags")
   @@schema("contacts")
 }

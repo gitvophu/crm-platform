@@ -1,4 +1,4 @@
-import { type ContactDto, contactName } from '@crm/shared';
+import type { ContactDto } from '@crm/shared';
 
 import {
   AlertDialog,
@@ -24,9 +24,9 @@ export function RestoreDialog({ contact, open, onOpenChange, onConfirm }: Restor
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Restore {contactName(contact)}?</AlertDialogTitle>
+          <AlertDialogTitle>Restore {contact.name}?</AlertDialogTitle>
           <AlertDialogDescription>
-            The contact shows up in the list again, with the same owner and details.
+            The contact shows up in the list again, with the same details.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

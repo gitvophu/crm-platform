@@ -22,13 +22,8 @@ export class IdentityRepository {
     return this.prisma.user.findMany({ where: { id: { in: [...ids] } }, include: withTeam });
   }
 
-  findTeamsByIds(ids: readonly string[]) {
-    return this.prisma.team.findMany({ where: { id: { in: [...ids] } } });
-  }
-
-  listUsersByTeam(teamId: string) {
+  listUsers() {
     return this.prisma.user.findMany({
-      where: { teamId },
       include: withTeam,
       orderBy: [{ name: Prisma.SortOrder.asc }, { id: Prisma.SortOrder.asc }],
     });

@@ -1,4 +1,4 @@
-import { contactName, HTTP_STATUS } from '@crm/shared';
+import { HTTP_STATUS } from '@crm/shared';
 import { createFileRoute, Link, notFound, Outlet } from '@tanstack/react-router';
 
 import { Button } from '@/components/ui/button';
@@ -16,9 +16,8 @@ export const Route = createFileRoute('/_app/contacts/$id')({
         ...contactQueries.detail(params.id),
         staleTime: 'static',
       });
-      return { crumb: contactName(contact) };
+      return { crumb: contact.name };
     } catch (error) {
-      // Unknown id and another team's contact alike (ADR-0005): nothing to tell apart.
       if (error instanceof ApiError && error.status === HTTP_STATUS.notFound) throw notFound();
       throw error;
     }
@@ -32,9 +31,7 @@ function ContactNotFound() {
     <div className="grid justify-items-start gap-2 py-6">
       <span className="font-mono text-[13px] text-muted-foreground">404</span>
       <h1 className="text-2xl font-semibold tracking-tight">Contact not found</h1>
-      <p className="text-muted-foreground">
-        The link may be wrong, or the contact belongs to another team.
-      </p>
+      <p className="text-muted-foreground">The link may be wrong, or the contact was removed.</p>
       <Button asChild size="sm" className="mt-2">
         <Link to="/contacts">Back to contacts</Link>
       </Button>

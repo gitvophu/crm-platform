@@ -1,4 +1,3 @@
-import { contactName } from '@crm/shared';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
@@ -14,7 +13,7 @@ export function useContactActions() {
     meta: { errorTitle: 'Couldn’t archive the contact' },
     onSuccess: async (contact) => {
       toast.success('Contact archived', {
-        description: `${contactName(contact)} is hidden from the list.`,
+        description: `${contact.name} is hidden from the list.`,
       });
       await refresh();
     },
@@ -25,7 +24,7 @@ export function useContactActions() {
     meta: { errorTitle: 'Couldn’t restore the contact' },
     onSuccess: async (contact) => {
       toast.success('Contact restored', {
-        description: `${contactName(contact)} is back in the list.`,
+        description: `${contact.name} is back in the list.`,
       });
       await refresh();
     },

@@ -3,18 +3,19 @@ import { queryOptions } from '@tanstack/react-query';
 
 import { api } from '@/lib/api';
 
+/** Users change rarely (seed only until slice 1.5). */
+const USERS_STALE_MS = 5 * 60_000;
+
 export const usersApi = {
-  /** Members of the caller's team; an admin may ask for another team. */
-  listTeam: (teamId?: string) =>
-    api<UserSummary[]>(teamId ? `/users?teamId=${encodeURIComponent(teamId)}` : '/users'),
+  /** Every user: salesperson pickers and filters (slice 1.4). */
+  list: () => api<UserSummary[]>('/users'),
 };
 
 export const userQueries = {
-  team: (teamId?: string) =>
+  all: () =>
     queryOptions({
-      queryKey: ['users', 'team', teamId ?? 'mine'],
-      queryFn: () => usersApi.listTeam(teamId),
-      // Team members change rarely (seed only for now).
-      staleTime: 5 * 60_000,
+      queryKey: ['users', 'all'],
+      queryFn: usersApi.list,
+      staleTime: USERS_STALE_MS,
     }),
 };

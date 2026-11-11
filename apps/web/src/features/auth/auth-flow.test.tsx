@@ -41,15 +41,15 @@ describe('sign in', () => {
         return HttpResponse.json<AuthUser>(testUser);
       }),
     );
-    const { router, user } = await renderApp('/deals');
+    const { router, user } = await renderApp('/pipeline');
 
     expect(await screen.findByRole('heading', { name: 'Sign in' })).toBeVisible();
-    expect(router.state.location.search).toEqual({ redirect: '/deals' });
+    expect(router.state.location.search).toEqual({ redirect: '/pipeline' });
 
     await fillLogin(user, ' Manager@Nova.test ', 'nova-dev-password');
 
-    expect(await screen.findByRole('heading', { name: 'Deals is coming soon' })).toBeVisible();
-    expect(router.state.location.pathname).toBe('/deals');
+    expect(await screen.findByRole('heading', { name: 'Pipeline is coming soon' })).toBeVisible();
+    expect(router.state.location.pathname).toBe('/pipeline');
     expect(sent).toEqual({ email: 'manager@nova.test', password: 'nova-dev-password' });
   });
 
