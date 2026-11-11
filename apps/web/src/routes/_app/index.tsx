@@ -19,7 +19,7 @@ function Dashboard() {
           <CardHeader>
             <CardTitle>Getting started</CardTitle>
             <CardDescription>
-              Contacts, companies and deals will show up here as they are added to Nova CRM.
+              Contacts, leads and opportunities will show up here as they are added to Nova CRM.
             </CardDescription>
           </CardHeader>
         </Card>

@@ -1,6 +1,5 @@
 import {
   type ContactDto,
-  contactName,
   type ContactSort,
   type ContactSortField,
   parseSort,
@@ -23,7 +22,7 @@ import {
 import { timeAgo } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { ContactAvatar } from '@/features/contacts/ContactAvatar';
-import { StageBadge } from '@/features/contacts/StageBadge';
+import { ContactTags } from '@/features/contacts/ContactTags';
 
 // Sorting, paging and filtering happen in the API; the table only lays the page out.
 const features = tableFeatures({});
@@ -38,7 +37,6 @@ interface Sortable {
 /** Columns (by table column id) the API sorts by. */
 const SORTABLE: Partial<Record<string, Sortable>> = {
   name: { field: 'name', firstDescending: false },
-  stage: { field: 'stage', firstDescending: false },
   updatedAt: { field: 'updatedAt', firstDescending: true },
 };
 
@@ -49,14 +47,44 @@ function nextSort(current: ContactSort, { field, firstDescending }: Sortable): C
 }
 
 /**
- * Columns hidden on narrow screens (by column id), so a phone shows name and stage without
+ * Columns hidden on narrow screens (by column id), so a phone shows name and company without
  * scrolling sideways. The name cell already shows the email.
  */
 const RESPONSIVE: Partial<Record<string, string>> = {
-  jobTitle: 'hidden lg:table-cell',
-  owner: 'hidden sm:table-cell',
+  phone: 'hidden lg:table-cell',
+  salesperson: 'hidden sm:table-cell',
+  tags: 'hidden md:table-cell',
   updatedAt: 'hidden md:table-cell',
 };
+
+const peopleLabel = (count: number) => `${count} ${count === 1 ? 'person' : 'people'}`;
+
+/**
+ * A person: their company, a link that narrows the list to it (`?companyId=`). A company: how
+ * many people it has (slice 1.4, Q5).
+ */
+function CompanyCell({ contact }: { contact: ContactDto }) {
+  if (contact.type === 'company') {
+    return <span className="text-muted-foreground">{peopleLabel(contact.peopleCount ?? 0)}</span>;
+  }
+  if (!contact.company) return <span className="text-muted-foreground">—</span>;
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <Link
+        to="/contacts"
+        search={{ companyId: contact.company.id }}
+        className="text-primary hover:underline"
+      >
+        {contact.company.name}
+      </Link>
+      {contact.company.archived && (
+        <span className="rounded-full border border-dashed px-1.5 text-xs text-muted-foreground">
+          Archived
+        </span>
+      )}
+    </span>
+  );
+}
 
 /** A click on a link or a button of the row does its own thing, not open the contact. */
 const isControl = (target: EventTarget) =>
@@ -66,7 +94,7 @@ interface ContactsTableProps {
   contacts: ContactDto[];
   sort: ContactSort;
   onSort: (sort: ContactSort) => void;
-  /** Archived view: a Restore button on the rows the caller may edit. */
+  /** Archived view: a Restore button on every row. */
   onRestore?: (contact: ContactDto) => void;
 }
 
@@ -88,7 +116,7 @@ export function ContactsTable({ contacts, sort, onSort, onRestore }: ContactsTab
                   params={{ id: row.original.id }}
                   className="truncate font-medium hover:underline"
                 >
-                  {contactName(row.original)}
+                  {row.original.name}
                 </Link>
                 <span className="truncate text-xs text-muted-foreground">
                   {row.original.email ?? '—'}
@@ -97,15 +125,26 @@ export function ContactsTable({ contacts, sort, onSort, onRestore }: ContactsTab
             </div>
           ),
         }),
-        column.accessor('stage', {
-          header: 'Stage',
-          cell: ({ getValue }) => <StageBadge stage={getValue()} />,
+        column.display({
+          id: 'company',
+          header: 'Company',
+          cell: ({ row }) => <CompanyCell contact={row.original} />,
         }),
-        column.accessor('jobTitle', {
-          header: 'Job title',
-          cell: ({ getValue }) => getValue() ?? '—',
+        column.accessor('phone', {
+          header: 'Phone',
+          cell: ({ getValue }) => (
+            <span className="text-muted-foreground tabular-nums">{getValue() ?? '—'}</span>
+          ),
         }),
-        column.accessor((contact) => contact.owner.name, { id: 'owner', header: 'Owner' }),
+        column.accessor((contact) => contact.salesperson?.name ?? '—', {
+          id: 'salesperson',
+          header: 'Salesperson',
+        }),
+        column.display({
+          id: 'tags',
+          header: 'Tags',
+          cell: ({ row }) => <ContactTags tags={row.original.tags} />,
+        }),
         column.accessor('updatedAt', {
           header: 'Updated',
           cell: ({ getValue }) => (
@@ -117,12 +156,11 @@ export function ContactsTable({ contacts, sort, onSort, onRestore }: ContactsTab
               column.display({
                 id: 'restore',
                 header: () => <span className="sr-only">Actions</span>,
-                cell: ({ row }) =>
-                  row.original.permissions.canEdit && (
-                    <Button variant="outline" size="sm" onClick={() => onRestore(row.original)}>
-                      Restore
-                    </Button>
-                  ),
+                cell: ({ row }) => (
+                  <Button variant="outline" size="sm" onClick={() => onRestore(row.original)}>
+                    Restore
+                  </Button>
+                ),
               }),
             ]
           : []),

@@ -85,6 +85,27 @@
   --sidebar-accent-foreground: oklch(0.21 0.006 285.9);
   --sidebar-border: oklch(0.92 0.004 286.3);
   --sidebar-ring: oklch(0.7 0.08 192);
+  /* Tag palette (slice 1.4): `color` of a tag is an index, 0-9. */
+  --tag-0: oklch(0.95 0.035 250);
+  --tag-0-foreground: oklch(0.45 0.11 250);
+  --tag-1: oklch(0.95 0.035 150);
+  --tag-1-foreground: oklch(0.45 0.11 150);
+  --tag-2: oklch(0.95 0.035 60);
+  --tag-2-foreground: oklch(0.45 0.11 60);
+  --tag-3: oklch(0.95 0.035 320);
+  --tag-3-foreground: oklch(0.45 0.11 320);
+  --tag-4: oklch(0.95 0.035 192);
+  --tag-4-foreground: oklch(0.45 0.11 192);
+  --tag-5: oklch(0.95 0.035 25);
+  --tag-5-foreground: oklch(0.45 0.11 25);
+  --tag-6: oklch(0.95 0.035 285);
+  --tag-6-foreground: oklch(0.45 0.11 285);
+  --tag-7: oklch(0.95 0.035 120);
+  --tag-7-foreground: oklch(0.45 0.11 120);
+  --tag-8: oklch(0.95 0.035 350);
+  --tag-8-foreground: oklch(0.45 0.11 350);
+  --tag-9: oklch(0.95 0.035 220);
+  --tag-9-foreground: oklch(0.45 0.11 220);
 }
 
 @layer base {

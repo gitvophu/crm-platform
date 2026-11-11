@@ -1,4 +1,4 @@
-import { type ContactDto, contactName } from '@crm/shared';
+import type { ContactDto } from '@crm/shared';
 
 import {
   AlertDialog,
@@ -24,10 +24,12 @@ export function ArchiveDialog({ contact, open, onOpenChange, onConfirm }: Archiv
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Archive {contactName(contact)}?</AlertDialogTitle>
+          <AlertDialogTitle>Archive {contact.name}?</AlertDialogTitle>
           <AlertDialogDescription>
-            The contact is hidden from lists. Deals and activities keep showing the name. You can
-            restore it from <span className="font-medium text-foreground">Archived</span>.
+            {contact.type === 'company'
+              ? `The company is hidden from lists and can’t be picked for new people. Its ${contact.peopleCount ?? 0} ${contact.peopleCount === 1 ? 'person stays' : 'people stay'} linked and active.`
+              : 'The contact is hidden from lists. Records that point to it keep showing the name.'}{' '}
+            You can restore it from <span className="font-medium text-foreground">Archived</span>.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

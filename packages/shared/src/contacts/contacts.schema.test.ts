@@ -1,40 +1,50 @@
 import { describe, expect, it } from 'vitest';
 
-import { contactListQuery, createContactInput, updateContactInput } from './contacts.schema.js';
+import {
+  contactListQuery,
+  createContactInput,
+  createContactTagInput,
+  updateContactInput,
+} from './contacts.schema.js';
 
 describe('createContactInput', () => {
-  it('trims, lowercases the email, turns empty text into null and defaults the stage', () => {
+  it('trims, lowercases the email, turns empty text into null and fills the defaults', () => {
     expect(
       createContactInput.parse({
-        firstName: ' Hana ',
-        lastName: '',
+        type: 'person',
+        name: ' Hana Vo ',
+        jobTitle: '',
         email: ' Hana@GreenLeaf.VN ',
         phone: '  ',
       }),
     ).toEqual({
-      firstName: 'Hana',
-      lastName: null,
+      type: 'person',
+      name: 'Hana Vo',
+      jobTitle: null,
       email: 'hana@greenleaf.vn',
       phone: null,
-      stage: 'lead',
+      countryCode: 'VN',
+      tagIds: [],
     });
   });
 
-  it('reports a missing first name and a bad email', () => {
-    const result = createContactInput.safeParse({ firstName: ' ', email: 'hana@' });
+  it('reports a missing type and name, a bad email and an unknown country', () => {
+    const result = createContactInput.safeParse({ name: ' ', email: 'hana@', countryCode: 'XX' });
 
     expect(result.error?.issues.map((issue) => [issue.path[0], issue.message])).toEqual([
-      ['firstName', 'Enter a first name.'],
+      ['type', 'Choose company or person.'],
+      ['name', 'Enter a name.'],
       ['email', 'Enter a valid email.'],
+      ['countryCode', 'Choose a country.'],
     ]);
   });
 });
 
 describe('updateContactInput', () => {
   it('keeps unsent fields out and null for cleared ones', () => {
-    expect(updateContactInput.parse({ email: '', stage: 'customer' })).toEqual({
+    expect(updateContactInput.parse({ email: '', companyId: null })).toEqual({
       email: null,
-      stage: 'customer',
+      companyId: null,
     });
   });
 });
@@ -49,23 +59,34 @@ describe('contactListQuery', () => {
       contactListQuery.parse({
         page: '2',
         pageSize: '50',
-        stage: 'lead,customer',
+        type: 'company',
         archived: 'true',
-        owner: 'me',
+        salesperson: 'me',
+        email: ' Hana@GreenLeaf.VN',
         sort: 'name',
       }),
     ).toMatchObject({
       page: 2,
       pageSize: 50,
-      stage: ['lead', 'customer'],
+      type: 'company',
       archived: true,
-      owner: 'me',
+      salesperson: 'me',
+      email: 'hana@greenleaf.vn',
       sort: 'name',
     });
+    expect(contactListQuery.parse({ archived: 'all' }).archived).toBe('all');
   });
 
-  it('rejects an unknown sort column and a page size over 100', () => {
-    expect(contactListQuery.safeParse({ sort: 'password' }).success).toBe(false);
+  it('rejects an unknown sort column, type and a page size over 100', () => {
+    expect(contactListQuery.safeParse({ sort: 'stage' }).success).toBe(false);
+    expect(contactListQuery.safeParse({ type: 'robot' }).success).toBe(false);
     expect(contactListQuery.safeParse({ pageSize: '500' }).success).toBe(false);
+  });
+});
+
+describe('createContactTagInput', () => {
+  it('trims the name and refuses an empty one', () => {
+    expect(createContactTagInput.parse({ name: ' VIP ' })).toEqual({ name: 'VIP' });
+    expect(createContactTagInput.safeParse({ name: ' ' }).success).toBe(false);
   });
 });

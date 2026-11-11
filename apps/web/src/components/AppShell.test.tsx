@@ -17,19 +17,19 @@ describe('app shell', () => {
   it('navigates from the sidebar without a page load', async () => {
     const { router, user } = await renderApp('/');
 
-    await user.click(navLink('Deals'));
+    await user.click(navLink('Pipeline'));
 
-    expect(await screen.findByRole('heading', { name: 'Deals is coming soon' })).toBeVisible();
-    expect(router.state.location.pathname).toBe('/deals');
-    expect(navLink('Deals')).toHaveAttribute('aria-current', 'page');
-    expect(within(screen.getByRole('banner')).getByText('Deals')).toBeVisible();
+    expect(await screen.findByRole('heading', { name: 'Pipeline is coming soon' })).toBeVisible();
+    expect(router.state.location.pathname).toBe('/pipeline');
+    expect(navLink('Pipeline')).toHaveAttribute('aria-current', 'page');
+    expect(within(screen.getByRole('banner')).getByText('Pipeline')).toBeVisible();
   });
 
   it('marks modules that are not built yet', async () => {
     await renderApp('/');
 
     expect(navLink('Contacts').closest('li')).not.toHaveTextContent('Soon');
-    for (const name of ['Companies', 'Deals', 'Activities']) {
+    for (const name of ['Pipeline', 'Activities']) {
       const item = navLink(name).closest('li');
       expect(item).toHaveTextContent('Soon');
     }

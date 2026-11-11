@@ -1,0 +1,1620 @@
+<meta charset="utf-8" />
+<title>Nova CRM Partners</title>
+<meta name="claude:viewport-fit-sides" content="cover" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap"
+/>
+<style>
+  /* Mockup slice 1.4 (Contacts as res.partner): companies + people in one list, company detail with people, synced fields. Base styles copied from 1.3. */
+  :root {
+    color-scheme: light;
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.141 0.005 285.8);
+    --muted: oklch(0.967 0.001 286.4);
+    --muted-foreground: oklch(0.552 0.016 285.9);
+    --border: oklch(0.92 0.004 286.3);
+    --primary: oklch(0.5 0.09 192);
+    --primary-hover: oklch(0.45 0.09 192);
+    --primary-foreground: oklch(0.985 0 0);
+    --primary-soft: oklch(0.95 0.03 192);
+    --ring: oklch(0.7 0.08 192);
+    --sidebar: oklch(0.985 0.001 286.4);
+    --sidebar-accent: oklch(0.94 0.004 286.3);
+    --success: oklch(0.6 0.15 150);
+    --warning: oklch(0.72 0.15 75);
+    --destructive: oklch(0.577 0.245 27.3);
+    --destructive-soft: oklch(0.97 0.02 27);
+    --overlay: oklch(0.2 0.01 286 / 0.35);
+    --review-bg: oklch(0.27 0.01 286);
+    --review-fg: oklch(0.96 0 0);
+    --radius: 0.625rem;
+    --font-sans: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-mono: 'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  }
+  * {
+    box-sizing: border-box;
+  }
+  html,
+  body {
+    height: 100%;
+  }
+  body {
+    margin: 0;
+    background: oklch(0.93 0.004 286.3);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    display: flex;
+    flex-direction: column;
+  }
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  /* ---------- review bar ---------- */
+  .review {
+    background: var(--review-bg);
+    color: var(--review-fg);
+    padding-block: 10px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 20px;
+    align-items: center;
+    font-size: 12px;
+  }
+  .review strong {
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-size: 11px;
+    opacity: 0.8;
+  }
+  .review-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+  .review-group[hidden] {
+    display: none;
+  }
+  .review-group > span {
+    opacity: 0.7;
+  }
+  .chip {
+    border: 1px solid oklch(0.45 0.01 286);
+    background: transparent;
+    color: var(--review-fg);
+    border-radius: 999px;
+    padding: 2px 10px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  .chip[aria-pressed='true'] {
+    background: var(--review-fg);
+    color: var(--review-bg);
+    border-color: var(--review-fg);
+  }
+  .notes {
+    flex-basis: 100%;
+    margin: 0;
+    opacity: 0.85;
+    min-width: 0;
+  }
+
+  /* ---------- shell ---------- */
+  .frame {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    background: var(--background);
+    position: relative;
+    overflow: hidden;
+  }
+  .sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    background: var(--sidebar);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 12px;
+    height: 56px;
+  }
+  .logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--primary);
+    color: var(--primary-foreground);
+    display: grid;
+    place-items: center;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .brand-text {
+    display: grid;
+    line-height: 1.2;
+  }
+  .brand-text b {
+    font-weight: 600;
+  }
+  .brand-text small {
+    color: var(--muted-foreground);
+    font-size: 12px;
+  }
+  .nav {
+    padding: 8px;
+    display: grid;
+    gap: 2px;
+  }
+  .nav-label {
+    font-size: 11px;
+    color: var(--muted-foreground);
+    padding: 8px 8px 4px;
+  }
+  .nav span {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 8px;
+    border-radius: calc(var(--radius) - 4px);
+    height: 32px;
+  }
+  .nav span.active {
+    background: var(--sidebar-accent);
+    font-weight: 500;
+  }
+  .nav .soon {
+    margin-left: auto;
+    font-size: 10px;
+    color: var(--muted-foreground);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0 6px;
+    height: auto;
+  }
+  .sidebar-foot {
+    margin-top: auto;
+    padding: 12px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--muted-foreground);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .header {
+    height: 56px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 16px;
+  }
+  .crumbs {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    color: var(--muted-foreground);
+    min-width: 0;
+  }
+  .crumbs a {
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .crumbs a:hover {
+    color: var(--foreground);
+  }
+  .crumbs b {
+    color: var(--foreground);
+    font-weight: 500;
+  }
+  .user {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--primary-soft);
+    color: var(--primary);
+    display: grid;
+    place-items: center;
+    font-size: 11px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .avatar.lg {
+    width: 48px;
+    height: 48px;
+    font-size: 16px;
+  }
+  .content {
+    flex: 1;
+    overflow: auto;
+    padding: 24px;
+  }
+  .page {
+    max-width: 1080px;
+    display: grid;
+    gap: 16px;
+  }
+  .page-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  h1 {
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin: 0;
+    text-wrap: balance;
+  }
+  .lede {
+    color: var(--muted-foreground);
+    margin: 4px 0 0;
+  }
+
+  /* ---------- controls ---------- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 34px;
+    padding: 0 12px;
+    border-radius: calc(var(--radius) - 2px);
+    border: 1px solid var(--border);
+    background: var(--background);
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+  .btn:hover {
+    background: var(--muted);
+  }
+  .btn-primary {
+    background: var(--primary);
+    color: var(--primary-foreground);
+    border-color: var(--primary);
+  }
+  .btn-primary:hover {
+    background: var(--primary-hover);
+  }
+  .btn-danger {
+    background: var(--destructive);
+    color: var(--primary-foreground);
+    border-color: var(--destructive);
+  }
+  .btn-ghost {
+    border-color: transparent;
+    background: transparent;
+  }
+  .btn-sm {
+    height: 28px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+  .input,
+  .select,
+  textarea {
+    height: 34px;
+    border: 1px solid var(--border);
+    border-radius: calc(var(--radius) - 2px);
+    padding: 0 10px;
+    background: var(--background);
+    width: 100%;
+    min-width: 0;
+  }
+  textarea {
+    height: 72px;
+    padding: 8px 10px;
+    resize: vertical;
+  }
+  .field {
+    display: grid;
+    gap: 6px;
+  }
+  .field label {
+    font-weight: 500;
+  }
+  .field .hint {
+    font-size: 12px;
+    color: var(--muted-foreground);
+  }
+  .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+  }
+
+  /* ---------- list ---------- */
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+  .toolbar .search {
+    position: relative;
+    flex: 1 1 240px;
+    max-width: 320px;
+  }
+  .toolbar .search svg {
+    position: absolute;
+    left: 10px;
+    top: 9px;
+    color: var(--muted-foreground);
+  }
+  .toolbar .search .input {
+    padding-left: 32px;
+  }
+  .toolbar .select {
+    width: auto;
+  }
+  .toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 34px;
+    padding: 0 10px;
+    border: 1px dashed var(--border);
+    border-radius: calc(var(--radius) - 2px);
+    cursor: pointer;
+    color: var(--muted-foreground);
+    background: var(--background);
+  }
+  .toggle[aria-pressed='true'] {
+    border-style: solid;
+    color: var(--foreground);
+    background: var(--muted);
+  }
+  .table-wrap {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow-x: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 720px;
+  }
+  th {
+    text-align: left;
+    font-weight: 500;
+    color: var(--muted-foreground);
+    font-size: 12px;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+    background: var(--sidebar);
+  }
+  th .sort {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+  }
+  th .sort.active {
+    color: var(--foreground);
+  }
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  tbody tr:last-child td {
+    border-bottom: 0;
+  }
+  tbody tr {
+    cursor: pointer;
+  }
+  tbody tr:hover {
+    background: var(--muted);
+  }
+  tbody tr.archived {
+    color: var(--muted-foreground);
+  }
+  .who {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+  .who b {
+    font-weight: 500;
+  }
+  .who small {
+    display: block;
+    color: var(--muted-foreground);
+    font-size: 12px;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 999px;
+    padding: 1px 9px;
+    border: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .stage-lead .dot {
+    background: oklch(0.65 0.12 250);
+  }
+  .stage-prospect .dot {
+    background: var(--warning);
+  }
+  .stage-customer .dot {
+    background: var(--success);
+  }
+  .stage-churned .dot {
+    background: var(--muted-foreground);
+  }
+  .tag-archived {
+    color: var(--muted-foreground);
+    border-style: dashed;
+  }
+  .num {
+    font-variant-numeric: tabular-nums;
+    color: var(--muted-foreground);
+    white-space: nowrap;
+  }
+  .pager {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    color: var(--muted-foreground);
+    font-size: 13px;
+  }
+  .pager .btns {
+    display: flex;
+    gap: 6px;
+  }
+
+  /* ---------- detail ---------- */
+  .detail-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(240px, 1fr);
+    gap: 16px;
+    align-items: start;
+  }
+  .card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--background);
+    padding: 20px;
+    display: grid;
+    gap: 12px;
+  }
+  .card h2 {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0;
+  }
+  .card .sub {
+    margin: 0;
+    color: var(--muted-foreground);
+  }
+  dl.props {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr);
+    gap: 8px 16px;
+    margin: 0;
+  }
+  dl.props dt {
+    color: var(--muted-foreground);
+  }
+  dl.props dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+  .placeholder {
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    color: var(--muted-foreground);
+    display: grid;
+    gap: 4px;
+  }
+  .placeholder b {
+    color: var(--foreground);
+    font-weight: 500;
+  }
+  .banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 10px 14px;
+    border-radius: var(--radius);
+    background: var(--muted);
+    border: 1px dashed var(--border);
+  }
+
+  /* ---------- overlays ---------- */
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: var(--overlay);
+    z-index: 20;
+  }
+  .dialog h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .dialog {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: min(560px, calc(100% - 32px));
+    max-height: calc(100% - 48px);
+    overflow: auto;
+    background: var(--background);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    z-index: 21;
+    padding: 20px;
+    display: grid;
+    gap: 14px;
+    box-shadow: 0 16px 40px oklch(0.2 0.01 286 / 0.2);
+  }
+  .dialog.sm {
+    width: min(420px, calc(100% - 32px));
+  }
+  .dialog .actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  .form-page {
+    max-width: 640px;
+  }
+  .form-page .card {
+    display: grid;
+    gap: 14px;
+  }
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  .toast {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    width: min(360px, calc(100% - 32px));
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow:
+      0 8px 24px oklch(0.2 0.01 286 / 0.12),
+      0 1px 3px oklch(0.2 0.01 286 / 0.08);
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 30;
+  }
+  .toast .grow {
+    flex: 1;
+    display: grid;
+  }
+  .toast b {
+    font-weight: 600;
+  }
+  .toast span {
+    color: var(--muted-foreground);
+    font-size: 13px;
+  }
+  @media (max-width: 760px) {
+    .sidebar {
+      display: none;
+    }
+    .content {
+      padding: 16px;
+    }
+    .detail-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .hide-sm {
+      display: none;
+    }
+  }
+</style>
+<style>
+  .err {
+    font-size: 12px;
+    color: var(--destructive);
+  }
+  .input.invalid,
+  .select.invalid {
+    border-color: var(--destructive);
+  }
+  .skeleton {
+    background: linear-gradient(90deg, var(--muted), oklch(0.985 0 0), var(--muted));
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+    border-radius: 6px;
+    height: 12px;
+  }
+  @keyframes shimmer {
+    to {
+      background-position: -200% 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .skeleton {
+      animation: none;
+    }
+  }
+  .error-state {
+    border: 1px solid oklch(0.88 0.06 27);
+    background: var(--destructive-soft);
+    border-radius: var(--radius);
+    padding: 16px;
+    display: grid;
+    gap: 6px;
+  }
+  .error-state b {
+    font-weight: 600;
+  }
+  .error-state .reqid {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--muted-foreground);
+  }
+  .empty {
+    display: grid;
+    justify-items: center;
+    text-align: center;
+    gap: 8px;
+    padding: 48px 24px;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    color: var(--muted-foreground);
+  }
+  .empty b {
+    color: var(--foreground);
+    font-size: 15px;
+  }
+  .btn[disabled] {
+    opacity: 0.55;
+    cursor: default;
+  }
+  .form-alert {
+    border: 1px solid oklch(0.88 0.06 27);
+    background: var(--destructive-soft);
+    border-radius: calc(var(--radius) - 2px);
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+  .spinner {
+    width: 13px;
+    height: 13px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* ---------- slice 1.4 additions ---------- */
+  .avatar.co {
+    border-radius: 6px;
+    background: var(--muted);
+    color: var(--muted-foreground);
+  }
+  .segmented {
+    display: inline-flex;
+    border: 1px solid var(--border);
+    border-radius: calc(var(--radius) - 2px);
+    padding: 2px;
+    background: var(--muted);
+    height: 34px;
+  }
+  .segmented button {
+    border: 0;
+    background: transparent;
+    padding: 0 10px;
+    border-radius: calc(var(--radius) - 4px);
+    cursor: pointer;
+    color: var(--muted-foreground);
+  }
+  .segmented button[aria-pressed='true'] {
+    background: var(--background);
+    color: var(--foreground);
+    box-shadow: 0 1px 2px oklch(0 0 0 / 0.08);
+  }
+  .filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 28px;
+    padding: 0 6px 0 10px;
+    border-radius: 999px;
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-size: 13px;
+  }
+  .filter-chip button {
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    padding: 2px;
+  }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .tg {
+    font-size: 12px;
+    border-radius: 999px;
+    padding: 0 8px;
+    line-height: 20px;
+    white-space: nowrap;
+  }
+  .tg-0 {
+    background: oklch(0.95 0.03 250);
+    color: oklch(0.45 0.12 250);
+  }
+  .tg-1 {
+    background: oklch(0.95 0.04 150);
+    color: oklch(0.42 0.1 150);
+  }
+  .tg-2 {
+    background: oklch(0.96 0.05 75);
+    color: oklch(0.48 0.11 60);
+  }
+  .tg-3 {
+    background: oklch(0.95 0.03 320);
+    color: oklch(0.45 0.12 320);
+  }
+  .link {
+    color: var(--primary);
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .link:hover {
+    text-decoration: underline;
+  }
+  .muted {
+    color: var(--muted-foreground);
+  }
+  .field .warn {
+    font-size: 12px;
+    color: oklch(0.48 0.11 60);
+    background: oklch(0.97 0.04 85);
+    border: 1px solid oklch(0.9 0.08 85);
+    border-radius: calc(var(--radius) - 4px);
+    padding: 6px 8px;
+  }
+  .input[readonly],
+  .select[disabled].ro {
+    background: var(--muted);
+    color: var(--muted-foreground);
+  }
+  .radio-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .radio-card {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    border: 1px solid var(--border);
+    border-radius: calc(var(--radius) - 2px);
+    padding: 10px 12px;
+    cursor: pointer;
+  }
+  .radio-card[aria-checked='true'] {
+    border-color: var(--primary);
+    background: var(--primary-soft);
+  }
+  .radio-card[aria-disabled='true'] {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  .radio-card small {
+    display: block;
+    color: var(--muted-foreground);
+    font-size: 12px;
+  }
+  .combo {
+    position: relative;
+  }
+  .combo-box {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+    min-height: 34px;
+    border: 1px solid var(--border);
+    border-radius: calc(var(--radius) - 2px);
+    padding: 3px 8px;
+    background: var(--background);
+  }
+  .combo-box.open {
+    outline: 2px solid var(--ring);
+    outline-offset: 1px;
+  }
+  .combo-box input {
+    border: 0;
+    outline: 0;
+    flex: 1;
+    min-width: 80px;
+    height: 26px;
+    background: transparent;
+  }
+  .combo-list {
+    position: absolute;
+    z-index: 5;
+    left: 0;
+    right: 0;
+    top: calc(100% + 4px);
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: calc(var(--radius) - 2px);
+    box-shadow: 0 8px 24px oklch(0 0 0 / 0.12);
+    padding: 4px;
+    display: grid;
+  }
+  .combo-list .opt {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .combo-list .opt.active {
+    background: var(--muted);
+  }
+  .combo-list .opt small {
+    color: var(--muted-foreground);
+    margin-left: auto;
+  }
+  .combo-list .group {
+    font-size: 11px;
+    color: var(--muted-foreground);
+    padding: 6px 8px 2px;
+  }
+  .section-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted-foreground);
+    margin-top: 6px;
+  }
+  .card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+  .card-head h2 {
+    margin: 0;
+  }
+  .card table {
+    min-width: 520px;
+  }
+</style>
+
+<div class="review" role="region" aria-label="Review controls">
+  <strong>Mockup · slice 1.4</strong>
+  <div class="review-group">
+    <span>Screen</span>
+    <button class="chip" data-screen="list" aria-pressed="true">List</button>
+    <button class="chip" data-screen="company" aria-pressed="false">Company</button>
+    <button class="chip" data-screen="person" aria-pressed="false">Person</button>
+    <button class="chip" data-screen="person-archived-co" aria-pressed="false">
+      Person, archived company
+    </button>
+    <button class="chip" data-screen="new-company" aria-pressed="false">New company</button>
+    <button class="chip" data-screen="new-person" aria-pressed="false">New person</button>
+    <button class="chip" data-screen="pick-company" aria-pressed="false">Pick company</button>
+    <button class="chip" data-screen="edit-company" aria-pressed="false">
+      Edit company with people
+    </button>
+    <button class="chip" data-screen="archive" aria-pressed="false">Archive company</button>
+    <button class="chip" data-screen="archived" aria-pressed="false">Archived list</button>
+    <button class="chip" data-screen="missing" aria-pressed="false">Not found</button>
+  </div>
+  <div class="review-group" id="filter-states">
+    <span>Filter</span>
+    <button class="chip" data-type="all" aria-pressed="true">All</button>
+    <button class="chip" data-type="company" aria-pressed="false">Companies</button>
+    <button class="chip" data-type="person" aria-pressed="false">People</button>
+    <button class="chip" data-type="by-company" aria-pressed="false">By company</button>
+  </div>
+  <div class="review-group" id="data-states">
+    <span>Data</span>
+    <button class="chip" data-data="loaded" aria-pressed="true">Loaded</button>
+    <button class="chip" data-data="loading" aria-pressed="false">Loading</button>
+    <button class="chip" data-data="empty" aria-pressed="false">Empty</button>
+    <button class="chip" data-data="no-results" aria-pressed="false">No results</button>
+    <button class="chip" data-data="error" aria-pressed="false">Load error</button>
+  </div>
+  <div class="review-group" id="form-states">
+    <span>Form</span>
+    <button class="chip" data-form="default" aria-pressed="true">Default</button>
+    <button class="chip" data-form="validation" aria-pressed="false">Validation</button>
+    <button class="chip" data-form="duplicate" aria-pressed="false">Duplicate email</button>
+    <button class="chip" data-form="tag" aria-pressed="false">Create tag</button>
+    <button class="chip" data-form="saving" aria-pressed="false">Saving</button>
+  </div>
+  <p class="notes" id="notes"></p>
+</div>
+
+<div class="frame" id="frame"></div>
+
+<script>
+  const ICON = {
+    search:
+      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
+    plus: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
+    sort: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 15 5 5 5-5M7 9l5-5 5 5"/></svg>',
+    down: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>',
+    x: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+    archive:
+      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="4" rx="1"/><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8M10 12h4"/></svg>',
+    edit: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+    building:
+      '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M12 6h.01M12 10h.01M12 14h.01M16 10h.01M16 14h.01M8 10h.01M8 14h.01"/></svg>',
+    user: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>',
+    users:
+      '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg>',
+    lock: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
+  };
+
+  const TAGS = { VIP: 0, Retainer: 1, Referral: 2, Influencer: 3 };
+  const companies = {
+    greenleaf: {
+      id: 'greenleaf',
+      company: true,
+      name: 'Greenleaf Coffee',
+      email: 'hello@greenleafcoffee.vn',
+      phone: '+84 28 3822 1100',
+      website: 'greenleafcoffee.vn',
+      street: '12 Nguyen Hue, District 1',
+      city: 'Ho Chi Minh City',
+      country: 'Vietnam',
+      tax: '0312345678',
+      industry: 'F&B',
+      sp: 'Linh Tran',
+      tags: ['VIP', 'Retainer'],
+      people: 3,
+      updated: '2 hours ago',
+      notes: '30 stores in HCMC and Hanoi. Performance Ads + Social retainer.',
+    },
+    saigonbikes: {
+      id: 'saigonbikes',
+      company: true,
+      name: 'Saigon Bikes',
+      email: 'contact@saigonbikes.com',
+      phone: '+84 28 3930 4455',
+      website: 'saigonbikes.com',
+      street: '88 Le Loi, District 1',
+      city: 'Ho Chi Minh City',
+      country: 'Vietnam',
+      tax: '0315550182',
+      industry: 'Retail',
+      sp: 'Duc Pham',
+      tags: [],
+      people: 1,
+      updated: 'yesterday',
+      notes: '',
+    },
+    techhub: {
+      id: 'techhub',
+      company: true,
+      name: 'TechHub',
+      email: 'hi@techhub.io',
+      phone: '',
+      website: 'techhub.io',
+      street: '2 Hai Trieu, District 1',
+      city: 'Ho Chi Minh City',
+      country: 'Vietnam',
+      tax: '0318887714',
+      industry: 'Technology',
+      sp: 'Mai Nguyen',
+      tags: ['Referral'],
+      people: 2,
+      updated: 'last week',
+      notes: '',
+    },
+    lotus: {
+      id: 'lotus',
+      company: true,
+      name: 'Lotus Spa',
+      email: '',
+      phone: '+84 24 3936 2200',
+      website: '',
+      street: '15 Hang Bai',
+      city: 'Hanoi',
+      country: 'Vietnam',
+      tax: '',
+      industry: 'Beauty & Wellness',
+      sp: '',
+      tags: [],
+      people: 1,
+      updated: '3 days ago',
+      notes: '',
+    },
+    oldcafe: {
+      id: 'oldcafe',
+      company: true,
+      name: 'Old Cafe',
+      email: 'hi@oldcafe.vn',
+      phone: '',
+      website: '',
+      street: '5 Pasteur, District 3',
+      city: 'Ho Chi Minh City',
+      country: 'Vietnam',
+      tax: '0310000001',
+      industry: 'F&B',
+      sp: 'Linh Tran',
+      tags: [],
+      people: 1,
+      updated: '2 months ago',
+      notes: 'Closed in September.',
+      archived: true,
+    },
+  };
+  const person = (o) => {
+    const co = o.co ? companies[o.co] : null;
+    return {
+      company: false,
+      website: '',
+      notes: '',
+      tags: [],
+      ...o,
+      coObj: co,
+      street: co ? co.street : (o.street ?? ''),
+      city: co ? co.city : (o.city ?? ''),
+      country: co ? co.country : 'Vietnam',
+      tax: co ? co.tax : '',
+      industry: co ? co.industry : (o.industry ?? ''),
+    };
+  };
+  const people = [
+    person({
+      id: 'hana',
+      name: 'Hana Vo',
+      co: 'greenleaf',
+      title: 'Marketing Director',
+      email: 'hana@greenleafcoffee.vn',
+      phone: '+84 90 123 4567',
+      sp: 'Linh Tran',
+      tags: ['VIP'],
+      updated: '2 hours ago',
+      notes: 'Prefers calls on Tuesday.',
+    }),
+    person({
+      id: 'bao',
+      name: 'Bao Tran',
+      co: 'greenleaf',
+      title: 'CEO',
+      email: 'bao@greenleafcoffee.vn',
+      phone: '',
+      sp: 'Linh Tran',
+      updated: '4 days ago',
+    }),
+    person({
+      id: 'maiphan',
+      name: 'Mai Phan',
+      co: 'greenleaf',
+      title: 'Store Operations Manager',
+      email: 'mai.phan@greenleafcoffee.vn',
+      phone: '+84 93 202 1188',
+      sp: 'Linh Tran',
+      updated: 'last week',
+    }),
+    person({
+      id: 'minh',
+      name: 'Minh Nguyen',
+      co: 'saigonbikes',
+      title: 'Founder',
+      email: 'minh.nguyen@saigonbikes.com',
+      phone: '+84 91 555 0182',
+      sp: 'Duc Pham',
+      updated: 'yesterday',
+    }),
+    person({
+      id: 'quang',
+      name: 'Quang Do',
+      co: 'techhub',
+      title: 'Head of Growth',
+      email: 'quang.do@techhub.io',
+      phone: '+84 98 220 7714',
+      sp: 'Mai Nguyen',
+      updated: 'last week',
+    }),
+    person({
+      id: 'thao',
+      name: 'Thao Le',
+      co: 'lotus',
+      title: 'Owner',
+      email: 'thao@lotusspa.vn',
+      phone: '',
+      sp: '',
+      updated: '3 days ago',
+    }),
+    person({
+      id: 'ngocanh',
+      name: 'Ngoc Anh',
+      title: 'Food creator',
+      email: 'ngocanh.eats@gmail.com',
+      phone: '+84 97 300 1188',
+      sp: 'An Le',
+      tags: ['Influencer'],
+      street: '',
+      city: 'Da Nang',
+      industry: '',
+      updated: '2 weeks ago',
+    }),
+  ];
+  const vy = person({
+    id: 'vy',
+    name: 'Vy Dang',
+    co: 'oldcafe',
+    title: 'Owner',
+    email: 'vy.dang@oldcafe.vn',
+    phone: '+84 90 555 1212',
+    sp: 'Linh Tran',
+    updated: '2 months ago',
+  });
+  const ME = 'An Le';
+
+  const state = { screen: 'list', type: 'all', data: 'loaded', form: 'default' };
+
+  const notes = {
+    list: 'One list for companies and people (Q5). All / Companies / People is ?type=; the Company column shows the company of a person (click → ?companyId=) or the number of people of a company. Search covers name, email, phone. An Le (team Brand) sees contacts of every team: no team scope anymore (spec Q15).',
+    company:
+      'Company page: details + People with "Add person" (→ /contacts/new?companyId=greenleaf). Opportunities (slice 1.6) and chatter (1.7) are added later, no placeholder (Q8).',
+    person:
+      'Person page: company in the subtitle (link). Address, tax ID and industry come from the company (Q6), marked "From Greenleaf Coffee".',
+    'person-archived-co':
+      'A person whose company was archived keeps the link; the company shows an Archived badge.',
+    'new-company':
+      'New contact, type Company. Tax ID and industry are for companies (and people without a company). Tags: type a new name to create it.',
+    'new-person':
+      'New contact, type Person, company picked: address, tax ID and industry are read-only and copied from the company when saving (Q6, like Odoo). Salesperson left empty → takes the company’s.',
+    'pick-company':
+      'Company field: combobox that searches on the server (GET /contacts?type=company&q=). Only active companies are offered.',
+    'edit-company':
+      'Editing a company that still has people: the type cannot change to Person (API: 409 contact.company_has_people). Saving the address rewrites it on its 3 people.',
+    archive:
+      'Archive a company: its people stay linked and active; the company is hidden from lists and from the company picker.',
+    archived:
+      'Toolbar toggle "Archived": archived contacts only, with Restore. Everyone can restore.',
+    missing: 'Unknown id → 404.',
+  };
+
+  const tag = (t) => `<span class="tg tg-${TAGS[t] ?? 0}">${t}</span>`;
+  const tagsHtml = (list) =>
+    list.length
+      ? `<span class="tags">${list.map(tag).join('')}</span>`
+      : '<span class="muted">—</span>';
+  const initials = (n) =>
+    n
+      .split(' ')
+      .map((p) => p[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase();
+  const avatar = (c, lg) =>
+    c.company
+      ? `<span class="avatar co${lg ? ' lg' : ''}">${ICON.building}</span>`
+      : `<span class="avatar${lg ? ' lg' : ''}">${initials(c.name)}</span>`;
+  const archivedBadge = '<span class="badge tag-archived">Archived</span>';
+  const coLink = (co) =>
+    co
+      ? `<span class="link">${co.name}</span>${co.archived ? ' ' + archivedBadge : ''}`
+      : '<span class="muted">—</span>';
+
+  function shell(crumbs, content) {
+    const items = ['Contacts', 'Pipeline', 'Activities']
+      .map((n) =>
+        n === 'Contacts'
+          ? `<span class="active">${n}</span>`
+          : `<span>${n}<span class="soon">Soon</span></span>`,
+      )
+      .join('');
+    return `<aside class="sidebar"><div class="brand"><div class="logo" aria-hidden="true">N</div>
+        <div class="brand-text"><b>Nova CRM</b><small>Nova Agency</small></div></div>
+        <nav class="nav"><span>Dashboard</span><div class="nav-label">CRM</div>${items}</nav>
+        <div class="sidebar-foot"><span class="dot" style="background:var(--success)"></span>All systems operational</div></aside>
+      <div class="main"><header class="header"><div class="crumbs">${crumbs}</div>
+        <div class="user"><span class="avatar">${initials(ME)}</span><span class="hide-sm">${ME}</span>${ICON.down}</div></header>
+        <main class="content">${content}</main></div>`;
+  }
+
+  function rows(list, archivedRows) {
+    return list
+      .map((c) => {
+        const coCell = c.company
+          ? `<span class="muted">${c.people} ${c.people === 1 ? 'person' : 'people'}</span>`
+          : coLink(c.coObj);
+        return `<tr class="${archivedRows ? 'archived' : ''}">
+          <td><div class="who">${avatar(c)}<div><b>${c.name}</b><small>${c.email || '—'}</small></div></div></td>
+          <td>${coCell}</td><td class="num">${c.phone || '—'}</td><td>${c.sp || '<span class="muted">—</span>'}</td>
+          <td>${tagsHtml(c.tags)}</td><td class="num">${c.updated}</td>
+          ${archivedRows ? '<td><button class="btn btn-sm">Restore</button></td>' : ''}</tr>`;
+      })
+      .join('');
+  }
+
+  function listView(showArchived) {
+    const t = showArchived ? 'all' : state.type;
+    const seg = ['all', 'company', 'person']
+      .map(
+        (k) =>
+          `<button aria-pressed="${t === k || (t === 'by-company' && k === 'person')}">${{ all: 'All', company: 'Companies', person: 'People' }[k]}</button>`,
+      )
+      .join('');
+    const toolbar = `<div class="toolbar">
+        <div class="segmented" role="group" aria-label="Type">${seg}</div>
+        <div class="search">${ICON.search}<input class="input" placeholder="Search name, email, phone" aria-label="Search contacts" value="${state.data === 'no-results' ? 'zzz' : ''}" /></div>
+        <select class="select" aria-label="Salesperson"><option>All salespeople</option><option>Me</option><option>Duc Pham</option><option>Linh Tran</option><option>Mai Nguyen</option></select>
+        <select class="select" aria-label="Tag"><option>All tags</option>${Object.keys(TAGS)
+          .map((x) => `<option>${x}</option>`)
+          .join('')}</select>
+        <button class="toggle" aria-pressed="${showArchived}">${ICON.archive}Archived</button>
+      </div>
+      ${t === 'by-company' ? `<div><span class="filter-chip">${ICON.building}Company: Greenleaf Coffee<button aria-label="Remove company filter">${ICON.x}</button></span></div>` : ''}`;
+    const head = `<thead><tr><th><span class="sort">Name ${ICON.sort}</span></th><th>Company</th><th>Phone</th><th>Salesperson</th><th>Tags</th>
+        <th><span class="sort active">Updated ${ICON.down}</span></th>${showArchived ? '<th></th>' : ''}</tr></thead>`;
+    const ordered = [
+      companies.greenleaf,
+      people[0],
+      companies.saigonbikes,
+      people[3],
+      companies.lotus,
+      people[5],
+      people[1],
+      people[2],
+      companies.techhub,
+      people[4],
+      people[6],
+    ];
+    let list = ordered;
+    if (t === 'company') list = ordered.filter((c) => c.company);
+    if (t === 'person') list = ordered.filter((c) => !c.company);
+    if (t === 'by-company') list = people.filter((p) => p.co === 'greenleaf');
+    if (showArchived) list = [companies.oldcafe];
+    const total = { all: 46, company: 14, person: 32, 'by-company': 3 }[t];
+    const data = showArchived ? 'loaded' : state.data;
+    let body;
+    if (data === 'loading') {
+      const row =
+        '<tr><td><div class="who"><span class="avatar"></span><div style="display:grid;gap:6px;width:160px"><div class="skeleton" style="width:70%"></div><div class="skeleton" style="width:90%"></div></div></div></td><td><div class="skeleton" style="width:110px"></div></td><td><div class="skeleton" style="width:90px"></div></td><td><div class="skeleton" style="width:80px"></div></td><td><div class="skeleton" style="width:60px"></div></td><td><div class="skeleton" style="width:70px"></div></td></tr>';
+      body = `<div class="table-wrap" aria-busy="true"><table>${head}<tbody>${row.repeat(6)}</tbody></table></div>`;
+    } else if (data === 'error') {
+      body = `<div class="error-state" role="alert"><b>Couldn’t load contacts</b><span>The server answered with an error (500). Try again in a moment.</span>
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><button class="btn btn-sm">Try again</button><span class="reqid">Request ID 01a1c3e2-77b0-7c11-9a4e-3f1b2d9e6c10</span></div></div>`;
+    } else if (data === 'empty') {
+      body = `<div class="empty"><span class="avatar lg" style="background:var(--primary-soft)">${ICON.users}</span><b>No contacts yet</b>
+        <span>Add your client companies and the people you work with there.</span><button class="btn btn-primary">${ICON.plus}New contact</button></div>`;
+    } else if (data === 'no-results') {
+      body = `<div class="empty"><b>No contacts match</b><span>Nothing for “zzz” with these filters.</span><button class="btn">Clear filters</button></div>`;
+    } else {
+      body = `<div class="table-wrap"><table>${head}<tbody>${rows(list, showArchived)}</tbody></table></div>
+        <div class="pager"><span>${showArchived ? '1–1 of 1 archived contact' : `1–${list.length} of ${total} contacts`}</span>
+          <div class="btns"><button class="btn btn-sm" disabled>Previous</button><button class="btn btn-sm" ${showArchived || t === 'by-company' ? 'disabled' : ''}>Next</button></div></div>`;
+    }
+    return `<div class="page">
+      <div class="page-head"><div><h1>Contacts</h1><p class="lede">Client companies and the people who work there.</p></div>
+        <button class="btn btn-primary">${ICON.plus}New contact</button></div>
+      ${toolbar}${body}</div>`;
+  }
+
+  function addressLines(c) {
+    const parts = [c.street, c.city, c.country].filter(Boolean);
+    return parts.length ? parts.join('<br>') : '—';
+  }
+
+  function detailView(c) {
+    const archivedBanner = c.archived
+      ? `<div class="banner"><span>This contact is archived and hidden from lists.</span><button class="btn btn-sm">Restore</button></div>`
+      : '';
+    const from =
+      !c.company && c.coObj
+        ? `<small class="muted" style="display:block;font-size:12px">From ${c.coObj.name}</small>`
+        : '';
+    const subtitle = c.company
+      ? `${ICON.building} Company${c.industry ? ' · ' + c.industry : ''}`
+      : `${c.title || 'Person'}${c.coObj ? ` at ${coLink(c.coObj)}` : ''}`;
+    const props = `<dl class="props">
+        <dt>Email</dt><dd>${c.email ? `<span class="link">${c.email}</span>` : '—'}</dd>
+        <dt>Phone</dt><dd>${c.phone || '—'}</dd>
+        <dt>Website</dt><dd>${c.website ? `<span class="link">${c.website}</span>` : '—'}</dd>
+        <dt>Address</dt><dd>${addressLines(c)}${from}</dd>
+        <dt>Tax ID</dt><dd>${c.tax || '—'}${c.tax ? from : ''}</dd>
+        <dt>Industry</dt><dd>${c.industry || '—'}${c.industry ? from : ''}</dd>
+        <dt>Tags</dt><dd>${tagsHtml(c.tags)}</dd>
+        <dt>Notes</dt><dd>${c.notes || '—'}</dd></dl>`;
+    const peopleCard = c.company
+      ? `<section class="card"><div class="card-head"><h2>People <span class="muted" style="font-weight:400">${c.people}</span></h2>
+          <button class="btn btn-sm">${ICON.plus}Add person</button></div>
+          <div class="table-wrap" style="margin-top:12px"><table><thead><tr><th>Name</th><th>Job title</th><th>Email</th><th>Phone</th></tr></thead><tbody>
+          ${people
+            .filter((p) => p.co === c.id)
+            .map(
+              (p) =>
+                `<tr><td><div class="who">${avatar(p)}<b>${p.name}</b></div></td><td>${p.title}</td><td>${p.email || '—'}</td><td class="num">${p.phone || '—'}</td></tr>`,
+            )
+            .join('')}
+          </tbody></table></div><div style="margin-top:8px"><span class="link" style="font-size:13px">Show archived people</span></div></section>`
+      : '';
+    return `<div class="page">${archivedBanner}
+      <div class="page-head">
+        <div class="who">${avatar(c, true)}<div><h1>${c.name}</h1><p class="lede" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">${subtitle}</p></div></div>
+        <div style="display:flex;gap:8px"><button class="btn">${ICON.edit}Edit</button>${c.archived ? '' : `<button class="btn">${ICON.archive}Archive</button>`}</div>
+      </div>
+      <div class="detail-grid">
+        <div style="display:grid;gap:16px"><section class="card"><h2>Details</h2>${props}</section>${peopleCard}</div>
+        <section class="card" style="align-self:start"><h2>Sales</h2>
+          <dl class="props"><dt>Salesperson</dt><dd>${c.sp || '—'}</dd><dt>Created</dt><dd>12 Oct 2026</dd><dt>Updated</dt><dd>${c.updated}</dd></dl>
+        </section>
+      </div></div>`;
+  }
+
+  const saving = () => (state.form === 'saving' ? 'disabled' : '');
+  function field(
+    id,
+    label,
+    value,
+    { error, hint, warn, readonly, type = 'input', options, lock } = {},
+  ) {
+    const cls = error ? ' invalid' : '';
+    const ro = readonly ? 'readonly' : '';
+    let control;
+    if (type === 'select')
+      control = `<select id="${id}" class="select${cls}${readonly ? ' ro' : ''}" ${readonly ? 'disabled' : ''} ${saving()}>${options.map((o) => `<option ${o === value ? 'selected' : ''}>${o}</option>`).join('')}</select>`;
+    else if (type === 'textarea') control = `<textarea id="${id}" ${saving()}>${value}</textarea>`;
+    else
+      control = `<input id="${id}" class="input${cls}" value="${value}" ${ro} ${error ? 'aria-invalid="true"' : ''} ${saving()} />`;
+    const note = error
+      ? `<span class="err">${error}</span>`
+      : warn
+        ? `<span class="warn" role="status">${warn}</span>`
+        : hint
+          ? `<span class="hint">${hint}</span>`
+          : '';
+    return `<div class="field"><label for="${id}">${label}${lock ? ` <span class="muted">${ICON.lock}</span>` : ''}</label>${control}${note}</div>`;
+  }
+
+  function typeCards(isCompany, lockType) {
+    return `<div class="radio-cards" role="radiogroup" aria-label="Type">
+      <div class="radio-card" role="radio" aria-checked="${isCompany}" ${lockType && !isCompany ? 'aria-disabled="true"' : ''}>${ICON.building}<div><b>Company</b><small>A business you work with</small></div></div>
+      <div class="radio-card" role="radio" aria-checked="${!isCompany}" ${lockType ? 'aria-disabled="true"' : ''}>${ICON.user}<div><b>Person</b><small>Someone at a company, or an individual</small></div></div>
+    </div>${lockType ? '<span class="hint" style="font-size:12px;color:var(--muted-foreground)">Greenleaf Coffee has 3 people. Move them to another company before changing it to a person.</span>' : ''}`;
+  }
+
+  function companyCombo(selected, open) {
+    const box = selected
+      ? `<div class="combo-box">${ICON.building}<input value="Greenleaf Coffee" aria-label="Company" /><button class="btn-ghost" style="border:0;background:none;cursor:pointer" aria-label="Clear company">${ICON.x}</button></div>`
+      : `<div class="combo-box${open ? ' open' : ''}">${ICON.search}<input value="${open ? 'gre' : ''}" placeholder="Search companies" aria-label="Company" aria-expanded="${open}" /></div>`;
+    const list = open
+      ? `<div class="combo-list" role="listbox">
+          <div class="opt active" role="option">${ICON.building}Greenleaf Coffee<small>F&B · 3 people</small></div>
+          <div class="opt" role="option">${ICON.building}Green Garden Hotel<small>Hospitality · 1 person</small></div>
+          <div class="opt" role="option">${ICON.building}Greystone Realty<small>Real Estate · 0 people</small></div></div>`
+      : '';
+    return `<div class="field"><label>Company</label><div class="combo">${box}${list}</div>
+      ${open ? '' : `<span class="hint">${selected ? 'Address, tax ID and industry come from the company.' : 'Optional. Leave empty for an individual.'}</span>`}</div>`;
+  }
+
+  function tagCombo(values, creating) {
+    const chips = values
+      .map(
+        (t) =>
+          `<span class="tg tg-${TAGS[t] ?? 0}" style="display:inline-flex;align-items:center;gap:2px">${t}${ICON.x}</span>`,
+      )
+      .join('');
+    const list = creating
+      ? `<div class="combo-list" role="listbox"><div class="opt" role="option">${tag('Retainer')}</div>
+          <div class="opt active" role="option">${ICON.plus}Create “Retail chain”</div></div>`
+      : '';
+    return `<div class="field"><label>Tags</label><div class="combo"><div class="combo-box${creating ? ' open' : ''}">${chips}<input value="${creating ? 'Ret' : ''}" placeholder="${values.length ? '' : 'Add tags'}" aria-label="Tags" /></div>${list}</div></div>`;
+  }
+
+  function formPage(kind) {
+    // kind: new-company | new-person | pick-company | edit-company
+    const f = state.form;
+    const isCompany = kind === 'new-company' || kind === 'edit-company';
+    const edit = kind === 'edit-company';
+    const co = companies.greenleaf;
+    const withCo = kind === 'new-person';
+    const v = (x) => (f === 'validation' ? '' : x);
+    const nameVal = edit
+      ? co.name
+      : f === 'validation'
+        ? ''
+        : isCompany
+          ? 'Greenleaf Coffee'
+          : 'Lan Pham';
+    const nameErr = f === 'validation' ? 'Enter a name.' : '';
+    const emailVal =
+      f === 'validation'
+        ? 'lan@'
+        : f === 'duplicate'
+          ? 'hana@greenleafcoffee.vn'
+          : edit
+            ? co.email
+            : isCompany
+              ? ''
+              : 'lan.pham@greenleafcoffee.vn';
+    const emailErr = f === 'validation' ? 'Enter a valid email.' : '';
+    const emailWarn =
+      f === 'duplicate'
+        ? 'Already used by <span class="link">Hana Vo</span> (Greenleaf Coffee). You can still save.'
+        : '';
+    const sync = withCo;
+    const syncHint = sync ? 'From Greenleaf Coffee' : '';
+    const addr =
+      sync || edit ? co : { street: '', city: '', country: 'Vietnam', tax: '', industry: '' };
+    const busy = saving();
+    const saveLabel =
+      f === 'saving'
+        ? '<span class="spinner" aria-hidden="true"></span>Saving…'
+        : edit
+          ? 'Save changes'
+          : 'Create contact';
+    const personFields = isCompany
+      ? ''
+      : `${companyCombo(withCo, kind === 'pick-company')}${field('f-title', 'Job title', v('Brand Manager'))}`;
+    const title = edit ? `Edit ${co.name}` : 'New contact';
+    const lede = edit
+      ? 'Changes to the address, tax ID and industry are copied to its 3 people.'
+      : 'Visible to everyone at Nova.';
+    return `<div class="page form-page">
+      <div><h1>${title}</h1><p class="lede">${lede}</p></div>
+      <form class="card" onsubmit="return false">
+        ${f === 'validation' ? '<div class="form-alert" role="alert">Couldn’t save the contact. Check the fields below.</div>' : ''}
+        ${typeCards(isCompany, edit)}
+        ${field('f-name', isCompany ? 'Company name' : 'Name', nameVal, { error: nameErr })}
+        ${personFields}
+        <div class="grid-2">${field('f-email', 'Email', emailVal, { error: emailErr, warn: emailWarn })}${field('f-phone', 'Phone', v(edit ? co.phone : ''))}</div>
+        ${field('f-web', 'Website', v(edit ? co.website : ''), { hint: 'Optional.' })}
+        <div class="section-label">Address</div>
+        ${field('f-street', 'Street', addr.street, { readonly: sync, lock: sync, hint: syncHint })}
+        <div class="grid-2">${field('f-city', 'City', addr.city, { readonly: sync, lock: sync })}${field('f-country', 'Country', addr.country, { type: 'select', options: ['Vietnam', 'Singapore', 'Thailand', 'United States'], readonly: sync, lock: sync })}</div>
+        <div class="grid-2">${field('f-tax', 'Tax ID', addr.tax, { readonly: sync, lock: sync, hint: sync ? syncHint : 'MST. Optional.' })}${field('f-ind', 'Industry', addr.industry || '—', { type: 'select', options: ['—', 'F&B', 'Retail', 'Education', 'Real Estate', 'Technology', 'Beauty & Wellness', 'Hospitality', 'Other'], readonly: sync, lock: sync })}</div>
+        <div class="section-label">Sales</div>
+        <div class="grid-2">${tagCombo(edit ? ['VIP', 'Retainer'] : f === 'tag' ? ['VIP'] : [], f === 'tag')}${field('f-sp', 'Salesperson', edit ? 'Linh Tran' : '—', { type: 'select', options: ['—', 'An Le', 'Duc Pham', 'Linh Tran', 'Mai Nguyen'], hint: withCo ? 'Empty: uses the company’s salesperson (Linh Tran).' : 'Optional.' })}</div>
+        ${field('f-notes', 'Notes', edit ? co.notes : '', { type: 'textarea' })}
+        <div class="form-actions"><button class="btn" type="button" ${busy}>Cancel</button><button class="btn btn-primary" ${busy}>${saveLabel}</button></div>
+      </form></div>`;
+  }
+
+  function archiveDialog(c) {
+    return `<div class="overlay"></div><div class="dialog sm" role="alertdialog" aria-label="Archive contact">
+      <h2>Archive ${c.name}?</h2>
+      <p style="margin:0;color:var(--muted-foreground)">The company is hidden from lists and can’t be picked for new people. Its ${c.people} people stay linked and active. You can restore it from <b style="color:var(--foreground)">Archived</b>.</p>
+      <div class="actions"><button class="btn">Cancel</button><button class="btn btn-danger">Archive</button></div></div>`;
+  }
+
+  function missingView() {
+    return `<div class="page"><div class="empty" style="justify-items:start;text-align:left;border:0;padding:24px 0">
+      <span style="font-family:var(--font-mono)">404</span><b style="font-size:22px">Contact not found</b>
+      <span>The link may be wrong, or the contact was removed.</span><button class="btn btn-primary">Back to contacts</button></div></div>`;
+  }
+
+  function render() {
+    const s = state.screen;
+    const listCrumb = '<span>Nova CRM</span><span aria-hidden="true">/</span><b>Contacts</b>';
+    const crumb = (...parts) =>
+      '<a>Contacts</a>' +
+      parts
+        .map(
+          (p, i) =>
+            `<span aria-hidden="true">/</span>${i === parts.length - 1 ? `<b>${p}</b>` : `<a>${p}</a>`}`,
+        )
+        .join('');
+    let html;
+    if (s === 'list') html = shell(listCrumb, listView(false));
+    else if (s === 'archived') html = shell(listCrumb, listView(true));
+    else if (s === 'company')
+      html = shell(crumb('Greenleaf Coffee'), detailView(companies.greenleaf));
+    else if (s === 'person') html = shell(crumb('Hana Vo'), detailView(people[0]));
+    else if (s === 'person-archived-co') html = shell(crumb('Vy Dang'), detailView(vy));
+    else if (s === 'new-company' || s === 'new-person' || s === 'pick-company')
+      html = shell(crumb('New contact'), formPage(s));
+    else if (s === 'edit-company') html = shell(crumb('Greenleaf Coffee', 'Edit'), formPage(s));
+    else if (s === 'archive')
+      html =
+        shell(crumb('Greenleaf Coffee'), detailView(companies.greenleaf)) +
+        archiveDialog(companies.greenleaf);
+    else if (s === 'missing') html = shell(crumb('Not found'), missingView());
+    document.getElementById('frame').innerHTML = html;
+
+    document.getElementById('filter-states').hidden = s !== 'list';
+    document.getElementById('data-states').hidden = s !== 'list';
+    document.getElementById('form-states').hidden = ![
+      'new-company',
+      'new-person',
+      'pick-company',
+      'edit-company',
+    ].includes(s);
+    for (const key of ['screen', 'type', 'data', 'form'])
+      document
+        .querySelectorAll(`[data-${key}]`)
+        .forEach((b) => b.setAttribute('aria-pressed', String(b.dataset[key] === state[key])));
+    let n = notes[s];
+    if (s === 'list' && state.type === 'by-company')
+      n =
+        'Filtered by company (?companyId=greenleaf), reached by clicking a company name in the Company column. The chip removes the filter.';
+    document.getElementById('notes').textContent = n;
+  }
+
+  document.querySelector('.review').addEventListener('click', (e) => {
+    const b = e.target.closest('button.chip');
+    if (!b) return;
+    for (const key of ['screen', 'type', 'data', 'form'])
+      if (b.dataset[key]) state[key] = b.dataset[key];
+    if (b.dataset.screen) {
+      state.data = 'loaded';
+      state.form = 'default';
+    }
+    render();
+  });
+  render();
+</script>

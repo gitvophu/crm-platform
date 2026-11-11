@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router';
 
 import { ComingSoon } from '@/components/ComingSoon';
 
-// Placeholder until slice 1.6.
+// Placeholder until slice 1.7 (activities and chatter).
 export const Route = createFileRoute('/_app/activities')({
   staticData: { title: 'Activities' },
   component: () => (
@@ -11,7 +11,7 @@ export const Route = createFileRoute('/_app/activities')({
       what="calls, meetings and notes with clients"
       features={[
         'Log a call, meeting or note',
-        'Timeline on contacts, companies and deals',
+        'Timeline on contacts, leads and opportunities',
         'Who did what, and when',
       ]}
     />

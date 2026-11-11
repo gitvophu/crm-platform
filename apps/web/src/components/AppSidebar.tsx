@@ -1,7 +1,7 @@
 import type { LinkProps } from '@tanstack/react-router';
 import { Link, useMatchRoute } from '@tanstack/react-router';
 import type { LucideIcon } from 'lucide-react';
-import { Building2, CalendarClock, Handshake, LayoutDashboard, Users } from 'lucide-react';
+import { CalendarClock, Handshake, LayoutDashboard, Users } from 'lucide-react';
 
 import {
   Sidebar,
@@ -29,8 +29,7 @@ interface NavItem {
 
 const crmItems: NavItem[] = [
   { to: '/contacts', label: 'Contacts', icon: Users },
-  { to: '/companies', label: 'Companies', icon: Building2, soon: true },
-  { to: '/deals', label: 'Deals', icon: Handshake, soon: true },
+  { to: '/pipeline', label: 'Pipeline', icon: Handshake, soon: true },
   { to: '/activities', label: 'Activities', icon: CalendarClock, soon: true },
 ];
 

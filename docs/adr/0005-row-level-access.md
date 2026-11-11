@@ -1,6 +1,6 @@
 # ADR-0005: Phân quyền theo dòng bằng owner + team
 
-- **Trạng thái:** Đã chấp nhận
+- **Trạng thái:** Bị thay. Slice 1.4 (2026-11-10) bỏ scope theo team ở Contacts và xoá `src/access/`; ADR-0006 (slice 1.5) thay bằng quyền theo app kiểu Odoo (spec Phase 1, Q15)
 - **Ngày:** 2026-11-05
 - **Phase:** 1
 
